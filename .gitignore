@@ -1,0 +1,93 @@
+# ==========================================
+# Python Bytecode and Build Artifacts
+# ==========================================
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyc
+*.pyd
+*.pyo
+*.so
+*.egg-info/
+*.egg
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.manifest
+*.spec
+
+# ==========================================
+# Python Virtual Environments
+# ==========================================
+.venv/
+venv/
+ENV/
+env/
+env.bak/
+venv.bak/
+
+# Pipenv
+Pipfile.lock
+
+# Poetry
+poetry.lock
+
+# ==========================================
+# JetBrains IDE (PyCharm, IntelliJ, etc.)
+# ==========================================
+.idea/
+*.iml
+
+# ==========================================
+# Jupyter Notebook Checkpoints
+# ==========================================
+.ipynb_checkpoints
+
+# ==========================================
+# OS and Editor Junk
+# ==========================================
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# ==========================================
+# Logs
+# ==========================================
+*.log
+
+# ==========================================
+# Environment Variable Files
+# ==========================================
+.env
+.env.*
+
+# ==========================================
+# Test and Coverage Reports
+# ==========================================
+htmlcov/
+.tox/
+.nox/
+.coverage
+.coverage.*
+.cache
+nosetests.xml
+coverage.xml
+*.cover
+*.py,cover
+.hypothesis/
+.pytest_cache/
+
+# ==========================================
+# MyPy
+# ==========================================
+.mypy_cache/
+.dmypy.json
+dmypy.json
