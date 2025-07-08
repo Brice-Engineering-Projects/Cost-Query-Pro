@@ -14,11 +14,14 @@ project_cost_query/
 │   │    ├── auth.py
 │   │    ├── projects.py
 │   │    ├── items.py
-│   │    ├── purge.py
+│   │    └── purge.py
+│   ├── config/                 # Configuration files
+│   │    ├── __init__.py        # initialization file
+│   │    └── settings.py        # settings file
 │   ├── core/                 # Core logic/utilities (e.g. purge scripts)
 │   │    ├── __init__.py
 │   │    ├── security.py
-│   │    ├── data_upload.py
+│   │    └── data_upload.py
 │   ├── schemas/              # Pydantic schemas for API validation
 │   │    └── __init__.py
 │   ├── templates/            # HTML templates (if using Jinja2)
@@ -34,7 +37,7 @@ project_cost_query/
 │   ├── __init__.py
 │   ├── test_projects.py
 │   ├── test_items.py
-│   ├── test_auth.py
+│   └── test_auth.py
 │
 ├── .env                      # Environment variables (never commit secrets!)
 ├── .gitignore
