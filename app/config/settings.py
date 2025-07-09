@@ -1,9 +1,19 @@
 """app/config/settings.py"""
 
+import os
 import logging
 from pydantic_settings import BaseSettings
 from pydantic import PostgresDsn, RedisDsn, Field
 from typing import Optional
+
+# -----------------------------------------------------------
+# Auth setup
+# -----------------------------------------------------------
+
+SECRET_KEY = os.getenv("SECRET_KEY", "supersecretkey")
+ALGORITHM = "HS256"
+ACCESS_TOKEN_EXPIRE_MINUTES = 60
+
 
 # ------------------------------------------------------------
 # Logging setup
@@ -14,7 +24,7 @@ logging.basicConfig(
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
     handlers=[
         logging.StreamHandler(),
-        logging.FileHandler('budget_app.log')
+        logging.FileHandler('cost_query_pro.log')
     ]
 )
 

@@ -1,6 +1,9 @@
-def main():
-    print("Hello from cost-query-pro!")
+"""app/main.py"""
 
+from fastapi import FastAPI
+from app.api import auth, admin
 
-if __name__ == "__main__":
-    main()
+app = FastAPI()
+
+app.include_router(auth.router)
+app.include_router(admin.router)
