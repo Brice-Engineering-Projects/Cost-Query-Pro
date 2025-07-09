@@ -4,7 +4,7 @@ from app.models.project import Project
 from app.models.item import Item
 from app.models.user import User
 from sqlalchemy import Column, Integer, String, Boolean
-from app.db.base import Base
+from app.db import Base
 
 class User(Base):
     __tablename__ = "users"

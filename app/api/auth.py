@@ -86,6 +86,6 @@ def get_current_admin(
 
 
 @router.get("/items/search")
-def search_items(..., current_user: DBUser = Depends(get_current_user)):
+def search_items(current_user: DBUser = Depends(get_current_user)):
     """For all authenticated users"""
     pass
