@@ -2,7 +2,7 @@
 
 from sqlalchemy import Column, Integer, String
 from sqlalchemy.orm import relationship
-from app.db.base import Base
+from app.db import Base
 
 class Project(Base):
     __tablename__ = "projects"

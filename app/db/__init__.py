@@ -1,22 +1,26 @@
 """app/db/__init__.py"""
 
 from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker, Session
-from sqlalchemy.ext.declarative import declarative_base
-import os
+from sqlalchemy.orm import sessionmaker, declarative_base, Session
+from app.config.settings import settings
 
-SQLALCHEMY_DATABASE_URL = os.getenv(
-    "DATABASE_URL",
-    "postgresql://postgres:password@localhost:5432/mydb"
-)
+if settings.environment == "testing":
+    db_url = settings.test_database_url
+elif settings.environment == "development":
+    db_url = settings.dev_database_url
+else:
+    db_url = settings.database_url
 
-engine = create_engine(SQLALCHEMY_DATABASE_URL)
+if db_url is None:
+    raise ValueError(
+        f"No database URL configured for environment: {settings.environment}"
+    )
 
+engine = create_engine(str(db_url))
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
 Base = declarative_base()
 
-# This is your FastAPI dependency:
 def get_db():
     db: Session = SessionLocal()
     try:
