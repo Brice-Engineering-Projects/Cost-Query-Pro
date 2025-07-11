@@ -1,5 +1,9 @@
 """app/db/__init__.py"""
+"""app/db/__init__.py"""
 
+from sqlalchemy.ext.declarative import declarative_base
+
+Base = declarative_base()
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker, declarative_base, Session
 from app.config.settings import settings

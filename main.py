@@ -19,7 +19,7 @@ app = FastAPI(debug=settings.fastapi_debug)
 app.include_router(auth.router, prefix="/api/v1/auth")
 app.include_router(projects.router, prefix="/api/v1/projects")
 app.include_router(items.router, prefix="/api/v1/items")
-app.include_router(purge.router, prefix="/api/v1/admin")
+app.include_router(purge.router, prefix="/api/v1/admin/purge")
 
 @app.get("/")
 def read_root(db: Session = Depends(get_db)):

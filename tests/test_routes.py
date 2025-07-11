@@ -116,7 +116,7 @@ def test_items_search_with_data(client, db_session):
 
 
 
-def test_admin_purge():
+    def test_admin_purge(client):
     """Test Admin Only Route"""
     # Register admin
     client.post(
@@ -137,7 +137,7 @@ def test_admin_purge():
     assert "message" in response.json()
 
 
-def test_non_admin_forbidden():
+    def test_non_admin_forbidden(client):
     """Test forbidden for non-admin"""
     # Register user
     client.post(

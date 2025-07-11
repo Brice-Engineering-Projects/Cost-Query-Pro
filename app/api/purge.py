@@ -1,14 +1,14 @@
 """app/api/purge.py"""
 
-
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 
 from app.api.auth import get_current_admin
-from app.db import get_db
-from app.models import Project, Item
+from app.db.session import get_db
+from app.models.project import Project
+from app.models.item import Item
 
-router = APIRouter(prefix="/api/v1/admin", tags=["admin"])
+router = APIRouter(tags=["admin"])
 
 @router.delete("/purge")
 def purge_data(

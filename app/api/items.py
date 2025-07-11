@@ -9,6 +9,7 @@ from app.db.session import get_db
 from app.models.item import Item
 from app.models.project import Project
 from app.schemas.item import ItemCreate, ItemOut, ItemUpdate, ItemWithProject
+from app.api.auth import get_current_user
 
 router = APIRouter()
 
@@ -23,7 +24,9 @@ def search_items(
     max_price: Optional[float] = None,
     skip: int = 0,
     limit: int = 100,
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
+    # Require authentication
+    current_user = Depends(get_current_user)
 ):
     """
     Search for items with various filters:
