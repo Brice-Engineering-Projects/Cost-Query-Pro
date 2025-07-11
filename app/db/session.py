@@ -2,8 +2,10 @@
 
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
+
 from app.config.settings import settings
 
+# Create DB engine
 engine = create_engine(
     str(settings.database_url),
     pool_size=settings.db_pool_size,
@@ -12,8 +14,10 @@ engine = create_engine(
     max_overflow=settings.db_max_overflow,
 )
 
+# Create session factory
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
+# Dependency for FastAPI routes
 def get_db():
     db = SessionLocal()
     try:

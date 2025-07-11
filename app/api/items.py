@@ -1,32 +1,40 @@
 """app/api/items.py"""
 
-from fastapi import APIRouter, Depends, HTTPException, Query, status
-from sqlalchemy.orm import Session
+from fastapi import APIRouter, Depends, HTTPException, Query, status, Response
+from sqlalchemy.orm import Session, joinedload
 from sqlalchemy import and_, or_
 from typing import List, Optional
+from decimal import Decimal
 
 from app.db.session import get_db
-from app.models.item import Item
-from app.models.project import Project
+from app.models import Item, Project
 from app.schemas.item import ItemCreate, ItemOut, ItemUpdate, ItemWithProject
+from app.schemas.item import ItemWithProject
 from app.api.auth import get_current_user
+from pydantic import BaseModel
 
-router = APIRouter()
+router = APIRouter(
+    prefix="/api/v1/items",
+    tags=["items"]
+)
+
+class PriceRangeOut(BaseModel):
+    min_price: Optional[Decimal]
+    max_price: Optional[Decimal]
 
 @router.get("/search", response_model=List[ItemWithProject])
 def search_items(
-    q: str = Query(None, description="Search term for item description"),
+    q: Optional[str] = Query(None, description="Search term for item description"),
     state: Optional[str] = None,
     year_start: Optional[int] = None,
     year_end: Optional[int] = None,
     unit: Optional[str] = None,
-    min_price: Optional[float] = None,
-    max_price: Optional[float] = None,
+    min_price: Optional[Decimal] = None,
+    max_price: Optional[Decimal] = None,
     skip: int = 0,
     limit: int = 100,
     db: Session = Depends(get_db),
-    # Require authentication
-    current_user = Depends(get_current_user)
+    current_user = Depends(get_current_user),
 ):
     """
     Search for items with various filters:
@@ -36,73 +44,79 @@ def search_items(
     - Unit type
     - Price range
     """
-    query = db.query(Item).join(Item.project)
+    query = db.query(Item).options(joinedload(Item.project))
 
-    # Apply filters
     if q:
         query = query.filter(Item.item_description.ilike(f"%{q}%"))
-
     if state:
-        query = query.filter(Project.state == state)
-
+        query = query.join(Item.project).filter(Project.state == state)
     if year_start:
-        query = query.filter(Project.year >= year_start)
-
+        query = query.join(Item.project).filter(Project.year >= year_start)
     if year_end:
-        query = query.filter(Project.year <= year_end)
-
+        query = query.join(Item.project).filter(Project.year <= year_end)
     if unit:
         query = query.filter(Item.unit == unit)
-
     if min_price is not None:
         query = query.filter(Item.unit_price >= min_price)
-
     if max_price is not None:
         query = query.filter(Item.unit_price <= max_price)
 
-    # Return results with pagination
     return query.offset(skip).limit(limit).all()
 
+
 @router.get("/{item_id}", response_model=ItemWithProject)
-def get_item(item_id: int, db: Session = Depends(get_db)):
+def get_item(
+    item_id: int,
+    db: Session = Depends(get_db),
+    current_user = Depends(get_current_user),
+):
     """
     Retrieve a specific item by ID with its project details.
     """
-    item = db.query(Item).filter(Item.id == item_id).first()
+    item = db.query(Item).options(joinedload(Item.project)).filter(Item.id == item_id).first()
     if not item:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
-            detail=f"Item with ID {item_id} not found"
+            detail=f"Item with ID {item_id} not found."
         )
     return item
 
+
 @router.post("/", response_model=ItemOut, status_code=status.HTTP_201_CREATED)
-def create_item(item: ItemCreate, db: Session = Depends(get_db)):
+def create_item(
+    item: ItemCreate,
+    db: Session = Depends(get_db),
+    current_user = Depends(get_current_user),
+):
     """
     Create a new item.
     """
-    # Verify the project exists
     project = db.query(Project).filter(Project.id == item.project_id).first()
     if not project:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
-            detail=f"Project with ID {item.project_id} not found"
+            detail=f"Project with ID {item.project_id} not found."
         )
 
     db_item = Item(
         project_id=item.project_id,
         item_description=item.item_description,
         unit=item.unit,
-        unit_price=item.unit_price
+        unit_price=item.unit_price,
     )
-
     db.add(db_item)
     db.commit()
     db.refresh(db_item)
     return db_item
 
+
 @router.put("/{item_id}", response_model=ItemOut)
-def update_item(item_id: int, item: ItemUpdate, db: Session = Depends(get_db)):
+def update_item(
+    item_id: int,
+    item: ItemUpdate,
+    db: Session = Depends(get_db),
+    current_user = Depends(get_current_user),
+):
     """
     Update an existing item.
     """
@@ -110,28 +124,31 @@ def update_item(item_id: int, item: ItemUpdate, db: Session = Depends(get_db)):
     if not db_item:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
-            detail=f"Item with ID {item_id} not found"
+            detail=f"Item with ID {item_id} not found."
         )
 
-    # If project_id is being updated, verify the new project exists
     if item.project_id is not None and item.project_id != db_item.project_id:
         project = db.query(Project).filter(Project.id == item.project_id).first()
         if not project:
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND,
-                detail=f"Project with ID {item.project_id} not found"
+                detail=f"Project with ID {item.project_id} not found."
             )
 
-    # Update item attributes
-    for key, value in item.dict(exclude_unset=True).items():
+    for key, value in item.model_dump(exclude_unset=True).items():
         setattr(db_item, key, value)
 
     db.commit()
     db.refresh(db_item)
     return db_item
 
+
 @router.delete("/{item_id}", status_code=status.HTTP_204_NO_CONTENT)
-def delete_item(item_id: int, db: Session = Depends(get_db)):
+def delete_item(
+    item_id: int,
+    db: Session = Depends(get_db),
+    current_user = Depends(get_current_user),
+):
     """
     Delete an item.
     """
@@ -139,37 +156,43 @@ def delete_item(item_id: int, db: Session = Depends(get_db)):
     if not db_item:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
-            detail=f"Item with ID {item_id} not found"
+            detail=f"Item with ID {item_id} not found."
         )
 
     db.delete(db_item)
     db.commit()
-    return None
+    return Response(status_code=status.HTTP_204_NO_CONTENT)
+
 
 @router.get("/units/distinct", response_model=List[str])
-def get_distinct_units(db: Session = Depends(get_db)):
+def get_distinct_units(
+    db: Session = Depends(get_db),
+    current_user = Depends(get_current_user),
+):
     """
-    Get a list of all distinct unit types in the database.
-    Useful for populating dropdown filters in the UI.
+    Get all distinct unit types in the DB.
     """
     result = db.query(Item.unit).distinct().all()
     return [unit[0] for unit in result]
 
-@router.get("/stats/price-range", response_model=dict)
-def get_price_range(item_query: str = None, db: Session = Depends(get_db)):
+
+@router.get("/stats/price-range", response_model=PriceRangeOut)
+def get_price_range(
+    item_query: Optional[str] = None,
+    db: Session = Depends(get_db),
+    current_user = Depends(get_current_user),
+):
     """
-    Get the min and max price for items matching the query.
-    Useful for setting price range filters in the UI.
+    Get min and max price for items matching the query.
     """
     query = db.query(Item)
-
     if item_query:
         query = query.filter(Item.item_description.ilike(f"%{item_query}%"))
 
-    min_price = query.order_by(Item.unit_price.asc()).first()
-    max_price = query.order_by(Item.unit_price.desc()).first()
+    min_price_item = query.order_by(Item.unit_price.asc()).first()
+    max_price_item = query.order_by(Item.unit_price.desc()).first()
 
-    return {
-        "min_price": min_price.unit_price if min_price else 0,
-        "max_price": max_price.unit_price if max_price else 0
-    }
+    return PriceRangeOut(
+        min_price=min_price_item.unit_price if min_price_item else None,
+        max_price=max_price_item.unit_price if max_price_item else None,
+    )

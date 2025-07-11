@@ -1,9 +1,13 @@
 """app/db/__init__.py"""
-"""app/db/__init__.py"""
 
-from sqlalchemy.ext.declarative import declarative_base
+# Use the recommended import path for SQLAlchemy 2.0+
+from sqlalchemy.orm import declarative_base
 
+# Create a base class for all SQLAlchemy models
 Base = declarative_base()
+
+# Import the get_db function from session.py here to avoid circular imports
+from app.db.session import get_db
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker, declarative_base, Session
 from app.config.settings import settings
@@ -23,7 +27,6 @@ if db_url is None:
 engine = create_engine(str(db_url))
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
-Base = declarative_base()
 
 def get_db():
     db: Session = SessionLocal()

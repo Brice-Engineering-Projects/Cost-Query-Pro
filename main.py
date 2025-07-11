@@ -1,27 +1,36 @@
 """app/main.py"""
 
-from fastapi import FastAPI, Depends
+from fastapi import FastAPI, Depends, status
+from fastapi.responses import JSONResponse
 from sqlalchemy.orm import Session
 from sqlalchemy import text
+import logging
 
 from app.config.settings import settings
 from app.db.session import get_db
 
+# Import models first to ensure they're registered
+from app.models import User, Project, Item
 
+# Import routers
+from app.api import auth, admin, items, projects
 
-# import routers
-from app.api import auth, admin, purge, items, projects
-from app.models import item, project, user
+logger = logging.getLogger(__name__)
 
-app = FastAPI(debug=settings.fastapi_debug)
+app = FastAPI(
+    title="Cost Query Pro API",
+    description="API for querying historical unit costs in infrastructure projects.",
+    version="1.0.0",
+    debug=settings.fastapi_debug
+)
 
-# include routers
-app.include_router(auth.router, prefix="/api/v1/auth")
-app.include_router(projects.router, prefix="/api/v1/projects")
-app.include_router(items.router, prefix="/api/v1/items")
-app.include_router(purge.router, prefix="/api/v1/admin/purge")
+# Include routers
+app.include_router(auth.router)
+app.include_router(projects.router)
+app.include_router(items.router)
+app.include_router(admin.router)
 
-@app.get("/")
+@app.get("/", status_code=status.HTTP_200_OK)
 def read_root(db: Session = Depends(get_db)):
     """
     Simple health check route to confirm:
@@ -36,7 +45,11 @@ def read_root(db: Session = Depends(get_db)):
             "environment": settings.environment
         }
     except Exception as e:
-        return {
-            "message": "Error connecting to DB",
-            "error": str(e)
-        }
+        logger.exception("Database connectivity check failed.")
+        return JSONResponse(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            content={
+                "message": "Error connecting to DB",
+                "error": str(e)
+            }
+        )

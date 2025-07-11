@@ -1,32 +1,42 @@
 """app/tests/test_routes.py"""
 
+import pytest
+from app.models import Project, Item
 
-def test_items_search_no_results(client):
+@pytest.fixture
+def create_user(client):
+    def _create_user(username, password, is_admin=False):
+        resp = client.post(
+            "/api/v1/auth/register",
+            json={
+                "username": username,
+                "password": password,
+                "is_admin": is_admin
+            }
+        )
+        assert resp.status_code == 200
+    return _create_user
+
+@pytest.fixture
+def login_user(client):
+    def _login_user(username, password):
+        resp = client.post(
+            "/api/v1/auth/login",
+            data={"username": username, "password": password}
+        )
+        assert resp.status_code == 200
+        token = resp.json()["access_token"]
+        return {"Authorization": f"Bearer {token}"}
+    return _login_user
+
+
+def test_items_search_no_results(client, create_user, login_user):
     """
     Test that search returns empty list if no data exists.
     """
-    # Register user
-    client.post(
-        "/api/v1/auth/register",
-        json={
-            "username": "testuser",
-            "password": "testpass",
-            "is_admin": False
-        }
-    )
+    create_user("testuser", "testpass", is_admin=False)
+    headers = login_user("testuser", "testpass")
 
-    # Login
-    login_resp = client.post(
-        "/api/v1/auth/login",
-        data={
-            "username": "testuser",
-            "password": "testpass"
-        }
-    )
-    token = login_resp.json()["access_token"]
-    headers = {"Authorization": f"Bearer {token}"}
-
-    # Search with no data in DB
     response = client.get(
         "/api/v1/items/search",
         params={
@@ -42,35 +52,14 @@ def test_items_search_no_results(client):
     assert response.json() == []
 
 
-
-def test_items_search_with_data(client, db_session):
+def test_items_search_with_data(client, db_session, create_user, login_user):
     """
     Test search returns data if items exist.
     """
-    # Register user
-    client.post(
-        "/api/v1/auth/register",
-        json={
-            "username": "testuser",
-            "password": "testpass",
-            "is_admin": False
-        }
-    )
+    create_user("testuser", "testpass", is_admin=False)
+    headers = login_user("testuser", "testpass")
 
-    # Login
-    login_resp = client.post(
-        "/api/v1/auth/login",
-        data={
-            "username": "testuser",
-            "password": "testpass"
-        }
-    )
-    token = login_resp.json()["access_token"]
-    headers = {"Authorization": f"Bearer {token}"}
-
-    # Insert a fake project + item directly via DB session
-    from app.models import Project, Item
-
+    # Insert a fake project + item
     project = Project(
         project_name="Main St. Sewer Rehab",
         project_number="202301",
@@ -89,7 +78,6 @@ def test_items_search_with_data(client, db_session):
     db_session.add(item)
     db_session.commit()
 
-    # Now search for the inserted item
     response = client.get(
         "/api/v1/items/search",
         params={
@@ -115,43 +103,34 @@ def test_items_search_with_data(client, db_session):
     assert result["year"] == 2023
 
 
+def test_admin_purge(client, create_user, login_user):
+    """
+    Test Admin Only Route.
+    """
+    create_user("admin", "secret", is_admin=True)
+    headers = login_user("admin", "secret")
 
-    def test_admin_purge(client):
-    """Test Admin Only Route"""
-    # Register admin
-    client.post(
-        "/api/v1/auth/register",
-        json={"username": "admin", "password": "secret", "is_admin": True}
+    response = client.delete(
+        "/api/v1/admin/purge",
+        params={"year_cutoff": 2020},
+        headers=headers
     )
-    login_resp = client.post(
-        "/api/v1/auth/login",
-        data={"username": "admin", "password": "secret"}
-    )
-    token = login_resp.json()["access_token"]
-
-    headers = {"Authorization": f"Bearer {token}"}
-
-    response = client.delete("/api/v1/admin/purge?year_cutoff=2020", headers=headers)
-
     assert response.status_code == 200
     assert "message" in response.json()
 
 
-    def test_non_admin_forbidden(client):
-    """Test forbidden for non-admin"""
-    # Register user
-    client.post(
-        "/api/v1/auth/register",
-        json={"username": "user", "password": "secret", "is_admin": False}
-    )
-    login_resp = client.post(
-        "/api/v1/auth/login",
-        data={"username": "user", "password": "secret"}
-    )
-    token = login_resp.json()["access_token"]
+def test_non_admin_forbidden(client, create_user, login_user):
+    """
+    Test forbidden for non-admin user.
+    """
+    create_user("user", "secret", is_admin=False)
+    headers = login_user("user", "secret")
 
-    headers = {"Authorization": f"Bearer {token}"}
-
-    response = client.delete("/api/v1/admin/purge?year_cutoff=2020", headers=headers)
+    response = client.delete(
+        "/api/v1/admin/purge",
+        params={"year_cutoff": 2020},
+        headers=headers
+    )
 
     assert response.status_code == 403
+    assert response.json()["detail"] == "Not enough permissions"

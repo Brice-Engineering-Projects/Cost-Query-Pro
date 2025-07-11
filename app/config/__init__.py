@@ -1,1 +1,1 @@
-"""app/config/settings.py"""
+"""app/config/__init__.py"""

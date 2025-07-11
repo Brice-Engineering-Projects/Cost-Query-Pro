@@ -6,6 +6,7 @@ from pydantic_settings import BaseSettings
 from pydantic import PostgresDsn, RedisDsn, Field
 from typing import Optional
 
+
 # -----------------------------------------------------------
 # Auth setup
 # -----------------------------------------------------------

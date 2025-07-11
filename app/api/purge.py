@@ -1,44 +1,51 @@
-"""app/api/purge.py"""
-
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
+import logging
 
 from app.api.auth import get_current_admin
 from app.db.session import get_db
-from app.models.project import Project
-from app.models.item import Item
+from app.models import Project, Item
 
-router = APIRouter(tags=["admin"])
+logger = logging.getLogger(__name__)
+
+router = APIRouter(
+    prefix="/api/v1/admin",
+    tags=["admin"]
+)
 
 @router.delete("/purge")
 def purge_data(
     year_cutoff: int,
     db: Session = Depends(get_db),
-    current_admin = Depends(get_current_admin)
+    current_admin = Depends(get_current_admin),
 ):
     """
-    Deletes all projects (and linked items) older than year_cutoff.
-    Admin only.
+    Delete all projects and related items older than the specified year_cutoff.
+    Admin-only route.
     """
-    # Find projects older than cutoff year
     old_projects = db.query(Project).filter(Project.year < year_cutoff).all()
 
     if not old_projects:
-        return {"message": f"No projects older than {year_cutoff} found."}
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"No projects older than {year_cutoff} found."
+        )
 
     deleted_projects_count = 0
     deleted_items_count = 0
 
     for project in old_projects:
-        # Delete all items linked to this project
         items_deleted = db.query(Item).filter(Item.project_id == project.id).delete()
         deleted_items_count += items_deleted
 
-        # Delete the project itself
         db.delete(project)
         deleted_projects_count += 1
 
     db.commit()
+
+    logger.info(
+        f"Purged {deleted_projects_count} projects and {deleted_items_count} items older than {year_cutoff}."
+    )
 
     return {
         "message": f"Data older than {year_cutoff} has been purged.",
