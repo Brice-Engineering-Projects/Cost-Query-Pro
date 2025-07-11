@@ -10,13 +10,16 @@ from app.db.session import get_db
 
 
 # import routers
-from app.api import auth, admin
+from app.api import auth, admin, purge, items, projects
+from app.models import item, project, user
 
 app = FastAPI(debug=settings.fastapi_debug)
 
 # include routers
-app.include_router(auth.router)
-app.include_router(admin.router)
+app.include_router(auth.router, prefix="/api/v1/auth")
+app.include_router(projects.router, prefix="/api/v1/projects")
+app.include_router(items.router, prefix="/api/v1/items")
+app.include_router(purge.router, prefix="/api/v1/admin")
 
 @app.get("/")
 def read_root(db: Session = Depends(get_db)):
