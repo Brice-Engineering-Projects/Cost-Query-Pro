@@ -7,15 +7,6 @@ from pydantic import PostgresDsn, RedisDsn, Field
 from typing import Optional
 
 
-# -----------------------------------------------------------
-# Auth setup
-# -----------------------------------------------------------
-
-SECRET_KEY = os.getenv("SECRET_KEY", "supersecretkey")
-ALGORITHM = "HS256"
-ACCESS_TOKEN_EXPIRE_MINUTES: int = 30
-
-
 # ------------------------------------------------------------
 # Logging setup
 # ------------------------------------------------------------
@@ -63,8 +54,11 @@ class Settings(BaseSettings):
     auth0_callback_url: Optional[str] = Field(None, env="AUTH0_CALLBACK_URL")
     auth0_audience: Optional[str] = Field(None, env="AUTH0_AUDIENCE")
 
+    # Auth config
+    access_token_expire_minutes: int = Field(30, env="ACCESS_TOKEN_EXPIRE_MINUTES")
+    algorithm: str = Field("HS256", env="ALGORITHM")
+
     class Config:
         env_file = ".env"
-
 
 settings = Settings()
