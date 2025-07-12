@@ -11,7 +11,11 @@ from app.schemas import UserCreate, Token, User
 from app.core.security import verify_password, get_password_hash, create_access_token
 from app.config.settings import settings
 
-router = APIRouter(tags=["auth"])
+router = APIRouter(
+    prefix="/api/v1/auth",
+    tags=["auth"]
+)
+
 
 
 # OAuth2 configuration

@@ -1,16 +1,33 @@
 """app/main.py"""
 
-
 from fastapi import FastAPI, Depends
 from sqlalchemy.orm import Session
 from sqlalchemy import text
+import logging
 
 from app.config.settings import settings
 from app.db.session import get_db
-from app.models import project, item, user
 
-app = FastAPI(debug=settings.fastapi_debug)
+# Import routers
+from app.api import auth, admin, projects, items
 
+# Import models to register them
+from app.models import user, project, item
+
+logger = logging.getLogger(__name__)
+
+app = FastAPI(
+    title="Cost Query Pro API",
+    description="API for querying historical unit costs in infrastructure projects.",
+    version="1.0.0",
+    debug=settings.fastapi_debug
+)
+
+# Include routers (no duplicate prefixes)
+app.include_router(auth.router)
+app.include_router(admin.router)
+app.include_router(projects.router)
+app.include_router(items.router)
 
 @app.get("/")
 def read_root(db: Session = Depends(get_db)):
@@ -27,6 +44,7 @@ def read_root(db: Session = Depends(get_db)):
             "environment": settings.environment
         }
     except Exception as e:
+        logger.exception("DB connectivity check failed.")
         return {
             "message": "Error connecting to DB",
             "error": str(e)
