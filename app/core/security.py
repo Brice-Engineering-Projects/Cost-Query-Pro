@@ -1,6 +1,6 @@
 """app/core/security.py"""
 
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, UTC
 from typing import Optional
 
 from jose import jwt
@@ -42,7 +42,7 @@ def create_access_token(
     """
     to_encode = data.copy()
 
-    expire = datetime.utcnow() + (
+    expire = datetime.now(UTC) + (
         expires_delta or timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES)
     )
     to_encode.update({"exp": expire})
