@@ -3,6 +3,157 @@
 
 ==============================================
 
+Date:  July 12, 2025
+
+==============================================
+
+# ✅ Cost Query Pro – Session Summary
+
+## ✅ What We Worked On
+
+### 1. Pytest Failing on Auth Settings
+- Initial failures:
+  ```
+  AttributeError: 'Settings' object has no attribute 'ACCESS_TOKEN_EXPIRE_MINUTES'
+  ```
+- Root cause:
+  - Code was incorrectly using uppercase attribute names:
+    ```python
+    settings.ACCESS_TOKEN_EXPIRE_MINUTES
+    ```
+  - Fixed to:
+    ```python
+    settings.access_token_expire_minutes
+    ```
+
+- Similar corrections for:
+  ```python
+  settings.SECRET_KEY → settings.secret_key
+  settings.ALGORITHM → settings.algorithm
+  ```
+
+---
+
+### 2. Purge Endpoint Hanging
+- Auth dependency `current_admin` was causing test hangs due to token validation waiting for DB queries.
+- Tested commenting out:
+  ```python
+  current_admin = Depends(get_current_admin)
+  ```
+- Purge still hung even without auth → problem shifted to DB side.
+
+---
+
+### 3. DB-Level Investigation
+- Confirmed tables exist:
+  ```
+  projects
+  items
+  users
+  ```
+- Discovered:
+  - Hanging likely caused by:
+    - leftover locks
+    - interrupted migrations
+    - open transactions from previous sessions
+
+- Noted:
+  Killing long-running transactions rolled back DDL, removing tables created in uncommitted migrations.
+
+---
+
+### 4. Alembic Migration Problems
+- Ran:
+  ```bash
+  alembic upgrade head
+  ```
+- Got crash:
+  ```
+  AttributeError: 'NoneType' object has no attribute 'before_set'
+  ```
+- Root cause:
+  - Code was forcibly setting:
+    ```python
+    config.file_config._interpolation = None
+    ```
+    which broke configparser interpolation.
+
+- Confirmed:
+  Alembic needs `_interpolation` for:
+  ```
+  script_location = %(here)s/migrations
+  ```
+
+- Proposed fix:
+  - Remove:
+    ```python
+    config.file_config._interpolation = None
+    ```
+  - Leave interpolation intact so Alembic can resolve `%(here)s`.
+
+---
+
+## ✅ Where We Left Off
+
+- You **still need to re-run Alembic migrations** to recreate your tables.
+- `env.py` needs editing:
+  - **Remove**:
+    ```python
+    config.file_config._interpolation = None
+    ```
+- Once fixed, run:
+  ```bash
+  alembic upgrade head
+  ```
+
+---
+
+## ✅ Next Steps For Our Next Session
+
+✅ Immediately:
+- Edit `migrations/env.py`:
+  - Delete:
+    ```python
+    config.file_config._interpolation = None
+    ```
+
+✅ Then:
+- From project root, run:
+  ```bash
+  alembic upgrade head
+  ```
+- Check:
+  ```bash
+  \dt
+  ```
+  → confirm tables `projects`, `items`, `users` exist.
+
+✅ After DB is rebuilt:
+- Re-run tests:
+  ```bash
+  pytest tests/test_auth.py -v
+  ```
+- Confirm purge route no longer hangs.
+
+---
+
+## ✅ Notes
+
+- No need to change alembic.ini beyond keeping:
+  ```
+  script_location = %(here)s/migrations
+  ```
+- Leaving `sqlalchemy.url` blank in alembic.ini is fine since env.py overrides it dynamically.
+- Current admin security dependency can remain commented out until DB is healthy and tests are passing.
+
+---
+
+**Status:**  
+→ We’re paused until Alembic migrations are fixed and DB is rebuilt.
+
+
+==============================================
+
 Date:  July 11, 2025
 
 ==============================================
