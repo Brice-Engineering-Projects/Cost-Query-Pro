@@ -1,5 +1,21 @@
 """tests/test_auth.py"""
 
+from app.main import app
+from app.api import purge
+from fastapi.testclient import TestClient
+
+
+def override_get_current_admin():
+    class DummyAdmin:
+        username = "admin"
+        is_admin = True
+    return DummyAdmin()
+
+# Apply the override
+app.dependency_overrides[purge.get_current_admin] = override_get_current_admin
+
+client = TestClient(app)
+
 def test_register_user(client):
     """
     Test user registration.
@@ -95,6 +111,7 @@ def test_admin_can_purge(client):
         }
     )
     token = login_resp.json()["access_token"]
+    print(token)
     headers = {"Authorization": f"Bearer {token}"}
 
     response = client.delete(

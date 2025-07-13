@@ -55,7 +55,7 @@ class Settings(BaseSettings):
     auth0_audience: Optional[str] = Field(None, env="AUTH0_AUDIENCE")
 
     # Auth config
-    access_token_expire_minutes: int = Field(30, env="ACCESS_TOKEN_EXPIRE_MINUTES")
+    access_token_expire_minutes: int = Field(60, env="ACCESS_TOKEN_EXPIRE_MINUTES")
     algorithm: str = Field("HS256", env="ALGORITHM")
 
     class Config:

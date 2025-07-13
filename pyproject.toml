@@ -29,8 +29,8 @@ dependencies = [
     "passlib[bcrypt]>=1.7.4",
     "python-jose[cryptography]>=3.5.0",
     "pytest>=8.4.1",
-    "certifi>=2025.6.15",
-    "starlette>=0.46.2",
+    "certifi>=2025.7.9",
+    "starlette>=0.47.1",
 ]
 
 [project.optional-dependencies]
