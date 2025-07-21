@@ -1,5 +1,105 @@
 # Diary Logs
 
+==========================================================
+
+ Date:  July 20, 2025
+
+=========================================================
+
+# ✅ Cost Query Pro – Session Summary
+
+## 🔧 What Was Fixed Today
+
+### 1. **Database Was Empty Due to Testing Side Effects**
+- All tables were wiped because tests were using the **real dev DB**.
+- No Alembic migrations existed to rebuild the schema.
+
+### 2. **Repaired Alembic `env.py`**
+- Problem: Alembic failed due to `%40` in password + broken interpolation.
+- Fixed by:
+  - Removing `config.set_main_option(...)` which triggered interpolation bugs.
+  - Switching to:
+    ```python
+    config.attributes["sqlalchemy.url"] = url
+    connectable = create_engine(url, poolclass=pool.NullPool)
+    ```
+
+### 3. **Validated SQLAlchemy Connection**
+- Created an independent test script to confirm the database URL and credentials were valid.
+- Verified the connection string worked directly with SQLAlchemy’s `create_engine`.
+
+### 4. **Confirmed Environment Switching**
+- Rewrote the logic in `env.py` to respect `ENVIRONMENT` from `.env`:
+  ```python
+  if settings.environment == "testing":
+      raw_url = settings.test_database_url
+  elif settings.environment == "development":
+      raw_url = settings.dev_database_url
+  else:
+      raw_url = settings.database_url
+
+  url = raw_url.unicode_string() if hasattr(raw_url, "unicode_string") else str(raw_url)
+  ```
+
+### 5. **Successfully Ran `alembic upgrade head`**
+- After fixing `env.py` and validating the DB URL, Alembic successfully recreated the schema.
+- You are now back to a clean and working state.
+
+---
+
+## 🚧 Issues Not Yet Resolved
+
+- `pytest` runs appear to **hang** or **run very slowly**, even with only a few tests.
+- You had to terminate the process manually with `^C`.
+- The root cause may be:
+  - `TestClient` holding a hanging thread (seen in traceback)
+  - Poor session teardown or a DB connection not closing
+
+---
+
+## ✅ Next Steps
+
+### Immediate
+- [ ] Run:
+  ```bash
+  alembic revision --autogenerate -m "initial schema"
+  alembic upgrade head
+  ```
+  (if not already done after confirming tables exist)
+
+- [ ] Review `conftest.py` to:
+  - Ensure test DB is used (`TEST_DATABASE_URL`)
+  - Add proper teardown and timeout logic for `TestClient`
+  - Isolate tests from real development data
+
+### Diagnostic
+- [ ] Add logging to `conftest.py` to trace setup/teardown
+- [ ] Run:
+  ```bash
+  pytest tests/ --maxfail=1 -v --capture=no
+  ```
+  to inspect where the hang occurs
+
+### Strategic
+- [ ] Add test DB isolation
+- [ ] Add `docs/debugging_alembic.md` to preserve recovery process
+- [ ] Begin validating API endpoints again (e.g. `/auth/login`, `/items/search`)
+
+---
+
+## 📦 Status
+
+- ✅ Alembic working
+- ✅ DB schema rebuilt
+- ✅ Auth tests started
+- 🚧 Tests are hanging — needs debug
+- 🧠 Dev-level config and migration knowledge leveled up
+
+---
+
+Let’s pick back up next session with test teardown diagnostics.
+
+
 
 ==============================================
 
