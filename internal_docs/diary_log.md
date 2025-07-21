@@ -95,7 +95,7 @@ Date:  July 12, 2025
 
 ## ✅ Where We Left Off
 
-- You **still need to re-run Alembic migrations** to recreate your tables.
+- You **still need to re-run Alembic migrations** to recreate the tables.
 - `env.py` needs editing:
   - **Remove**:
     ```python

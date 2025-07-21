@@ -1,7 +1,7 @@
 """migrations/env.py"""
 from alembic import context
 from alembic.config import Config
-from sqlalchemy import engine_from_config, pool
+from sqlalchemy import engine_from_config, pool, create_engine
 from logging.config import fileConfig
 
 from app.db import Base
@@ -13,22 +13,23 @@ from app.config.settings import settings
 # Load alembic.ini explicitly
 config = Config("alembic.ini")
 
-# turn off interpolation to avoid issues with % signs
-if config.file_config is not None:
-    config.file_config._interpolation = None
+# ✅ DO NOT modify _interpolation — this will break Alembic
+# config.file_config._interpolation = None  ← REMOVE THIS LINE
 
-# dynamically set the URL:
+# Determine DB URL based on current environment
 if settings.environment == "testing":
-    url = str(settings.test_database_url)
+    raw_url = settings.test_database_url
 elif settings.environment == "development":
-    url = str(settings.dev_database_url)
+    raw_url = settings.dev_database_url
 else:
-    url = str(settings.database_url)
+    raw_url = settings.database_url
 
-if config.file_config is not None:
-    config.set_main_option("sqlalchemy.url", url)
-else:
-    config.attributes["sqlalchemy.url"] = url
+# Convert PostgresDsn to plain string for Alembic
+url = str(raw_url)
+
+
+# ✅ Use config.attributes to safely inject raw DB URL
+config.attributes["sqlalchemy.url"] = url
 
 if config.config_file_name is not None:
     fileConfig(config.config_file_name)
@@ -46,11 +47,11 @@ def run_migrations_offline():
         context.run_migrations()
 
 def run_migrations_online():
-    connectable = engine_from_config(
-        config.get_section(config.config_ini_section),
-        prefix="sqlalchemy.",
+    connectable = create_engine(
+        url,
         poolclass=pool.NullPool,
     )
+
     with connectable.connect() as connection:
         context.configure(
             connection=connection,
