@@ -1,0 +1,79 @@
+"""src/app/api/auth.py"""
+
+from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi.security import OAuth2PasswordRequestForm
+from sqlalchemy.orm import Session
+
+from src.app.db.session import get_db
+from src.app.core.security import (
+    get_current_user,
+    verify_password,
+    get_password_hash,
+    create_access_token,
+)
+from src.app.models.user import User as DBUser
+from src.app.schemas.user import UserCreate, UserRead
+from src.app.schemas.token import Token
+from src.app.config.settings import settings
+
+router = APIRouter(
+    prefix="/api/v1/auth",
+    tags=["auth"]
+)
+
+# LOGIN
+@router.post("/login", response_model=Token)
+def login(form_data: OAuth2PasswordRequestForm = Depends(), db: Session = Depends(get_db)):
+    """
+    Authenticate user and return a JWT access token.
+
+        - Validates the submitted username and password.
+        - On success, returns an access token and token type.
+        - On failure, raises HTTP 401 Unauthorized.
+    """
+    user = db.query(DBUser).filter(DBUser.username == form_data.username).first()
+    if not user or not verify_password(form_data.password, user.password_hash):
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Invalid username or password"
+        )
+    access_token = create_access_token(
+        data={"sub": user.username, "is_admin": user.is_admin}
+    )
+    return {"access_token": access_token, "token_type": "bearer"}
+
+# REGISTER (optionally admin-only)
+@router.post("/register", response_model=UserRead)
+def register(user_data: UserCreate, db: Session = Depends(get_db)):
+    """
+    Register a new user account.
+
+        - Checks for existing user with the same username.
+        - Hashes the password before storing.
+        - Returns the created user (excluding password hash).
+    """
+    existing = db.query(DBUser).filter(DBUser.username == user_data.username).first()
+    if existing:
+        raise HTTPException(status_code=400, detail="Username already registered")
+
+    hashed_pw = get_password_hash(user_data.password)
+    new_user = DBUser(
+        username=user_data.username,
+        password_hash=hashed_pw,
+        is_admin=user_data.is_admin
+    )
+    db.add(new_user)
+    db.commit()
+    db.refresh(new_user)
+    return new_user
+
+# Placeholder protected route
+@router.get("/items/search")
+def search_items(current_user: DBUser = Depends(get_current_user)):
+    """
+    Placeholder route to demonstrate authentication.
+
+        - Requires a valid JWT token.
+        - Returns a simple success message with current user info.
+    """
+    return {"message": f"Authenticated as {current_user.username}"}

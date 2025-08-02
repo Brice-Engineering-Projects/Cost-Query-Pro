@@ -1,7 +1,7 @@
 """tests/test_auth.py"""
 
-from app.main import app
-from app.api import purge
+from src.app.main import app
+from src.app.core.security import get_current_admin
 from fastapi.testclient import TestClient
 
 
@@ -12,7 +12,7 @@ def override_get_current_admin():
     return DummyAdmin()
 
 # Apply the override
-app.dependency_overrides[purge.get_current_admin] = override_get_current_admin
+app.dependency_overrides[get_current_admin] = override_get_current_admin
 
 client = TestClient(app)
 

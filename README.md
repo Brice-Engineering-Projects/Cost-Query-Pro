@@ -158,6 +158,13 @@ Project overview:
 
 Your project’s first impression for collaborators.
 
+### How to Run the Program
+
+```bash
+uvicorn src.app.main:app --reload
+
+```
+
 ---
 
 ## LICENSE

@@ -4,7 +4,7 @@ version = "0.1.0"
 description = "A Python application for searching, managing, and analyzing unit cost data from infrastructure projects."
 readme = "README.md"
 requires-python = ">=3.12"
-license = { text = "MIT" }
+license = "MIT"  # Changed from a table to a simple string
 
 authors = [
     { name = "Brice", email = "brice@devbybrice.com" }

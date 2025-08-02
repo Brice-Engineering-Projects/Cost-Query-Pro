@@ -4,11 +4,11 @@ from alembic.config import Config
 from sqlalchemy import engine_from_config, pool, create_engine
 from logging.config import fileConfig
 
-from app.db import Base
-from app.models.user import User
-from app.models.project import Project
-from app.models.item import Item
-from app.config.settings import settings
+from src.app.db import Base
+from src.app.models.user import User
+from src.app.models.project import Project
+from src.app.models.item import Item
+from src.app.config.settings import settings
 
 # Load alembic.ini explicitly
 config = Config("alembic.ini")

@@ -6,10 +6,10 @@ from sqlalchemy.orm import sessionmaker
 
 from fastapi.testclient import TestClient
 
-from app.main import app
-from app.db import Base
-from app.db.session import get_db
-from app.config.settings import settings
+from src.app.main import app
+from src.app import Base
+from src.app.db.session import get_db
+from src.app.config.settings import settings
 
 # ------------------------------------------------------------
 # Validate test DB URL exists
