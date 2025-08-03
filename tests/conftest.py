@@ -11,6 +11,10 @@ from src.app import Base
 from src.app.db.session import get_db
 from src.app.config.settings import settings
 
+
+print("✅ LOADING conftest.py from:", __file__)
+
+
 # ------------------------------------------------------------
 # Validate test DB URL exists
 # ------------------------------------------------------------

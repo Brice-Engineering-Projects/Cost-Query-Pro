@@ -31,6 +31,11 @@ def login(form_data: OAuth2PasswordRequestForm = Depends(), db: Session = Depend
         - On success, returns an access token and token type.
         - On failure, raises HTTP 401 Unauthorized.
     """
+
+    # -------------------------------------------------------------
+    print("✅ Login route hit — about to return token")
+    # -------------------------------------------------------------
+
     user = db.query(DBUser).filter(DBUser.username == form_data.username).first()
     if not user or not verify_password(form_data.password, user.password_hash):
         raise HTTPException(
@@ -40,9 +45,14 @@ def login(form_data: OAuth2PasswordRequestForm = Depends(), db: Session = Depend
     access_token = create_access_token(
         data={"sub": user.username, "is_admin": user.is_admin}
     )
-    return {"access_token": access_token, "token_type": "bearer"}
+    # return {"access_token": access_token, "token_type": "bearer"}
+    return Token(access_token=access_token, token_type="bearer")
 
 # REGISTER (optionally admin-only)
+# ------------------------------------------
+print("REGISTER response model is:", UserRead)
+
+# ------------------------------------------
 @router.post("/register", response_model=UserRead)
 def register(user_data: UserCreate, db: Session = Depends(get_db)):
     """
@@ -53,6 +63,15 @@ def register(user_data: UserCreate, db: Session = Depends(get_db)):
         - Returns the created user (excluding password hash).
     """
     existing = db.query(DBUser).filter(DBUser.username == user_data.username).first()
+
+    # -----------------------------------------------
+    print("✅ REGISTER ROUTE HIT")
+    print("✅ RETURN TYPE:", type(UserRead(id=999, username="test", is_admin=False)))
+
+    print("✅ Inside TEST register route")
+    print("🔥 Using response model:", UserRead)
+    # -------------------------------------------------
+
     if existing:
         raise HTTPException(status_code=400, detail="Username already registered")
 
@@ -65,7 +84,10 @@ def register(user_data: UserCreate, db: Session = Depends(get_db)):
     db.add(new_user)
     db.commit()
     db.refresh(new_user)
-    return new_user
+    return UserRead.from_orm(new_user)
+
+
+
 
 # Placeholder protected route
 @router.get("/items/search")
