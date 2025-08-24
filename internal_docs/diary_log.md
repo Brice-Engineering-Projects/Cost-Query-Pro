@@ -1,5 +1,141 @@
 # Diary Logs
 
+========================================================
+
+Date:  August 24, 2025
+
+========================================================
+
+# ✅ Cost Query Pro — Auth Flow Stabilization (FastAPI + Pydantic v2)
+
+## 🧩 Problem Summary
+
+While wiring up the auth flow with Insomnia, a few issues surfaced:
+
+- **404s** on `/login` and `/api/v1/auth/login` due to **router prefix mismatches**.
+- **422 Unprocessable Entity** on `POST /api/v1/auth/login` when sending **JSON** to a route expecting **form-encoded** credentials.
+- **500 Internal Server Error** on `GET /api/v1/auth/me` from `NameError: status is not defined`.
+- Pydantic v2 warning about `orm_mode` and a failure when calling `from_orm(...)` without enabling v2’s `from_attributes`.
+
+---
+
+## 🧪 Root Cause
+
+- **Pydantic v2 change:** `orm_mode=True` → **`model_config = ConfigDict(from_attributes=True)`** is required for v2 models that use attribute-based validation.
+- **Routing:** Mixed/duplicated prefixes (`/api/v1` + `/auth`) produced paths that didn’t match Insomnia calls.
+- **Payload contract:** The login route accepted **form-data** (`OAuth2PasswordRequestForm`) while the client sent **JSON**.
+- **Missing import:** `from fastapi import status` was not imported in `get_current_user`, causing a 500.
+- **Noise:** `passlib/bcrypt` version quirk produced a harmless warning.
+
+---
+
+## 🛠️ Fix Summary
+
+- **Pydantic v2**: Updated read schemas to use v2 config.
+
+    ```python
+    # src/app/schemas/user.py
+    from pydantic import BaseModel, ConfigDict
+
+    class UserRead(BaseModel):
+        id: int
+        username: str
+        is_admin: bool
+        model_config = ConfigDict(from_attributes=True)
+    ```
+
+    Route code can now use: `UserRead.from_orm(db_user)` **or** `UserRead.model_validate(db_user, from_attributes=True)`.
+
+- **Routing**: Normalized to produce **`/api/v1/auth/*`** exactly (avoid `/auth/auth/*`).
+
+    ```python
+    # Option A (recommended)
+    # auth.py
+    router = APIRouter(prefix="/auth", tags=["auth"])
+    # main.py
+    app.include_router(auth.router, prefix="/api/v1")
+    # → /api/v1/auth/login, /api/v1/auth/me
+    ```
+
+- **Login contract**: Resolved 422 by aligning client/server.
+  - Short term: Sent **form URL-encoded** creds from Insomnia to match the existing route; or
+  - Long term (preferred): Switched login to a **JSON** schema (`LoginRequest`) and updated docs/client accordingly.
+
+- **`/auth/me`**: Implemented and tied to `get_current_user`.
+
+    ```python
+    @router.get("/me", response_model=UserRead)
+    def read_me(current_user: DBUser = Depends(get_current_user)):
+        return UserRead.model_validate(current_user, from_attributes=True)
+    ```
+
+- **Import fix**: Added `from fastapi import status` in `src/app/core/security.py`.
+
+- **bcrypt noise**: Not functional; can be silenced later by pinning compatible `passlib[bcrypt]`/`bcrypt` versions.
+
+---
+
+## ✅ Current Results
+
+- **Register:** `POST /api/v1/auth/register` → **200 OK** (works; can return **201 Created** if desired).
+- **Login:** After fixing prefix + payload, `POST /api/v1/auth/login` → **200 OK** with JWT.
+- **/me:** Implemented; 500 resolved via missing import fix. *(Retest after the import to confirm 200 + user payload.)*
+
+---
+
+## 📎 Notable Code Snippets (finalized)
+
+```python
+# auth.py (router + /me)
+router = APIRouter(prefix="/auth", tags=["auth"])
+
+@router.get("/me", response_model=UserRead)
+def read_me(current_user: DBUser = Depends(get_current_user)) -> UserRead:
+    return UserRead.model_validate(current_user, from_attributes=True)
+```
+
+# security.py (import + oauth2)
+from fastapi import Depends, HTTPException, status
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/api/v1/auth/login")
+
+# Optional: register returns 201
+@router.post("/register", response_model=UserRead, status_code=status.HTTP_201_CREATED)
+def register(...): ...
+
+## Next Steps
+
+### Auth & Routes
+- [ ] Verify `/api/v1/auth/me` end-to-end in Insomnia (expect 200 with `{id, username, is_admin}`) after adding `from fastapi import status`.
+- [ ] Standardize login contract and update code/docs accordingly:
+  - [ ] **Choose one:** JSON payload (`LoginRequest` schema) **or** form (`OAuth2PasswordRequestForm`).
+  - [ ] Update API docs and Insomnia collections to match the choice.
+- [ ] Return **201 Created** for `POST /api/v1/auth/register` (optional, but recommended).
+
+### Testing
+- [ ] Add unit tests for JWT:
+  - [ ] Expiration handling.
+  - [ ] Invalid signature / malformed token.
+  - [ ] Missing/empty `sub`.
+  - [ ] Revoked/disabled user.
+- [ ] Add integration test: login → hit protected route → expect 200; bad token → expect 401.
+- [ ] Create **snapshot DB fixtures** for deterministic auth tests.
+- [ ] Add `/admin/purge` tests with `get_current_admin` override.
+
+### Security & Dependencies (Dependabot)
+- [ ] Remediate alerts:
+  - [ ] Upgrade/remove `ecdsa` (python-ecdsa) to a patched version or drop if unused.
+  - [ ] Bump `starlette` to a patched release for multipart DoS.
+- [ ] Add protections:
+  - [ ] Upload size limits (middleware or reverse-proxy) on `/projects/upload`.
+  - [ ] Add `pip-audit` or `safety` to CI; fail on critical vulns.
+- [ ] (Optional) Pin to quiet bcrypt warning: `passlib[bcrypt]==1.7.4` and `bcrypt>=4.1.2`.
+
+### DevEx & Observability
+- [ ] Confirm router prefixes produce exactly `/api/v1/auth/*` (no double `/auth`); assert via route listing in startup logs or `for r in app.routes`.
+- [ ] Document `/auth/me` in API reference and include request/response examples.
+
+
+
 
 ========================================================
 
