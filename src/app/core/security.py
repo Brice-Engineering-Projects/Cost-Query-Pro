@@ -3,7 +3,7 @@
 from datetime import datetime, timedelta, UTC
 from http.client import HTTPException
 from typing import Optional, Any
-from fastapi import Depends
+from fastapi import Depends, status, HTTPException
 from fastapi.security import OAuth2PasswordBearer
 
 from jose import jwt

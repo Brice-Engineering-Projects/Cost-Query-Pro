@@ -17,7 +17,7 @@ from src.app.schemas.token import Token
 from src.app.config.settings import settings
 
 router = APIRouter(
-    prefix="/api/v1/auth",
+    prefix="/auth",
     tags=["auth"]
 )
 
@@ -53,7 +53,7 @@ def login(form_data: OAuth2PasswordRequestForm = Depends(), db: Session = Depend
 print("REGISTER response model is:", UserRead)
 
 # ------------------------------------------
-@router.post("/register", response_model=UserRead)
+@router.post("/register", response_model=UserRead, status_code=status.HTTP_201_CREATED)
 def register(user_data: UserCreate, db: Session = Depends(get_db)):
     """
     Register a new user account.
@@ -99,3 +99,9 @@ def search_items(current_user: DBUser = Depends(get_current_user)):
         - Returns a simple success message with current user info.
     """
     return {"message": f"Authenticated as {current_user.username}"}
+
+
+@router.get("/me", response_model=UserRead)
+def read_me(current_user: DBUser = Depends(get_current_user)) -> UserRead:
+    # Pydantic v2: from_attributes is enabled on UserRead
+    return UserRead.model_validate(current_user, from_attributes=True)

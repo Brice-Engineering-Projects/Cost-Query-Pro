@@ -23,10 +23,10 @@ app = FastAPI(
 )
 
 # Include routers (no duplicate prefixes)
-app.include_router(auth.router)
-app.include_router(admin.router)
-app.include_router(projects.router)
-app.include_router(items.router)
+app.include_router(auth.router, prefix="/api/v1", tags=["auth"])
+app.include_router(admin.router, prefix="/api/v1", tags=["admin"])
+app.include_router(projects.router, prefix="/api/v1", tags=["projects"])
+app.include_router(items.router, prefix="/api/v1", tags=["items"])
 
 @app.get("/")
 def read_root(db: Session = Depends(get_db)):
