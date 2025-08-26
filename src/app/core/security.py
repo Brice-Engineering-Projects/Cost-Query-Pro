@@ -108,6 +108,7 @@ def get_current_admin(user: User = Depends(get_current_user)) -> User:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="Admin privileges required.",
+            headers={"WWW-Authenticate": "Bearer"},
         )
     return user
 

@@ -79,7 +79,7 @@ def register(user_data: UserCreate, db: Session = Depends(get_db)):
     new_user = DBUser(
         username=user_data.username,
         password_hash=hashed_pw,
-        is_admin=user_data.is_admin
+        is_admin=False
     )
     db.add(new_user)
     db.commit()

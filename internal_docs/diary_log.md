@@ -105,7 +105,7 @@ def register(...): ...
 ## Next Steps
 
 ### Auth & Routes
-- [ ] Verify `/api/v1/auth/me` end-to-end in Insomnia (expect 200 with `{id, username, is_admin}`) after adding `from fastapi import status`.
+- [X] Verify `/api/v1/auth/me` end-to-end in Insomnia (expect 200 with `{id, username, is_admin}`) after adding `from fastapi import status`.
 - [ ] Standardize login contract and update code/docs accordingly:
   - [ ] **Choose one:** JSON payload (`LoginRequest` schema) **or** form (`OAuth2PasswordRequestForm`).
   - [ ] Update API docs and Insomnia collections to match the choice.

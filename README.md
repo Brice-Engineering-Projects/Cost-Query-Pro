@@ -167,6 +167,14 @@ uvicorn src.app.main:app --reload
 
 ---
 
+### Need to debug the program through the FastAPI UI
+
+```djangourlpath
+http://127.0.0.1:8000/docs
+```
+
+---
+
 ## LICENSE
 
 Specifies how others can use or contribute to your code.
