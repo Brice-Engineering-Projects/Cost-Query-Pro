@@ -1,6 +1,7 @@
 """src/app/schemas/__init__.py"""
 
 from pydantic import BaseModel, ConfigDict
+
 from typing import Optional
 
 # ------------------------------------------------

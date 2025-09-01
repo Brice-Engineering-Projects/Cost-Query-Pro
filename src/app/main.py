@@ -48,3 +48,8 @@ def read_root(db: Session = Depends(get_db)):
             "message": "Error connecting to DB",
             "error": str(e)
         }
+
+@app.on_event("startup")
+async def _log_routes():
+    for r in app.routes:
+        print(f"[route] {getattr(r, 'methods', [])} {getattr(r, 'path', '')}")
