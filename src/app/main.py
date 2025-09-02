@@ -33,7 +33,7 @@ app = FastAPI(
     description="API for querying historical unit costs in infrastructure projects.",
     version="1.0.0",
     debug=settings.fastapi_debug,
-    lifespan=settings.lifespan,
+    lifespan=lifespan,
 )
 
 # Include routers (no duplicate prefixes)

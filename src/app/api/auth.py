@@ -12,6 +12,7 @@ from src.app.core.security import (
     create_access_token,
 )
 from src.app.models.user import User as DBUser
+from src.app.schemas.auth import LoginRequest, TokenResponse
 from src.app.schemas.user import UserCreate, UserRead
 from src.app.schemas.token import Token
 from src.app.config.settings import settings
@@ -23,7 +24,7 @@ router = APIRouter(
 
 # LOGIN
 @router.post("/login", response_model=Token)
-def login(form_data: OAuth2PasswordRequestForm = Depends(), db: Session = Depends(get_db)):
+def login(payload: LoginRequest, db: Session = Depends(get_db)) -> TokenResponse:
     """
     Authenticate user and return a JWT access token.
 
@@ -36,8 +37,8 @@ def login(form_data: OAuth2PasswordRequestForm = Depends(), db: Session = Depend
     print("✅ Login route hit — about to return token")
     # -------------------------------------------------------------
 
-    user = db.query(DBUser).filter(DBUser.username == form_data.username).first()
-    if not user or not verify_password(form_data.password, user.password_hash):
+    user = db.query(DBUser).filter(DBUser.username == payload.username).first()
+    if not user or not verify_password(payload.password, user.password_hash):
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Invalid username or password"
@@ -46,7 +47,7 @@ def login(form_data: OAuth2PasswordRequestForm = Depends(), db: Session = Depend
         data={"sub": user.username, "is_admin": user.is_admin}
     )
     # return {"access_token": access_token, "token_type": "bearer"}
-    return Token(access_token=access_token, token_type="bearer")
+    return TokenResponse(access_token=access_token, token_type="bearer")
 
 # REGISTER (optionally admin-only)
 # ------------------------------------------

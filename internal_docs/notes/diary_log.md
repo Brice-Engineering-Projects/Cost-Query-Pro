@@ -2,7 +2,8 @@
 
 ========================================================
 
-Date:  August 24, 2025
+Date:  August 24, 2025 -> Initial
+Date:  September 1, 2025 -> Updated checks on the checklist
 
 ========================================================
 
@@ -106,9 +107,11 @@ def register(...): ...
 
 ### Auth & Routes
 - [X] Verify `/api/v1/auth/me` end-to-end in Insomnia (expect 200 with `{id, username, is_admin}`) after adding `from fastapi import status`.
-- [ ] Standardize login contract and update code/docs accordingly:
-  - [ ] **Choose one:** JSON payload (`LoginRequest` schema) **or** form (`OAuth2PasswordRequestForm`).
-  - [ ] Update API docs and Insomnia collections to match the choice.
+
+*The below checklist items were done on 9-1-2025*
+- [X] Standardize login contract and update code/docs accordingly: 
+  - [X] **Choose one:** JSON payload (`LoginRequest` schema) **or** form (`OAuth2PasswordRequestForm`).
+  - [X] Update API docs and Insomnia collections to match the choice.
 - [ ] Return **201 Created** for `POST /api/v1/auth/register` (optional, but recommended).
 
 ### Testing
