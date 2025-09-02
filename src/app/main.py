@@ -1,6 +1,7 @@
 """src/app/main.py"""
 
 from fastapi import FastAPI, Depends
+from contextlib import asynccontextmanager
 from sqlalchemy.orm import Session
 from sqlalchemy import text
 import logging
@@ -15,11 +16,24 @@ from src.app.api import auth, admin, projects, items
 
 logger = logging.getLogger(__name__)
 
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    """ --- startup ---
+    # Log the route map so prefix issues are visible at boot. """
+    for r in app.routes:
+        methods = sorted(list(getattr(r, "methods", []) or []))
+        path = getattr(r, "path", "")
+        logger.info(f"Route: {path} ({methods})")
+    yield
+    """ --- shutdown --- """
+    logger.info("Shutting down...")
+
 app = FastAPI(
     title="Cost Query Pro API",
     description="API for querying historical unit costs in infrastructure projects.",
     version="1.0.0",
-    debug=settings.fastapi_debug
+    debug=settings.fastapi_debug,
+    lifespan=settings.lifespan,
 )
 
 # Include routers (no duplicate prefixes)
@@ -49,7 +63,4 @@ def read_root(db: Session = Depends(get_db)):
             "error": str(e)
         }
 
-@app.on_event("startup")
-async def _log_routes():
-    for r in app.routes:
-        print(f"[route] {getattr(r, 'methods', [])} {getattr(r, 'path', '')}")
+
