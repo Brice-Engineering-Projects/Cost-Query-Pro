@@ -25,9 +25,21 @@ jobs:
           --health-retries=5
 
     env:
-      PYTEST_DISABLE_PLUGIN_AUTOLOAD: "1"
-      # Pick the URL that matches your driver from step 1:
+      TESTING: "1"
       DATABASE_URL: postgresql+psycopg2://postgres:postgres@localhost:5432/cqp_test
+      PYTEST_DISABLE_PLUGIN_AUTOLOAD: "1"
+
+      # 🔐 auth/test defaults (adjust names to match your Pydantic settings)
+      SECRET_KEY: "not-a-real-secret-in-ci"
+      ACCESS_TOKEN_EXPIRE_MINUTES: "30"
+      REFRESH_TOKEN_EXPIRE_MINUTES: "43200"
+      ALGORITHM: "HS256"
+
+      # 📨 if your settings try to load email/SMS providers, neutralize them:
+      SENDGRID_API_KEY: ""
+      EMAIL_FROM: "noreply@example.com"
+      SMTP_HOST: ""
+      SENTRY_DSN: ""
 
     steps:
       - uses: actions/checkout@v4
