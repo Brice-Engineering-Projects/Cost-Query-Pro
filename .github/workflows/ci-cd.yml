@@ -2,11 +2,19 @@
 
 name: CI/CD (Conda | uv | pip) + Lint + Security + Vercel
 
+# --------------------------
+# Commented out until more established
+# --------------------------
+
+#on:
+#  push:
+#    branches: [ main, dev, develop, feature/**, feat/** ]
+#  pull_request:
+#    branches: [ main, dev, develop ]
+
 on:
-  push:
-    branches: [ main, dev, develop, feature/**, feat/** ]
-  pull_request:
-    branches: [ main, dev, develop ]
+  workflow_dispatch: {}
+
 
 concurrency:
   group: ci-cd-${{ github.ref }}
