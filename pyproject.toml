@@ -28,7 +28,6 @@ dependencies = [
     "pydantic-settings>=2.10.1",
     "passlib[bcrypt]==1.7.4",
     "python-jose[cryptography]>=3.5.0",
-    "pytest>=8.4.1",
     "certifi>=2025.7.9",
     "starlette>=0.47.1",
     "bcrypt>=4.1.2",
@@ -47,3 +46,12 @@ dev = [
 Homepage = "https://www.devbybrice.com"
 Blog = "https://medium.com/@quantshift"
 Repository = "https://github.com/Brice-Engineering-Projects/Cost-Query-Pro"
+
+[dependency-groups]
+dev = [
+    "bandit>=1.8.6",
+    "black>=25.1.0",
+    "flake8>=7.3.0",
+    "pip-audit>=2.9.0",
+    "pytest>=8.4.1",
+]
