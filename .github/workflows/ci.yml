@@ -13,16 +13,25 @@ jobs:
         with:
           python-version: "3.12"
 
-      # bootstrap uv (safe to use pip here)
+      # Bootstrap uv
       - name: Install uv
         run: |
           python -m pip install --upgrade pip
           pip install uv
 
-      # install your project deps (dev group if present)
+      # Install your deps (dev group if present)
       - name: Sync dependencies
         run: uv sync --extra dev || uv sync
 
-      # run tests inside uv's venv
+      # Optional: quick debug so we can see what's installed
+      - name: Debug env
+        run: |
+          uv run python -V
+          uv run python -c "import pytest; print('pytest', pytest.__version__)"
+          uv run which pytest
+
+      # Run tests inside uv env; disable stray plugins on the runner
       - name: Run tests
+        env:
+          PYTEST_DISABLE_PLUGIN_AUTOLOAD: "1"
         run: uv run pytest -q
