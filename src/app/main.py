@@ -5,6 +5,9 @@ from contextlib import asynccontextmanager
 from sqlalchemy.orm import Session
 from sqlalchemy import text
 import logging
+from decimal import Decimal
+from fastapi.responses import JSONResponse
+from fastapi.encoders import jsonable_encoder
 
 from src.app.config.settings import settings
 from src.app.db.session import get_db
@@ -28,12 +31,26 @@ async def lifespan(app: FastAPI):
     """ --- shutdown --- """
     logger.info("Shutting down...")
 
+
+class CustomJSONResponse(JSONResponse):
+    def render(self, content):
+        def convert_decimal(obj):
+            if isinstance(obj, Decimal):
+                return float(obj)
+            return obj
+
+        return super().render(jsonable_encoder(content, custom_encoder={Decimal: convert_decimal}))
+
+
+
+
 app = FastAPI(
     title="Cost Query Pro API",
     description="API for querying historical unit costs in infrastructure projects.",
     version="1.0.0",
     debug=settings.fastapi_debug,
     lifespan=lifespan,
+    default_response_class=CustomJSONResponse
 )
 
 # Include routers (no duplicate prefixes)
@@ -62,5 +79,6 @@ def read_root(db: Session = Depends(get_db)):
             "message": "Error connecting to DB",
             "error": str(e)
         }
+
 
 
