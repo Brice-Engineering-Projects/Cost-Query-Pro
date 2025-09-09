@@ -22,6 +22,7 @@ router = APIRouter(
     tags=["auth"]
 )
 
+
 # LOGIN
 @router.post("/login", response_model=Token)
 def login(payload: LoginRequest, db: Session = Depends(get_db)) -> TokenResponse:
@@ -77,10 +78,12 @@ def register(user_data: UserCreate, db: Session = Depends(get_db)):
         raise HTTPException(status_code=400, detail="Username already registered")
 
     hashed_pw = get_password_hash(user_data.password)
+    is_admin_requested = bool(getattr(user_data, "is_admin", False))
+    grant_admin = bool(is_admin_requested and settings.allow_admin_signup)
     new_user = DBUser(
         username=user_data.username,
         password_hash=hashed_pw,
-        is_admin=False
+        is_admin=grant_admin,
     )
     db.add(new_user)
     db.commit()

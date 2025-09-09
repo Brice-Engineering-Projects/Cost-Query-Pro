@@ -57,8 +57,10 @@ class Settings(BaseSettings):
     # Auth config
     access_token_expire_minutes: int = Field(60, env="ACCESS_TOKEN_EXPIRE_MINUTES")
     algorithm: str = Field("HS256", env="ALGORITHM")
+    allow_admin_signup: bool = Field(default=False, alias="ALLOW_ADMIN_SIGNUP")
 
     class Config:
         env_file = ".env"
+        env_file_encoding = "utf-8",
 
 settings = Settings()

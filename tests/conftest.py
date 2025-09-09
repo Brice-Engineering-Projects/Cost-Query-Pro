@@ -107,3 +107,11 @@ def clean_db(db_session):
         )
     )
     db_session.commit()
+
+
+@pytest.fixture(autouse=True, scope="session")
+def _enable_admin_signup_for_tests():
+    orig = settings.allow_admin_signup
+    settings.allow_admin_signup = True
+    yield
+    settings.allow_admin_signup = orig
