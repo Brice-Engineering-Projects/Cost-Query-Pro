@@ -104,10 +104,16 @@ def get_current_admin(user: User = Depends(get_current_user)) -> User:
     Dependency that checks if the current user has admin privileges.
     Raises 403 Forbidden if not an admin.
     """
+
+    if isinstance(user.is_admin, str):
+        user.is_admin = user.is_admin.strip().lower() in {"1", "true", "yes", "y"}
+    else:
+        user.is_admin = bool(user.is_admin)
+
     if not user.is_admin:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
-            detail="Admin privileges required.",
+            detail="Admin privileges required",
             headers={"WWW-Authenticate": "Bearer"},
         )
     return user
