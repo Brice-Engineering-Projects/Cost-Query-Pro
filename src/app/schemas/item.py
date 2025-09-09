@@ -30,7 +30,7 @@ class ItemUpdate(BaseModel):
     """
     item_description: Optional[str] = Field(None, min_length=1, max_length=255, example='8" PVC Gravity Sewer')
     unit: Optional[str] = Field(None, min_length=1, max_length=50, example='LF')
-    unit_price: Optional[Decimal] = Field(None, example=45.32)
+    unit_price: float = Field(None, example=45.32)
     project_id: Optional[int] = Field(None, example=1)
 
     model_config = ConfigDict(from_attributes=True)

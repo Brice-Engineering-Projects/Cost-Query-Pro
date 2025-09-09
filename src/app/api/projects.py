@@ -11,7 +11,7 @@ from src.app.schemas.item import ItemOut
 from src.app.api.auth import get_current_user
 
 router = APIRouter(
-    prefix="/api/v1/projects",
+    prefix="/projects",
     tags=["projects"],
 )
 

@@ -32,10 +32,11 @@ def purge_data(
     old_projects = db.query(Project).filter(Project.year < year_cutoff).all()
 
     if not old_projects:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail=f"No projects older than {year_cutoff} found."
-        )
+        return {
+            "message": f"No projects older than {year_cutoff} found.",
+            "projects_deleted": 0,
+            "items_deleted": 0
+        }
 
     # Perform the purge operation
     purge_results = _purge_old_projects(db, old_projects)
