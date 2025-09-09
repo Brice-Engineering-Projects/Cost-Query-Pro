@@ -1,6 +1,6 @@
 """src/app/schemas/item.py"""
 
-from pydantic import BaseModel, Field, ConfigDict, field_serializer
+from pydantic import BaseModel, Field, ConfigDict, field_serializer, computed_field
 from typing import Optional
 from decimal import Decimal
 from src.app.schemas.project import ProjectOut
@@ -52,5 +52,33 @@ class ItemOut(ItemBase):
 class ItemWithProject(ItemOut):
     """
     Schema for item responses with project details.
+
+    This model includes the project object and provides convenient access
+    to commonly used project fields at the top level for simplified API responses.
     """
     project: ProjectOut
+
+    @computed_field
+    @property
+    def project_name(self) -> str:
+        """Project name from the associated project."""
+        return self.project.project_name if self.project else None
+
+    @computed_field
+    @property
+    def project_number(self) -> str:
+        """Project number from the associated project."""
+        return self.project.project_number if self.project else None
+
+    @computed_field
+    @property
+    def state(self) -> str:
+        """State code from the associated project."""
+        return self.project.state if self.project else None
+
+    @computed_field
+    @property
+    def year(self) -> int:
+        """Project year from the associated project."""
+        return self.project.year if self.project else None
+
