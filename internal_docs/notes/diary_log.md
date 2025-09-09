@@ -1,5 +1,203 @@
 # Diary Logs
 
+
+========================================================
+
+Date: September 8, 2025
+
+========================================================
+
+# ✅ Cost Query Pro — GitHub Actions CI/CD Pipeline Setup & Green Tests
+
+## 🧩 Problem Summary
+
+Setting up a robust CI/CD pipeline for the FastAPI project with proper test isolation and dependency management. Initial challenges included:
+
+- **Test environment isolation** - ensuring CI tests don't interfere with local development
+- **Database setup** - configuring PostgreSQL service for CI testing
+- **Dependency management** - ensuring consistent package versions between local and CI
+- **Schema refactoring** - modernizing Pydantic models for better maintainability
+- **Test reliability** - achieving consistent passing tests across environments
+
+---
+
+## 🧪 CI/CD Pipeline Implementation
+
+### 1. **GitHub Actions Workflow Setup**
+- Created `.github/workflows/ci.yml` with:
+  - **Python 3.12** environment matching local development
+  - **PostgreSQL 13** service container for database tests
+  - **Environment variables** for test database configuration
+  - **Multi-step process:** install dependencies → run migrations → execute tests
+
+### 2. **Database Service Configuration**
+- Configured PostgreSQL service in GitHub Actions:
+  ```yaml
+  services:
+    postgres:
+      image: postgres:13
+      env:
+        POSTGRES_PASSWORD: testpass
+        POSTGRES_USER: testuser
+        POSTGRES_DB: testdb
+      options: >-
+        --health-cmd pg_isready
+        --health-interval 10s
+        --health-timeout 5s
+        --health-retries 5
+  ```
+
+### 3. **Environment Variable Management**
+- Set up CI-specific environment variables:
+  - `TEST_DATABASE_URL` for isolated test database
+  - `SECRET_KEY` for JWT token generation
+  - `ENVIRONMENT=testing` to ensure proper config loading
+
+### 4. **Migration Integration**
+- Added Alembic migration step to CI pipeline:
+  ```yaml
+  - name: Run database migrations
+    run: |
+      alembic upgrade head
+    env:
+      DATABASE_URL: ${{ env.TEST_DATABASE_URL }}
+  ```
+
+---
+
+## 🛠️ Code Quality Improvements
+
+### 1. **Schema Refactoring - ItemWithProject**
+- **Problem:** Complex field validators duplicating project data
+- **Solution:** Replaced with Pydantic `@computed_field` properties
+- **Benefits:**
+  - Eliminated duplicated validation logic
+  - Clearer relationship between project object and derived fields
+  - Better maintainability with single source of truth
+  - Preserved API compatibility
+
+### 2. **Test Environment Isolation**
+- Enhanced `conftest.py` with proper test database setup
+- Ensured tests use isolated test database, not development DB
+- Added proper cleanup and teardown mechanisms
+
+### 3. **Dependency Consistency**
+- Verified `pyproject.toml` and `requirements.txt` alignment
+- Ensured all test dependencies are properly declared
+- Confirmed Python version consistency (3.12.2)
+
+---
+
+## ✅ Current Results
+
+- **GitHub Actions CI:** ✅ **PASSING** - all tests execute successfully
+- **Test Isolation:** ✅ Tests run against dedicated PostgreSQL service
+- **Database Migrations:** ✅ Alembic migrations run automatically in CI
+- **Code Quality:** ✅ Schema refactoring improves maintainability
+- **Environment Parity:** ✅ CI environment matches local development
+
+---
+
+## 📎 Key Achievements
+
+**GitHub Actions Workflow Setup:**
+- Install dependencies with pip requirements
+- Run database migrations with alembic upgrade head  
+- Execute tests with pytest -v --tb=short
+
+**Schema Refactoring Example:**
+- Replaced complex validators with @computed_field properties
+- Added proper null checking for optional relationships
+- Maintained backward API compatibility
+
+---
+
+## 🔧 Technical Lessons Learned
+
+### 1. **CI Database Services**
+- PostgreSQL health checks are crucial for reliable test execution
+- Service containers need proper environment variable configuration
+- Database initialization must complete before migration steps
+
+### 2. **Pydantic Best Practices**
+- @computed_field is preferred over complex validators for derived data
+- Properties provide cleaner API while maintaining backward compatibility
+- Null checking is essential when dealing with optional relationships
+
+### 3. **Environment Management**
+- Separate test database URLs prevent CI/local environment conflicts
+- Environment-specific settings enable proper test isolation
+- Consistent Python versions across environments reduce debugging time
+
+---
+
+## 📋 Next Steps
+
+### CI/CD Enhancements
+- [ ] Add code coverage reporting with pytest-cov
+- [ ] Implement linting checks (black, flake8, mypy)
+- [ ] Add security scanning with bandit or safety
+- [ ] Set up deployment pipeline for staging/production
+
+### Code Quality
+- [ ] Continue Pydantic v2 migration across remaining schemas
+- [ ] Add more comprehensive integration tests
+- [ ] Implement API contract testing
+- [ ] Add performance benchmarking to CI
+
+### Security & Dependencies
+- [ ] Set up Dependabot for automated dependency updates
+- [ ] Add vulnerability scanning to CI pipeline
+- [ ] Implement secrets scanning for sensitive data
+
+---
+
+## Next Steps Carryover From Previous Entry
+
+### Auth & Routes
+- [X] Verify `/api/v1/auth/me` end-to-end in Insomnia (expect 200 with `{id, username, is_admin}`) after adding `from fastapi import status`.
+
+*The below checklist items were done on 9-1-2025*
+- [X] Standardize login contract and update code/docs accordingly: 
+  - [X] **Choose one:** JSON payload (`LoginRequest` schema) **or** form (`OAuth2PasswordRequestForm`).
+  - [X] Update API docs and Insomnia collections to match the choice.
+- [ ] Return **201 Created** for `POST /api/v1/auth/register` (optional, but recommended).
+
+### Testing
+- [ ] Add unit tests for JWT:
+  - [ ] Expiration handling.
+  - [ ] Invalid signature / malformed token.
+  - [ ] Missing/empty `sub`.
+  - [ ] Revoked/disabled user.
+- [ ] Add integration test: login → hit protected route → expect 200; bad token → expect 401.
+- [ ] Create **snapshot DB fixtures** for deterministic auth tests.
+- [ ] Add `/admin/purge` tests with `get_current_admin` override.
+
+### Security & Dependencies (Dependabot)
+- [ ] Remediate alerts:
+  - [ ] Upgrade/remove `ecdsa` (python-ecdsa) to a patched version or drop if unused.
+  - [ ] Bump `starlette` to a patched release for multipart DoS.
+- [ ] Add protections:
+  - [ ] Upload size limits (middleware or reverse-proxy) on `/projects/upload`.
+  - [ ] Add `pip-audit` or `safety` to CI; fail on critical vulns.
+- [ ] (Optional) Pin to quiet bcrypt warning: `passlib[bcrypt]==1.7.4` and `bcrypt>=4.1.2`.
+
+### DevEx & Observability
+- [ ] Confirm router prefixes produce exactly `/api/v1/auth/*` (no double `/auth`); assert via route listing in startup logs or `for r in app.routes`.
+- [ ] Document `/auth/me` in API reference and include request/response examples.
+
+## 📦 Status
+
+- ✅ **CI Pipeline:** Fully functional with PostgreSQL integration
+- ✅ **Tests:** Consistently passing in isolated environment  
+- ✅ **Code Quality:** Schema refactoring complete with computed fields
+- ✅ **Environment Parity:** Local and CI environments aligned
+- 🚀 **Ready for:** Advanced CI features and deployment automation
+
+**Status:** 🎯 Solid foundation established for continuous integration and deployment. Pipeline is reliable and ready for team collaboration.
+
+
+
 ========================================================
 
 Date:  August 24, 2025 -> Initial
