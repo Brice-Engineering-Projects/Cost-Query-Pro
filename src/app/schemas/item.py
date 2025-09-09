@@ -1,6 +1,6 @@
 """src/app/schemas/item.py"""
 
-from pydantic import BaseModel, Field, ConfigDict
+from pydantic import BaseModel, Field, ConfigDict, field_serializer
 from typing import Optional
 from decimal import Decimal
 from src.app.schemas.project import ProjectOut
@@ -14,6 +14,11 @@ class ItemBase(BaseModel):
     unit_price: Decimal = Field(..., example=45.32)
 
     model_config = ConfigDict(from_attributes=True)
+
+    # Add a serializer for the Decimal type
+    @field_serializer('unit_price')
+    def serialize_unit_price(self, unit_price: Decimal) -> float:
+        return float(unit_price)
 
 
 class ItemCreate(ItemBase):
