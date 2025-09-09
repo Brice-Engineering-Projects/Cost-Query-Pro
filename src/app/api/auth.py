@@ -91,16 +91,6 @@ def register(user_data: UserCreate, db: Session = Depends(get_db)):
 
 
 # Placeholder protected route
-@router.get("/items/search")
-def search_items(current_user: DBUser = Depends(get_current_user)):
-    """
-    Placeholder route to demonstrate authentication.
-
-        - Requires a valid JWT token.
-        - Returns a simple success message with current user info.
-    """
-    return {"message": f"Authenticated as {current_user.username}"}
-
 
 @router.get("/me", response_model=UserRead)
 def read_me(current_user: DBUser = Depends(get_current_user)) -> UserRead:

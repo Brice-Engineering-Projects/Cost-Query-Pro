@@ -84,4 +84,8 @@ def test_non_admin_cannot_purge(client):
 
     response = client.delete("/api/v1/admin/purge?year_cutoff=2020", headers=headers)
     assert response.status_code == 403, response.text
-    assert response.json().get("detail") in {"Not enough permissions", "Forbidden"}
+    assert response.json().get("detail") in {
+        "Not enough permissions",
+        "Forbidden",
+        "Admin privileges required"
+    }

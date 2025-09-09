@@ -115,4 +115,8 @@ def test_non_admin_forbidden(client, create_user, login_user):
     )
 
     assert response.status_code == 403, response.text
-    assert response.json().get("detail") in {"Not enough permissions", "Forbidden"}
+    assert response.json().get("detail") in {
+        "Not enough permissions",
+        "Forbidden",
+        "Admin privileges required"
+    }

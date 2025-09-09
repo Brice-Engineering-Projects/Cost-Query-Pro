@@ -4,7 +4,7 @@ from fastapi import APIRouter, Depends, HTTPException, Query, status, Response
 from sqlalchemy.orm import Session, joinedload
 from typing import List, Optional
 from decimal import Decimal
-
+from src.app.models.user import User as DBUser
 from src.app.db.session import get_db
 from src.app.models import Item, Project
 from src.app.schemas.item import ItemCreate, ItemOut, ItemUpdate
@@ -13,7 +13,7 @@ from src.app.api.auth import get_current_user
 from pydantic import BaseModel
 
 router = APIRouter(
-    prefix="/api/v1/items",
+    prefix="/items",
     tags=["items"]
 )
 
@@ -195,3 +195,13 @@ def get_price_range(
         min_price=min_price_item.unit_price if min_price_item else None,
         max_price=max_price_item.unit_price if max_price_item else None,
     )
+
+@router.get("/search")
+def search_items(current_user: DBUser = Depends(get_current_user)):
+    """
+    Placeholder route to demonstrate authentication.
+
+        - Requires a valid JWT token.
+        - Returns a simple success message with current user info.
+    """
+    return {"message": f"Authenticated as {current_user.username}"}
