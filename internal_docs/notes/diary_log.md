@@ -233,7 +233,7 @@ While wiring up the auth flow with Insomnia, a few issues surfaced:
 - **Pydantic v2**: Updated read schemas to use v2 config.
 
     ```python
-    # src/app/schemas/user.py
+    # src/cost_query_pro/schemas/user.py
     from pydantic import BaseModel, ConfigDict
 
     class UserRead(BaseModel):

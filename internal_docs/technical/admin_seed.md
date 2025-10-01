@@ -16,6 +16,7 @@
 ## Files to add
 
 ### `src/app/cli.py`
+
 ```python
 from __future__ import annotations
 
@@ -24,30 +25,32 @@ from getpass import getpass
 import typer
 
 from sqlalchemy.orm import Session
-from src.app.db.session import SessionLocal  # your existing sessionmaker
-from src.app.models.user import User as DBUser
-from src.app.core.security import get_password_hash  # same hasher used by auth
+from src.cost_query_pro.db.session import SessionLocal  # your existing sessionmaker
+from src.cost_query_pro.models.user import User as DBUser
+from src.cost_query_pro.core.security import get_password_hash  # same hasher used by auth
 
 cli = typer.Typer(add_completion=False, help="Cost Query Pro management commands")
+
 
 def _admin_exists(db: Session) -> bool:
     return db.query(DBUser).filter(DBUser.is_admin.is_(True)).first() is not None
 
+
 @cli.command("bootstrap-admin")
 def bootstrap_admin(
-    token: str = typer.Option(
-        ..., "--token",
-        envvar="ADMIN_BOOTSTRAP_TOKEN",
-        help="One-time bootstrap token (required)."
-    ),
-    username: str = typer.Option(
-        "admin", "--username", envvar="ADMIN_BOOTSTRAP_USERNAME",
-        help="Admin username to create if none exists."
-    ),
-    password: str | None = typer.Option(
-        None, "--password", envvar="ADMIN_BOOTSTRAP_PASSWORD",
-        help="Admin password. Omit to be prompted securely."
-    ),
+        token: str = typer.Option(
+            ..., "--token",
+            envvar="ADMIN_BOOTSTRAP_TOKEN",
+            help="One-time bootstrap token (required)."
+        ),
+        username: str = typer.Option(
+            "admin", "--username", envvar="ADMIN_BOOTSTRAP_USERNAME",
+            help="Admin username to create if none exists."
+        ),
+        password: str | None = typer.Option(
+            None, "--password", envvar="ADMIN_BOOTSTRAP_PASSWORD",
+            help="Admin password. Omit to be prompted securely."
+        ),
 ):
     """Create the first admin user if none exists (idempotent)."""
     expected = os.getenv("ADMIN_BOOTSTRAP_TOKEN")
@@ -81,6 +84,7 @@ def bootstrap_admin(
     finally:
         db.close()
 
+
 if __name__ == "__main__":
     cli()
 ```
@@ -98,7 +102,7 @@ PY)
 ### 2) Execute the command; you’ll be prompted for the password
 
 ```bash
-uv run python -m src.app.cli bootstrap-admin --token "$ADMIN_BOOTSTRAP_TOKEN" --username admin
+uv run python -m src.cost_query_pro.cli bootstrap-admin --token "$ADMIN_BOOTSTRAP_TOKEN" --username admin
 ```
 
 ### Expected Results
@@ -111,7 +115,7 @@ uv run python -m src.app.cli bootstrap-admin --token "$ADMIN_BOOTSTRAP_TOKEN" --
 - GitHub Actions: add a one-off job guarded by if: github.ref == 'refs/heads/main' && github.run_number == 1 (or a manual workflow dispatch). Inject ADMIN_BOOTSTRAP_TOKEN and run:
 
 ```bash
-python -m src.app.cli bootstrap-admin --token "$ADMIN_BOOTSTRAP_TOKEN" --username admin
+python -m src.cost_query_pro.cli bootstrap-admin --token "$ADMIN_BOOTSTRAP_TOKEN" --username admin
 ```
 
 - Elastic Beanstalk / ECS / App Runner: run as a one-time exec/command on the web container with the same environment variable set.

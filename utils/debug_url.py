@@ -1,6 +1,6 @@
 
 """utils/debug_url.py"""
 
-from src.app.config.settings import settings
+from src.cost_query_pro.config.settings import settings
 
 print("💥 RAW URL:", repr(settings.test_database_url))
