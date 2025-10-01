@@ -4,11 +4,11 @@ from alembic.config import Config
 from sqlalchemy import engine_from_config, pool, create_engine
 from logging.config import fileConfig
 
-from src.cost_query_pro.db import Base
-from src.cost_query_pro.models.user import User
-from src.cost_query_pro.models.project import Project
-from src.cost_query_pro.models.item import Item
-from src.cost_query_pro.config.settings import settings
+from cost_query_pro.db import Base
+from cost_query_pro.models.user import User
+from cost_query_pro.models.project import Project
+from cost_query_pro.models.item import Item
+from cost_query_pro.config.settings import settings
 
 # Load alembic.ini explicitly
 config = Config("alembic.ini")
