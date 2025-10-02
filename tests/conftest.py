@@ -6,10 +6,10 @@ from sqlalchemy.orm import sessionmaker
 
 from fastapi.testclient import TestClient
 
-from src.app.main import app
-from src.app import Base
-from src.app.db.session import get_db
-from src.app.config.settings import settings
+from cost_query_pro.main import app
+from cost_query_pro.db.base import Base
+from cost_query_pro.db.session import get_db
+from cost_query_pro.config.settings import settings
 
 
 print("✅ LOADING conftest.py from:", __file__)

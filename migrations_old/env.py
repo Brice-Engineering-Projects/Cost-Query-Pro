@@ -12,18 +12,18 @@ config = context.config
 if config.config_file_name is not None:
     fileConfig(config.config_file_name)
 
-# Import app models and Base metadata
+# Import cost_query_pro models and Base metadata
 sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
 
-from src.app import Base
-from src.app.config.settings import settings
+from src.cost_query_pro import Base
+from src.cost_query_pro.config.settings import settings
 
 target_metadata = Base.metadata
 
 def run_migrations_offline() -> None:
     """Run migrations in 'offline' mode."""
 
-    from src.app.config.settings import settings
+    from src.cost_query_pro.config.settings import settings
     url = str(settings.database_url)
 
     context.configure(

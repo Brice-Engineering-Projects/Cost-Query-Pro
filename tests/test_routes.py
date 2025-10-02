@@ -1,7 +1,7 @@
 """tests/test_routes.py"""
 
 import pytest
-from src.app.models import Project, Item
+from cost_query_pro.models import Project, Item
 
 @pytest.fixture
 def create_user(client):

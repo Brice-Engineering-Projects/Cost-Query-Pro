@@ -53,6 +53,9 @@ jobs:
       - name: Sync dependencies
         run: uv sync --extra dev || uv sync
 
+      - name: Set PYTHONPATH
+        run: echo "PYTHONPATH=src" >> $GITHUB_ENV
+
       # If you have Alembic, uncomment this to create tables:
       - name: Run migrations
         run: uv run alembic upgrade head
@@ -65,7 +68,7 @@ jobs:
           from sqlalchemy import create_engine
           # Update these to your actual metadata import:
           # e.g., from src.app.db.base import Base
-          from src.app.db import Base  
+          from src.cost_query_pro.db import Base  
           url = os.environ["DATABASE_URL"]
           engine = create_engine(url, future=True)
           Base.metadata.create_all(bind=engine)

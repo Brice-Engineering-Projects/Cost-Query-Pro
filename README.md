@@ -161,7 +161,7 @@ Your project’s first impression for collaborators.
 ### How to Run the Program
 
 ```bash
-uvicorn src.app.main:app --reload
+uvicorn src.cost_query_pro.main:cost_query_pro --reload
 
 ```
 
