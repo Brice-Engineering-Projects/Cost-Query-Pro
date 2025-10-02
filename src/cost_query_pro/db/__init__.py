@@ -10,10 +10,10 @@ Base = declarative_base()
 __all__ = ["Base"]
 
 # Import the get_db function from session.py here to avoid circular imports
-from src.cost_query_pro.db.session import get_db
+from cost_query_pro.db.session import get_db
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker, Session
-from src.cost_query_pro.config.settings import settings
+from cost_query_pro.config.settings import settings
 
 if settings.environment == "testing":
     db_url = settings.test_database_url
