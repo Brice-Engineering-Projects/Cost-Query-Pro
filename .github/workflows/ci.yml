@@ -65,7 +65,7 @@ jobs:
           from sqlalchemy import create_engine
           # Update these to your actual metadata import:
           # e.g., from src.app.db.base import Base
-          from src.app.db import Base  
+          from src.cost_query_pro.db import Base  
           url = os.environ["DATABASE_URL"]
           engine = create_engine(url, future=True)
           Base.metadata.create_all(bind=engine)
