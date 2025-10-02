@@ -53,6 +53,9 @@ jobs:
       - name: Sync dependencies
         run: uv sync --extra dev || uv sync
 
+      - name: Set PYTHONPATH
+        run: echo "PYTHONPATH=src" >> $GITHUB_ENV
+
       # If you have Alembic, uncomment this to create tables:
       - name: Run migrations
         run: uv run alembic upgrade head
