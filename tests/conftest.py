@@ -7,7 +7,7 @@ from sqlalchemy.orm import sessionmaker
 from fastapi.testclient import TestClient
 
 from cost_query_pro.main import app
-from cost_query_pro import Base
+from cost_query_pro.db.base import Base
 from cost_query_pro.db.session import get_db
 from cost_query_pro.config.settings import settings
 
