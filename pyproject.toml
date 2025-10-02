@@ -55,3 +55,6 @@ dev = [
     "pip-audit>=2.9.0",
     "pytest>=8.4.1",
 ]
+
+[tool.uv.sources]
+cost-query-pro = { path = "src" }
