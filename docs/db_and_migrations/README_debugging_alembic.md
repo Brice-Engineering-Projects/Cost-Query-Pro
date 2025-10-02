@@ -1,4 +1,4 @@
-<!--internal_docs/README_debugging_alembic.md-->
+<!--docs/README_debugging_alembic.md-->
 
 # 🛠️ Alembic Debugging & Migration Recovery Guide
 
