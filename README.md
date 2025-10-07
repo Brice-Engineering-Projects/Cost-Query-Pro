@@ -1,182 +1,163 @@
-# 📂 Project Folder Structure – Explanations
+# 💼 Cost Query Pro
+
+**A backend platform for infrastructure cost intelligence and bid-item analysis.**  
+Built with **FastAPI**, **SQLAlchemy**, and **PostgreSQL**, Cost Query Pro is designed to query, clean, and analyze construction cost data at scale — empowering engineers, estimators, and project managers with smarter insights.
 
 ---
 
-## app/
+## ⚙️ Tech Stack
 
-Main FastAPI application code and core Python logic. All the “brains” of the app live here.
-
----
-
-## app/models/
-
-SQLAlchemy ORM classes that define:
-
-- Projects table
-- Items table
-- Users table
-- Any future tables
-
-This layer handles how Python objects map to your database tables.
+| Layer | Technology |
+|-------|-------------|
+| **Framework** | FastAPI |
+| **Database** | PostgreSQL + SQLAlchemy ORM |
+| **Auth** | JWT-based authentication |
+| **Migrations** | Alembic |
+| **Testing** | Pytest |
+| **Package Manager / Env** | [uv](https://docs.astral.sh/uv/) |
+| **Deployment** | Docker / AWS RDS (planned) |
+| **Language** | Python 3.12 |
 
 ---
 
-## app/db/
+## 🧠 Core Features
 
-Database setup and connection utilities:
-
-- Creating the SQLAlchemy engine
-- Managing sessions
-- Dependency injection for FastAPI routes
-
----
-
-## app/api/
-
-All API route definitions:
-
-- `/auth` → login, registration, user management
-- `/projects` → endpoints for project data
-- `/items` → endpoints for item data
-- `/purge` → endpoints for purging old data
-
-Keeps your routing logic organized and modular.
+- 🔐 Secure authentication with JWT  
+- 🧮 Project, item, and cost model endpoints  
+- 🧹 Automated purge routines for old or duplicate data  
+- 🧱 Database migrations and ORM models  
+- 🧰 Modular architecture with dedicated folders for logic, schemas, and services  
+- 🧾 Built-in API documentation via Swagger UI (`/docs`)  
 
 ---
 
-## app/schemas/
+## 🚀 Getting Started (with `uv`)
 
-Pydantic models for:
-
-- Validating incoming requests
-- Structuring API responses
-
-Ensures type safety and consistent API payloads.
-
----
-
-## app/core/
-
-Core business logic and shared utilities:
-
-- Data purge logic
-- Data upload/cleaning routines
-- Security helpers (password hashing, token management)
-
-Central place for functions used across multiple parts of the app.
+### 1️⃣ Clone the Repository
+```bash
+git clone https://github.com/Brice-Backend-Projects/Cost-Query-Pro.git
+cd Cost-Query-Pro
+```
 
 ---
 
-## app/templates/
-
-HTML templates (if you’re serving web pages with Jinja2).  
-Not needed if you’re only building an API or a separate frontend.
-
----
-
-## app/static/
-
-Static files:
-
-- CSS
-- JavaScript
-- Images
-- Fonts
-
-Again, only necessary if you’re serving a frontend directly from FastAPI.
-
----
-
-## app/services/
-
-Business logic and data processing that doesn’t fit directly into API routes:
-
-- Data analysis
-- Export routines
-- Advanced processing steps
-
-Helps keep API route files clean and focused.
-
----
-
-## migrations/
-
-Database migration scripts (e.g. Alembic) to keep your database schema synchronized with your SQLAlchemy models as your app evolves.
-
----
-
-## tests/
-
-Unit tests and integration tests:
-
-- Test API routes
-- Validate data ingestion scripts
-- Catch regressions as you develop
-
-Helps ensure your code stays reliable and bug-free.
-
----
-
-## .env
-
-Environment variables:
-
-- Database credentials
-- Secret keys
-- Configuration values
-
-**Important:** should never be committed to version control with sensitive data.
-
----
-
-## .gitignore
-
-Files and folders that should NOT be tracked by Git:
-
-- Python bytecode
-- IDE configs (e.g. JetBrains)
-- Virtual environments
-- OS-specific junk
-
-Keeps your repo clean.
-
----
-
-## requirements.txt or pyproject.toml
-
-Lists all your Python dependencies so others (or future you) can easily install them.
-
----
-
-## README.md
-
-Project overview:
-
-- What the app does
-- How to install and run it
-- Usage instructions
-
-Your project’s first impression for collaborators.
-
-### How to Run the Program
+### 2️⃣ Create and Sync the Environment
 
 ```bash
-uvicorn src.cost_query_pro.main:cost_query_pro --reload
-
+uv venv
+source .venv/bin/activate  # (Windows: .venv\Scripts\activate)
 ```
 
 ---
 
-### Need to debug the program through the FastAPI UI
+### 3️⃣ Install Dependencies
 
-```djangourlpath
-http://127.0.0.1:8000/docs
+```bash
+uv sync
 ```
 
 ---
 
-## LICENSE
+### 4️⃣ Run the App
 
-Specifies how others can use or contribute to your code.
+```bash
+uvicorn src.cost_query_pro.main:app --reload
+```
+
+### 5️⃣ Access the API Docs
+
+Visit `http://localhost:8000/docs`
 
 ---
+
+### 📂 Project Structure
+
+```graphql
+cost_query_pro/
+│
+├── app/                      # Main application code
+│   ├── __init__.py
+│   ├── main.py               # FastAPI app entry point
+│   ├── models/               # SQLAlchemy models
+│   │    └── __init__.py
+│   ├── db/                   # Database config and session utilities
+│   │    └── __init__.py
+│   ├── api/                  # API route definitions
+│   │    ├── __init__.py
+│   │    ├── auth.py
+│   │    ├── projects.py
+│   │    ├── items.py
+│   │    └── purge.py
+│   ├── config/                 # Configuration files
+│   │    ├── __init__.py        # initialization file
+│   │    └── settings.py        # settings file
+│   ├── core/                 # Core logic/utilities (e.g. purge scripts)
+│   │    ├── __init__.py
+│   │    ├── security.py
+│   │    └── data_upload.py
+│   ├── schemas/              # Pydantic schemas for API validation
+│   │    └── __init__.py
+│   ├── templates/            # HTML templates (if using Jinja2)
+│   │    └── ...
+│   ├── static/               # CSS, JS, images (if applicable)
+│   │    └── ...
+│   └── services/             # Business logic services
+│        └── __init__.py
+│
+├── migrations/               # DB migrations (e.g. Alembic)
+│
+├── tests/                    # Unit and integration tests
+│   ├── __init__.py
+│   ├── test_projects.py
+│   ├── test_items.py
+│   └── test_auth.py
+│
+├── .env                      # Environment variables (never commit secrets!)
+├── .gitignore
+├── requirements.txt          # Python package dependencies
+├── README.md
+├── LICENSE
+└── pyproject.toml            # Optional: modern Python packaging config
+```
+
+---
+
+## 🧠 Lessons Learned
+
+- How to architect a **production-ready FastAPI backend** with modular separation (api, core, db, schemas, services)
+- Managing **SQLAlchemy sessions and transactions** safely across async endpoints
+- The importance of **type-safe validation** with Pydantic models for clean data ingestion
+- Implementing **JWT authentication** and secure password hashing workflows
+- Building and maintaining **database migrations** with Alembic
+- Designing for **maintainability** — breaking logic into reusable service layers
+- Leveraging **uv** for faster dependency installs, reproducible environments, and isolated builds
+- Writing **meaningful tests** to prevent regressions during refactors
+- Building with **deployment in mind** (directory structure, .env separation, and Docker-readiness)
+- Documenting the architecture so others (or future me) can onboard easily
+
+---
+
+## 🌱 Future Enhancements
+
+- 🔑 **Role-based access control (RBAC):** differentiate between admin, project manager, and analyst users  
+- 🧾 **Bid-item cost analytics:** integrate real municipal datasets to benchmark infrastructure costs  
+- 💾 **Caching layer:** add Redis or SQLite caching for faster repeat queries  
+- 📊 **Reporting tools:** export project summaries to PDF and Excel  
+- ⚙️ **Background tasks:** schedule cost refreshes or purge routines asynchronously  
+- ☁️ **Cloud deployment:** Dockerize and deploy to AWS App Runner with RDS Postgres backend  
+- 🤖 **Machine learning integration:** train models to detect anomalies or pricing trends across regions  
+- 🧰 **API Gateway Integration:** expose authenticated endpoints for external engineering dashboards  
+
+---
+
+## 🪪 License & Author
+
+This project is open source under the **MIT License** — free to use, modify, and distribute.
+
+**Author:** Brice A. Nelson  
+🌐 [devbybrice.com](https://www.devbybrice.com)  
+💼 [LinkedIn](https://www.linkedin.com/in/brice-a-nelson-p-e-mba-36b28b15/)
+
+---
+
+> _“Precision in cost, clarity in data — because every number tells a story.”_ 🧾

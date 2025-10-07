@@ -1,6 +1,6 @@
 # Structure
 
-project_cost_query/
+cost_query_pro/
 │
 ├── app/                      # Main application code
 │   ├── __init__.py
