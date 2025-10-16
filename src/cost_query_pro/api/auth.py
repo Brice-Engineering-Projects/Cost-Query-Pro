@@ -23,20 +23,29 @@ router = APIRouter(
 )
 
 
-# LOGIN
+# OAuth2 standard login (for forms/browser)
 @router.post("/login", response_model=Token)
-def login(payload: LoginRequest, db: Session = Depends(get_db)) -> TokenResponse:
-    """
-    Authenticate user and return a JWT access token.
+def login_form(form_data: OAuth2PasswordRequestForm = Depends(), db: Session = Depends(get_db)) -> TokenResponse:
+    """OAuth2 compliant login endpoint for form-based authentication."""
+    print("✅ Form login route hit — about to return token")
 
-        - Validates the submitted username and password.
-        - On success, returns an access token and token type.
-        - On failure, raises HTTP 401 Unauthorized.
-    """
+    user = db.query(DBUser).filter(DBUser.username == form_data.username).first()
+    if not user or not verify_password(form_data.password, user.password_hash):
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Invalid username or password"
+        )
+    access_token = create_access_token(
+        data={"sub": user.username, "is_admin": user.is_admin}
+    )
+    return TokenResponse(access_token=access_token, token_type="bearer")
 
-    # -------------------------------------------------------------
-    print("✅ Login route hit — about to return token")
-    # -------------------------------------------------------------
+
+# JSON login (for API clients/tests) - can be removed later
+@router.post("/login-json", response_model=Token)
+def login_json(payload: LoginRequest, db: Session = Depends(get_db)) -> TokenResponse:
+    """JSON-based login endpoint for API clients."""
+    print("✅ JSON login route hit — about to return token")
 
     user = db.query(DBUser).filter(DBUser.username == payload.username).first()
     if not user or not verify_password(payload.password, user.password_hash):
@@ -47,7 +56,6 @@ def login(payload: LoginRequest, db: Session = Depends(get_db)) -> TokenResponse
     access_token = create_access_token(
         data={"sub": user.username, "is_admin": user.is_admin}
     )
-    # return {"access_token": access_token, "token_type": "bearer"}
     return TokenResponse(access_token=access_token, token_type="bearer")
 
 # REGISTER (optionally admin-only)
