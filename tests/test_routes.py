@@ -19,10 +19,10 @@ def create_user(client):
 @pytest.fixture
 def login_user(client):
     def _login_user(username, password):
-        # IMPORTANT: your API expects JSON for login
+        # Use form data for the OAuth2 compliant login endpoint
         resp = client.post(
             "/api/v1/auth/login",
-            json={"username": username, "password": password},
+            data={"username": username, "password": password},
         )
         assert resp.status_code == 200, resp.text
         token = resp.json()["access_token"]
