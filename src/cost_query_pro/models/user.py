@@ -1,4 +1,10 @@
-"""src/cost_query_pro/models/user.py"""
+"""
+src/cost_query_pro/models/user.py
+
+Item Model
+-----------
+Stores user details for authentication.
+"""
 
 from sqlalchemy import Column, Integer, String, Boolean
 from cost_query_pro.db import Base

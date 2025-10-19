@@ -1,4 +1,10 @@
-"""src/cost_query_pro/models/project.py"""
+"""
+src/cost_query_pro/models/project.py
+
+Project Model:
+--------------
+Stores project details for projects.
+"""
 
 from sqlalchemy import Column, Integer, String
 from sqlalchemy.orm import relationship
@@ -20,3 +26,6 @@ class Project(Base):
         back_populates="project",
         cascade="all, delete-orphan"
     )
+
+    def __repr__(self):
+        return f"Project(id={self.id}, project_name='{self.project_name}', project_number='{self.project_number}', state='{self.state}', year={self.year})"

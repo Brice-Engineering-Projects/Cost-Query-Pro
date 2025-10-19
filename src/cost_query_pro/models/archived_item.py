@@ -1,9 +1,9 @@
 """
-src/cost_query_pro/models/item.py
+src/cost_query_pro/models/archived_item.py
 
 Item Model
 -----------
-Stores item details for projects.
+Stores archived item details for projects.
 """
 
 from sqlalchemy import Column, Float, ForeignKey, Integer, String
@@ -11,7 +11,8 @@ from sqlalchemy.orm import relationship
 
 from cost_query_pro.db import Base
 
-class Item(Base):
+class ArchivedItem(Base):
+    """Stores archived item details for projects."""
     __tablename__ = "items"
 
     id = Column(Integer, primary_key=True, index=True)
@@ -22,10 +23,10 @@ class Item(Base):
     quantity = Column(Integer, nullable=False)
 
     # Relationship to Project
-    project = relationship(
-        "Project",
-        back_populates="items"
+    archived_project = relationship(
+        "ArchivedProject",
+        back_populates="archived_items"
     )
 
     def __repr__(self):
-        return f"Item(id={self.id}, project_id={self.project_id}, item_description='{self.item_description}', unit='{self.unit}', unit_price={self.unit_price}, quantity={self.quantity})"
+        return f"ArchivedItem(id={self.id}, project_id={self.project_id}, item_description='{self.item_description}', unit='{self.unit}', unit_price={self.unit_price}, quantity={self.quantity})"

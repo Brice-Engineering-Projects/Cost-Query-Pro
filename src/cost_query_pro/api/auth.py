@@ -106,4 +106,6 @@ def register(user_data: UserCreate, db: Session = Depends(get_db)):
 @router.get("/me", response_model=UserRead)
 def read_me(current_user: DBUser = Depends(get_current_user)) -> UserRead:
     # Pydantic v2: from_attributes is enabled on UserRead
+    if current_user is None:
+        raise HTTPException(status_code=401, detail="Unauthorized")
     return UserRead.model_validate(current_user, from_attributes=True)
