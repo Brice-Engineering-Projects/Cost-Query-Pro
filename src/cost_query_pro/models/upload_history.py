@@ -20,7 +20,10 @@ class UploadHistory(Base):
     records_inserted = Column(Integer, default=0)
     status = Column(Text, default="success")
     created_at = Column(DateTime, server_default=func.now())
+
+    # Relationship
     user = relationship("User", back_populates="uploads")
+    data_quality = relationship("DataQualityIssue", back_populates="upload", cascade="all, delete-orphan")
 
     def __repr__(self):
         return f"UploadHistory(id={self.id}, filename='{self.filename}', records_inserted={self.records_inserted}, status='{self.status}', created_at='{self.created_at}')"

@@ -7,6 +7,7 @@ Stores user details for authentication.
 """
 
 from sqlalchemy import Column, Integer, String, Boolean
+from sqlalchemy.orm import relationship
 from cost_query_pro.db import Base
 
 class User(Base):
@@ -16,6 +17,9 @@ class User(Base):
     username = Column(String(150), unique=True, nullable=False, index=True)
     password_hash = Column(String(255), nullable=False)
     is_admin = Column(Boolean, default=False)
+
+    # Relationship
+    audit = relationship("AuditLog", back_populates="user", cascade="all, delete-orphan")
 
     def __repr__(self):
         return f"<User(username='{self.username}', is_admin={self.is_admin})>"
