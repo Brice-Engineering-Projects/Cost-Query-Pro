@@ -5,7 +5,10 @@ from sqlalchemy.orm import Session
 import logging
 
 from cost_query_pro.db.session import get_db
-from cost_query_pro.models import Project, Item
+from cost_query_pro.models.project import Project
+from cost_query_pro.models.item import Item
+from cost_query_pro.models.user import User as DBUser
+from cost_query_pro.core.security import get_current_admin
 
 logger = logging.getLogger(__name__)
 
@@ -14,15 +17,16 @@ router = APIRouter(
     tags=["admin"]
 )
 
-@router.delete("/purge")
+
+@router.delete("/purge", status_code=status.HTTP_200_OK)
 def purge_data(
-    year_cutoff: int = Query(..., description="Purge data older than this year"),
+    year_cutoff: int = Query(..., description="Delete projects older than this year"),
     db: Session = Depends(get_db),
-    # current_admin = Depends(get_current_admin), # This is grayed out
+    current_admin: DBUser = Depends(get_current_admin),
 ):
     """
     Delete all projects and related items older than the specified year_cutoff.
-    Admin-only route.
+    Accessible by admin users only.
     """
     old_projects = db.query(Project).filter(Project.year < year_cutoff).all()
 
@@ -32,20 +36,19 @@ def purge_data(
             detail=f"No projects older than {year_cutoff} found."
         )
 
-    deleted_projects_count = 0
+    deleted_projects_count = len(old_projects)
     deleted_items_count = 0
 
     for project in old_projects:
         items_deleted = db.query(Item).filter(Item.project_id == project.id).delete()
         deleted_items_count += items_deleted
-
         db.delete(project)
-        deleted_projects_count += 1
 
     db.commit()
 
     logger.info(
-        f"Purged {deleted_projects_count} projects and {deleted_items_count} items older than {year_cutoff}."
+        f"Admin '{current_admin.username}' purged {deleted_projects_count} projects "
+        f"and {deleted_items_count} items older than {year_cutoff}."
     )
 
     return {

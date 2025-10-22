@@ -1,6 +1,6 @@
 """src/cost_query_pro/api/auth.py"""
 
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, status, Form
 from fastapi.security import OAuth2PasswordRequestForm
 from sqlalchemy.orm import Session
 
@@ -64,7 +64,12 @@ print("REGISTER response model is:", UserRead)
 
 # ------------------------------------------
 @router.post("/register", response_model=UserRead, status_code=status.HTTP_201_CREATED)
-def register(user_data: UserCreate, db: Session = Depends(get_db)):
+def register(
+    username: str = Form(...),
+    password: str = Form(...),
+    is_admin: bool = Form(False),
+    db: Session = Depends(get_db)
+):
     """
     Register a new user account.
 
@@ -72,7 +77,7 @@ def register(user_data: UserCreate, db: Session = Depends(get_db)):
         - Hashes the password before storing.
         - Returns the created user (excluding password hash).
     """
-    existing = db.query(DBUser).filter(DBUser.username == user_data.username).first()
+    existing = db.query(DBUser).filter(DBUser.username == username).first()
 
     # -----------------------------------------------
     print("✅ REGISTER ROUTE HIT")
@@ -85,18 +90,17 @@ def register(user_data: UserCreate, db: Session = Depends(get_db)):
     if existing:
         raise HTTPException(status_code=400, detail="Username already registered")
 
-    hashed_pw = get_password_hash(user_data.password)
-    is_admin_requested = bool(getattr(user_data, "is_admin", False))
-    grant_admin = bool(is_admin_requested and settings.allow_admin_signup)
+    hashed_pw = get_password_hash(password)
+    grant_admin = bool(is_admin and settings.allow_admin_signup)
     new_user = DBUser(
-        username=user_data.username,
+        username=username,
         password_hash=hashed_pw,
         is_admin=grant_admin,
     )
     db.add(new_user)
     db.commit()
     db.refresh(new_user)
-    return UserRead.from_orm(new_user)
+    return UserRead.model_validate(new_user, from_attributes=True)
 
 
 
