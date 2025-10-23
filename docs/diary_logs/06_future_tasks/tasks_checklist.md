@@ -122,7 +122,7 @@ status: On-going
 - [X] Standardize login contract and update code/docs accordingly: 
   - [X] **Choose one:** JSON payload (`LoginRequest` schema) **or** form (`OAuth2PasswordRequestForm`).
   - [X] Update API docs and Insomnia collections to match the choice.
-- [ ] Return **201 Created** for `POST /api/v1/auth/register` (optional, but recommended).
+- [X] Return **201 Created** for `POST /api/v1/auth/register` (optional, but recommended).
 
 ### Testing
 - [ ] Add unit tests for JWT:
