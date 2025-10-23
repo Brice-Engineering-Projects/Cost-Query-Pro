@@ -1,15 +1,16 @@
 """tests/test_routes.py"""
 
 import pytest
-from cost_query_pro.models import Project, Item
+from cost_query_pro.models import Project, Item, AuditLog
 
 @pytest.fixture
 def create_user(client):
     def _create_user(username, password, is_admin=False):
         resp = client.post(
             "/api/v1/auth/register",
-            json={"username": username, "password": password, "is_admin": is_admin},
+            data={"username": username, "password": password, "is_admin": is_admin},
         )
+
         # Register returns 201 Created
         assert resp.status_code == 201, resp.text
         return resp

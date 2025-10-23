@@ -19,7 +19,7 @@ class User(Base):
     is_admin = Column(Boolean, default=False)
 
     # Relationship
-    audit = relationship("AuditLog", back_populates="user", cascade="all, delete-orphan")
+    audit_logs = relationship("AuditLog", back_populates="user", cascade="all, delete-orphan")
 
     def __repr__(self):
         return f"<User(username='{self.username}', is_admin={self.is_admin})>"

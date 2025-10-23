@@ -1,15 +1,21 @@
 """tests/conftest.py"""
 
+import sys
+import os
+
+# Add src directory to Python path
+sys.path.append(os.path.join(os.path.dirname(__file__), '..', 'src'))
+
 import pytest
 from sqlalchemy import create_engine, text
 from sqlalchemy.orm import sessionmaker
 
 from fastapi.testclient import TestClient
 
-from cost_query_pro.main import app
-from cost_query_pro.db.base import Base
-from cost_query_pro.db.session import get_db
-from cost_query_pro.config.settings import settings
+from src.cost_query_pro.main import app
+from src.cost_query_pro.db.base import Base
+from src.cost_query_pro.db.session import get_db
+from src.cost_query_pro.config.settings import settings
 
 
 print("✅ LOADING conftest.py from:", __file__)
