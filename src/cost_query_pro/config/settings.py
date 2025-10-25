@@ -76,6 +76,7 @@ class Settings(BaseSettings):
     environment: str = Field("production", env="ENVIRONMENT")
     fastapi_debug: bool = Field(False, env="FASTAPI_DEBUG")
     testing: bool = Field(False, env="TESTING")
+    api_base_url: str = "http://127.0.0.1:8000/api/v1"
 
     # Database settings
     database_url: Optional[PostgresDsn] = Field(None, env="DATABASE_URL")
@@ -152,4 +153,3 @@ class Settings(BaseSettings):
 
 
 settings = Settings()
-
