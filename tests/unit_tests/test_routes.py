@@ -66,6 +66,7 @@ def test_items_search_with_data(client, db_session, create_user, login_user):
         item_description='8" PVC Gravity Sewer',
         unit="LF",
         unit_price=45.32,
+        quantity=100,
     )
     db_session.add(item)
     db_session.commit()
