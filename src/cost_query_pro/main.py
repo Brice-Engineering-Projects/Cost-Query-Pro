@@ -14,6 +14,7 @@ from cost_query_pro.db.session import get_db
 
 # Import routers
 from cost_query_pro.api import auth, admin, projects, items, purge, admin_users
+from cost_query_pro.web.views.routes import router as web_router
 
 # Import models to register them
 
@@ -60,6 +61,7 @@ app.include_router(projects.router, prefix="/api/v1", tags=["projects"])
 app.include_router(items.router, prefix="/api/v1", tags=["items"])
 app.include_router(purge.router)
 app.include_router(admin_users.router)
+app.include_router(web_router)
 
 
 @app.get("/")
@@ -82,6 +84,3 @@ def read_root(db: Session = Depends(get_db)):
             "message": "Error connecting to DB",
             "error": str(e)
         }
-
-
-
