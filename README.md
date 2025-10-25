@@ -60,8 +60,14 @@ uv sync
 
 ### 4️⃣ Run the App
 
+ensure the following environment variables are set:
 ```bash
-uvicorn src.cost_query_pro.main:app --reload
+export PYTHONPATH=$PWD/src
+```
+
+then run the app:
+```bash
+uvicorn cost_query_pro.main:app --reload
 ```
 
 ### 5️⃣ Access the API Docs

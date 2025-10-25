@@ -1,15 +1,16 @@
 """tests/test_routes.py"""
 
 import pytest
-from cost_query_pro.models import Project, Item
+from cost_query_pro.models import Project, Item, AuditLog
 
 @pytest.fixture
 def create_user(client):
     def _create_user(username, password, is_admin=False):
         resp = client.post(
             "/api/v1/auth/register",
-            json={"username": username, "password": password, "is_admin": is_admin},
+            data={"username": username, "password": password, "is_admin": is_admin},
         )
+
         # Register returns 201 Created
         assert resp.status_code == 201, resp.text
         return resp
@@ -19,10 +20,10 @@ def create_user(client):
 @pytest.fixture
 def login_user(client):
     def _login_user(username, password):
-        # IMPORTANT: your API expects JSON for login
+        # Use form data for the OAuth2 compliant login endpoint
         resp = client.post(
             "/api/v1/auth/login",
-            json={"username": username, "password": password},
+            data={"username": username, "password": password},
         )
         assert resp.status_code == 200, resp.text
         token = resp.json()["access_token"]
@@ -65,6 +66,7 @@ def test_items_search_with_data(client, db_session, create_user, login_user):
         item_description='8" PVC Gravity Sewer',
         unit="LF",
         unit_price=45.32,
+        quantity=100,
     )
     db_session.add(item)
     db_session.commit()

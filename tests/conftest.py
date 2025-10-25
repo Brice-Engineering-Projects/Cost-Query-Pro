@@ -1,80 +1,143 @@
 """tests/conftest.py"""
 
-import pytest
-from sqlalchemy import create_engine, text
-from sqlalchemy.orm import sessionmaker
+import sys
+import os
 
+# -----------------------------------------------------------
+# SET ENVIRONMENT VARIABLES FIRST, before any imports!
+# -----------------------------------------------------------
+os.environ["ENVIRONMENT"] = "testing"
+os.environ["ALLOW_ADMIN_SIGNUP"] = "true"  # Enable admin signup for tests
+
+# Add src directory to Python path
+sys.path.append(os.path.join(os.path.dirname(__file__), '..', 'src'))
+
+import pytest
 from fastapi.testclient import TestClient
 
+# SQLAlchemy
+from sqlalchemy import create_engine, event
+from sqlalchemy.orm import sessionmaker
+
+# Alembic (build schema via migrations once per session)
+from alembic import command
+from alembic.config import Config as AlembicConfig
+
+# App imports
 from cost_query_pro.main import app
-from cost_query_pro.db.base import Base
 from cost_query_pro.db.session import get_db
 from cost_query_pro.config.settings import settings
 
-
+# ------------------------------------------------------------
+# Loading banner
+# ------------------------------------------------------------
 print("✅ LOADING conftest.py from:", __file__)
-
 
 # ------------------------------------------------------------
 # Validate test DB URL exists
 # ------------------------------------------------------------
-
 TEST_DATABASE_URL = str(settings.test_database_url)
 assert TEST_DATABASE_URL, "TEST_DATABASE_URL must be set for tests!"
+
 
 # ------------------------------------------------------------
 # Create test DB engine and session factory
 # ------------------------------------------------------------
-
-# Create SQLAlchemy engine for the test DB
-engine = create_engine(TEST_DATABASE_URL)
+# Create SQLAlchemy engine for the test DB (Postgres).
+# pool_pre_ping adds resiliency in CI.
+engine = create_engine(TEST_DATABASE_URL, pool_pre_ping=True)
 
 # Session factory for the test DB
 TestingSessionLocal = sessionmaker(
     autocommit=False,
     autoflush=False,
-    bind=engine
+    bind=engine,
 )
 
-# ------------------------------------------------------------
-# Manage DB schema for tests
-# ------------------------------------------------------------
-
-# Drop all tables, then create them once at the start
-Base.metadata.drop_all(bind=engine)
-Base.metadata.create_all(bind=engine)
 
 # ------------------------------------------------------------
-# Fixtures
+# Manage DB schema for tests (Use Alembic migrations once)
 # ------------------------------------------------------------
-
-@pytest.fixture(scope="session")
-def db_engine():
+def _run_alembic_upgrades():
     """
-    Provides the test DB engine for the session.
+    Run Alembic migrations to 'head' against the TEST_DATABASE_URL.
+    NOTE: If your alembic.ini is NOT at repo root, adjust the path below.
     """
-    yield engine
-    # Drop all tables after all tests complete
-    Base.metadata.drop_all(bind=engine)
+    alembic_cfg = AlembicConfig("alembic.ini")
+    # Force Alembic to use the TEST DB url instead of whatever is in alembic.ini
+    # Escape % as %% for ConfigParser (which interprets % as interpolation syntax)
+    escaped_url = TEST_DATABASE_URL.replace("%", "%%")
+    alembic_cfg.set_main_option("sqlalchemy.url", escaped_url)
+    command.upgrade(alembic_cfg, "head")
 
 
+@pytest.fixture(scope="session", autouse=True)
+def _migrate_schema_once():
+    """
+    Build schema ONCE for the whole test session using Alembic.
+    We DO NOT downgrade after; test DBs are disposable.
+    """
+    _run_alembic_upgrades()
+    yield
+    # Optional cleanup: leave DB as-is. Uncomment if you really need to drop.
+    # from sqlalchemy import text
+    # with engine.connect() as conn:
+    #     conn.execute(text("DROP SCHEMA public CASCADE; CREATE SCHEMA public;"))
+    #     conn.commit()
+
+
+# ------------------------------------------------------------
+# Per-test DB session isolation (Transaction + savepoint pattern)
+# ------------------------------------------------------------
 @pytest.fixture(scope="function")
-def db_session(db_engine):
+def db_session():
     """
-    Creates a SQLAlchemy DB session per test function,
-    running inside a transaction for isolation.
+    Creates a SQLAlchemy DB session per test function, running inside a
+    top-level transaction + nested SAVEPOINT for isolation.
+
+    WHY this pattern:
+    - Your app code may call session.commit(); a plain rollback at the end
+      would NOT undo those commits.
+    - Using an outer transaction + a nested transaction (SAVEPOINT) means
+      app-level commits are contained, and we can still roll everything back
+      after each test without TRUNCATE or DROP/CREATE.
     """
-    connection = db_engine.connect()
-    transaction = connection.begin()
+    # Open a dedicated connection for this test
+    connection = engine.connect()
+
+    # Start a top-level transaction (contains the whole test)
+    outer_tx = connection.begin()
+
+    # Bind a session to that connection
     session = TestingSessionLocal(bind=connection)
 
-    yield session
+    # Each time the nested transaction ends (e.g., after a commit),
+    # automatically reopen it, so the next commit is contained too.
+    @event.listens_for(session, "after_transaction_end")
+    def _restart_savepoint(sess, trans):
+        # Only restart if the connection is still in a transaction
+        if sess.is_active and not sess.in_transaction():
+            try:
+                sess.begin_nested()
+            except Exception:
+                # Ignore errors during teardown or invalidation
+                pass
 
-    session.close()
-    transaction.rollback()
-    connection.close()
+    # Start a nested transaction (SAVEPOINT) so app-level commits are safe
+    session.begin_nested()
+
+    try:
+        yield session
+    finally:
+        # Close session and rollback outer transaction → pristine DB
+        session.close()
+        outer_tx.rollback()
+        connection.close()
 
 
+# ------------------------------------------------------------
+# FastAPI TestClient (Use the per-test session)
+# ------------------------------------------------------------
 @pytest.fixture(scope="function")
 def client(db_session):
     """
@@ -84,6 +147,7 @@ def client(db_session):
         try:
             yield db_session
         finally:
+            # No explicit close here; db_session fixture handles it.
             pass
 
     app.dependency_overrides[get_db] = override_get_db
@@ -93,25 +157,3 @@ def client(db_session):
 
     # Clean up dependency overrides
     app.dependency_overrides.clear()
-
-
-@pytest.fixture(scope="function", autouse=True)
-def clean_db(db_session):
-    """
-    Truncate all tables between tests for clean state.
-    """
-    tables = ["users", "items", "projects"]
-    db_session.execute(
-        text(
-            f"TRUNCATE {', '.join(tables)} RESTART IDENTITY CASCADE;"
-        )
-    )
-    db_session.commit()
-
-
-@pytest.fixture(autouse=True, scope="session")
-def _enable_admin_signup_for_tests():
-    orig = settings.allow_admin_signup
-    settings.allow_admin_signup = True
-    yield
-    settings.allow_admin_signup = orig

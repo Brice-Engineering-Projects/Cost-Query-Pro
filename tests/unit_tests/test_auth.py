@@ -13,17 +13,35 @@ def test_register_user(client):
     assert data["is_admin"] is False
 
 
-def test_login_user(client):
-    """Register then login."""
+def test_login_user_form(client):
+    """Register then login using OAuth2 form data."""
     client.post(
         "/api/v1/auth/register",
         json={"username": "testuser", "password": "testpass", "is_admin": False},
     )
 
-    # IMPORTANT: your API expects JSON (not form-encoded)
+    # OAuth2 form-based login
     response = client.post(
         "/api/v1/auth/login",
-        json={"username": "testuser", "password": "testpass"},
+        data={"username": "testuser", "password": "testpass"},
+    )
+    assert response.status_code == 200, response.text
+    token_data = response.json()
+    assert "access_token" in token_data
+    assert token_data.get("token_type", "bearer") == "bearer"
+
+
+def test_login_user_json(client):
+    """Register then login using JSON payload."""
+    client.post(
+        "/api/v1/auth/register",
+        json={"username": "testuser2", "password": "testpass", "is_admin": False},
+    )
+
+    # JSON-based login for API clients
+    response = client.post(
+        "/api/v1/auth/login-json",
+        json={"username": "testuser2", "password": "testpass"},
     )
     assert response.status_code == 200, response.text
     token_data = response.json()
@@ -35,12 +53,12 @@ def test_login_fails_with_wrong_password(client):
     """Wrong password should fail with 401 (Unauthorized)."""
     client.post(
         "/api/v1/auth/register",
-        json={"username": "testuser", "password": "correctpass", "is_admin": False},
+        json={"username": "testuser3", "password": "correctpass", "is_admin": False},
     )
 
     response = client.post(
         "/api/v1/auth/login",
-        json={"username": "testuser", "password": "wrongpass"},
+        data={"username": "testuser3", "password": "wrongpass"},
     )
     assert response.status_code == 401, response.text
     body = response.json()
@@ -56,7 +74,7 @@ def test_admin_can_purge(client):
     )
     login_resp = client.post(
         "/api/v1/auth/login",
-        json={"username": "admin", "password": "secret"},
+        data={"username": "admin", "password": "secret"},
     )
     assert login_resp.status_code == 200, login_resp.text
     token = login_resp.json()["access_token"]
@@ -76,7 +94,7 @@ def test_non_admin_cannot_purge(client):
     )
     login_resp = client.post(
         "/api/v1/auth/login",
-        json={"username": "user", "password": "secret"},
+        data={"username": "user", "password": "secret"},
     )
     assert login_resp.status_code == 200, login_resp.text
     token = login_resp.json()["access_token"]
