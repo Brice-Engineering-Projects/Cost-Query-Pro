@@ -1,6 +1,6 @@
 """src/cost_query_pro/api/auth.py"""
 
-from fastapi import APIRouter, Depends, HTTPException, status, Form
+from fastapi import APIRouter, Depends, HTTPException, status, Form, Request
 from fastapi.security import OAuth2PasswordRequestForm
 from sqlalchemy.orm import Session
 
@@ -27,8 +27,6 @@ router = APIRouter(
 @router.post("/login", response_model=Token)
 def login_form(form_data: OAuth2PasswordRequestForm = Depends(), db: Session = Depends(get_db)) -> TokenResponse:
     """OAuth2 compliant login endpoint for form-based authentication."""
-    print("✅ Form login route hit — about to return token")
-
     user = db.query(DBUser).filter(DBUser.username == form_data.username).first()
     if not user or not verify_password(form_data.password, user.password_hash):
         raise HTTPException(
@@ -45,8 +43,6 @@ def login_form(form_data: OAuth2PasswordRequestForm = Depends(), db: Session = D
 @router.post("/login-json", response_model=Token)
 def login_json(payload: LoginRequest, db: Session = Depends(get_db)) -> TokenResponse:
     """JSON-based login endpoint for API clients."""
-    print("✅ JSON login route hit — about to return token")
-
     user = db.query(DBUser).filter(DBUser.username == payload.username).first()
     if not user or not verify_password(payload.password, user.password_hash):
         raise HTTPException(
@@ -60,33 +56,45 @@ def login_json(payload: LoginRequest, db: Session = Depends(get_db)) -> TokenRes
 
 # REGISTER (optionally admin-only)
 # ------------------------------------------
-print("REGISTER response model is:", UserRead)
 
 # ------------------------------------------
 @router.post("/register", response_model=UserRead, status_code=status.HTTP_201_CREATED)
-def register(
-    username: str = Form(...),
-    password: str = Form(...),
+async def register(
+    request: Request,
+    db: Session = Depends(get_db),
+    # Keep these for form submissions; they won’t be required when JSON is used
+    username: str = Form(None),
+    password: str = Form(None),
     is_admin: bool = Form(False),
-    db: Session = Depends(get_db)
 ):
     """
     Register a new user account.
 
-        - Checks for existing user with the same username.
-        - Hashes the password before storing.
-        - Returns the created user (excluding password hash).
+    - Accepts **form-data** (original behavior) OR **application/json**
+    - Checks for existing username
+    - Hashes password and creates user
     """
+
+    # --- Accept JSON OR form, prefer JSON when content-type says so ---
+    ct = request.headers.get("content-type", "")
+    if "application/json" in ct:
+        try:
+            data = await request.json()
+        except Exception:
+            raise HTTPException(status_code=400, detail="Invalid register payload")
+        username = data.get("username")
+        password = data.get("password")
+        is_admin = bool(data.get("is_admin", False))
+    else:
+        # If it's a form submission, the Form(...) defaults above already populated
+        pass
+
+    # Basic validation (mirrors your previous implicit Form(...) required fields)
+    if not username or not password:
+        raise HTTPException(status_code=400, detail="Invalid register payload")
+
+    # Uniqueness check
     existing = db.query(DBUser).filter(DBUser.username == username).first()
-
-    # -----------------------------------------------
-    print("✅ REGISTER ROUTE HIT")
-    print("✅ RETURN TYPE:", type(UserRead(id=999, username="test", is_admin=False)))
-
-    print("✅ Inside TEST register route")
-    print("🔥 Using response model:", UserRead)
-    # -------------------------------------------------
-
     if existing:
         raise HTTPException(status_code=400, detail="Username already registered")
 
@@ -101,7 +109,6 @@ def register(
     db.commit()
     db.refresh(new_user)
     return UserRead.model_validate(new_user, from_attributes=True)
-
 
 
 
