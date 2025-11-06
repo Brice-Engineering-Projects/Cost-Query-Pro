@@ -6,12 +6,13 @@ Built with **FastAPI**, **SQLAlchemy**, and **PostgreSQL**, Cost Query Pro is de
 
 ---
 
-## 🛠️ Build Status & Metadata
+## 🧱 Build Status & Metadata
 
-| Branch | Build Status | Python | Framework | License | Project Status |
-|---------|---------------|--------|------------|----------|----------------|
-| **main** | [![Main Build](https://github.com/Brice-Engineering-Projects/Cost-Query-Pro/actions/workflows/ci-cd.yml/badge.svg?branch=main)](https://github.com/Brice-Engineering-Projects/Cost-Query-Pro/actions/workflows/ci-cd.yml) | ![Python 3.12](https://img.shields.io/badge/Python-3.12-blue?logo=python&logoColor=white) | ![FastAPI](https://img.shields.io/badge/FastAPI-Backend-green?logo=fastapi&logoColor=white) | ![License](https://img.shields.io/github/license/Brice-Engineering-Projects/Cost-Query-Pro?color=blue) | ![Status](https://img.shields.io/badge/Status-In%20Development-orange) |
-| **dev** | [![Dev Build](https://github.com/Brice-Engineering-Projects/Cost-Query-Pro/actions/workflows/ci-cd.yml/badge.svg?branch=dev)](https://github.com/Brice-Engineering-Projects/Cost-Query-Pro/actions/workflows/ci-cd.yml) | ![Python 3.12](https://img.shields.io/badge/Python-3.12-blue?logo=python&logoColor=white) | ![FastAPI](https://img.shields.io/badge/FastAPI-Backend-green?logo=fastapi&logoColor=white) | ![License](https://img.shields.io/github/license/Brice-Engineering-Projects/Cost-Query-Pro?color=blue) | ![Status](https://img.shields.io/badge/Status-In%20Development-orange) |
+| **Branch** | **Build Status** | **Python** | **Framework** | **License** | **Project Status** |
+|-------------|------------------|-------------|----------------|--------------|--------------------|
+| 🟩 **main** | [![Main CI](https://github.com/Brice-Engineering-Projects/Cost-Query-Pro/actions/workflows/ci-cd.yml/badge.svg?branch=main)](https://github.com/Brice-Engineering-Projects/Cost-Query-Pro/actions/workflows/ci-cd.yml) | ![Python 3.12](https://img.shields.io/badge/Python-3.12-blue?logo=python&logoColor=white) | ![FastAPI](https://img.shields.io/badge/FastAPI-Backend-green?logo=fastapi&logoColor=white) | ![License](https://img.shields.io/github/license/Brice-Engineering-Projects/Cost-Query-Pro?color=blue) | ![Status](https://img.shields.io/badge/Status-In%20Development-orange) |
+
+| 🧩 **dev** | [![Dev CI](https://github.com/Brice-Engineering-Projects/Cost-Query-Pro/actions/workflows/ci-cd.yml/badge.svg?branch=dev)](https://github.com/Brice-Engineering-Projects/Cost-Query-Pro/actions/workflows/ci-cd.yml) | ![Python 3.12](https://img.shields.io/badge/Python-3.12-blue?logo=python&logoColor=white) | ![FastAPI](https://img.shields.io/badge/FastAPI-Backend-green?logo=fastapi&logoColor=white) | ![License](https://img.shields.io/github/license/Brice-Engineering-Projects/Cost-Query-Pro?color=blue) | ![Status](https://img.shields.io/badge/Status-In%20Development-orange) |
 
 ---
 
