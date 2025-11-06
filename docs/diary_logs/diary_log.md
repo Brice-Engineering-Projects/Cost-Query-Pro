@@ -313,6 +313,7 @@ def register(...): ...
 - [ ] Return **201 Created** for `POST /api/v1/auth/register` (optional, but recommended).
 
 ### Testing
+- [x] Add .pre-commit-config.yaml
 - [x] Add unit tests for JWT:
   - [x] Expiration handling.
   - [x] Invalid signature / malformed token.
