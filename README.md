@@ -10,8 +10,8 @@ Built with **FastAPI**, **SQLAlchemy**, and **PostgreSQL**, Cost Query Pro is de
 
 | **Branch** | **Build Status** | **Python** | **Framework** | **License** | **Project Status** |
 |-------------|------------------|-------------|----------------|--------------|--------------------|
-[![Main Build](https://github.com/Brice-Engineering-Projects/Cost-Query-Pro/actions/workflows/ci-cd.yml/badge.svg?branch=main&v=2)](https://github.com/Brice-Engineering-Projects/Cost-Query-Pro/actions/workflows/ci-cd.yml)
-[![Dev Build](https://github.com/Brice-Engineering-Projects/Cost-Query-Pro/actions/workflows/ci-cd.yml/badge.svg?branch=dev&v=2)](https://github.com/Brice-Engineering-Projects/Cost-Query-Pro/actions/workflows/ci-cd.yml)
+[![Main Build](https://github.com/Brice-Engineering-Projects/Cost-Query-Pro/actions/workflows/ci-cd.yml/badge.svg?branch=main)](https://github.com/Brice-Engineering-Projects/Cost-Query-Pro/actions/workflows/ci-cd.yml)
+[![Dev Build](https://github.com/Brice-Engineering-Projects/Cost-Query-Pro/actions/workflows/ci-cd.yml/badge.svg?branch=dev)](https://github.com/Brice-Engineering-Projects/Cost-Query-Pro/actions/workflows/ci-cd.yml)
 
 ---
 
