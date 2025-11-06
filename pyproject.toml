@@ -4,7 +4,7 @@ version = "0.1.0"
 description = "A Python application for searching, managing, and analyzing unit cost data from infrastructure projects."
 readme = "README.md"
 requires-python = ">=3.12"
-license = "MIT"  # Changed from a table to a simple string
+license = "MIT"
 
 authors = [
     { name = "Brice", email = "brice@devbybrice.com" }
@@ -54,9 +54,26 @@ dev = [
     "black>=25.1.0",
     "flake8>=7.3.0",
     "isort>=6.0.1",
+    "mypy>=1.16.1",
     "pip-audit>=2.9.0",
+    "pre-commit>=4.3.0",
     "pytest>=8.4.1",
+    "ruff>=0.14.3",
 ]
 
 [tool.uv.sources]
 cost-query-pro = { path = "src" }
+
+[tool.mypy]
+python_version = "3.12"
+ignore_missing_imports = true
+exclude = "(^migrations_old/|^migrations/)"
+# --- temporary relaxations ---
+disallow_untyped_defs = false
+check_untyped_defs = false
+warn_unused_ignores = false
+warn_return_any = false
+follow_imports = "silent"
+allow_subclassing_any = true
+allow_untyped_globals = true
+allow_redefinition = true

@@ -177,7 +177,7 @@ Options:
 
 ## 9. Sample Query Scenario
 
-> **User Query:**  
+> **User Query:**
 > “Show me all costs for ‘PVC Pipe’ in Florida from 2022 to 2024.”
 
 **Example Result:**

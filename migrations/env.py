@@ -1,12 +1,13 @@
 """migrations/env.py"""
 
+# ruff: noqa: E402
 import sys
 from logging.config import fileConfig
 from pathlib import Path
 
 from alembic import context
 from alembic.config import Config
-from sqlalchemy import create_engine, engine_from_config, pool
+from sqlalchemy import create_engine, pool
 
 # Ensure Alembic can find `src/cost_query_pro`
 BASE_DIR = Path(__file__).resolve().parents[1]
@@ -16,9 +17,6 @@ from cost_query_pro.config.settings import settings
 
 # --- import app modules ---
 from cost_query_pro.db import Base
-from cost_query_pro.models.item import Item
-from cost_query_pro.models.project import Project
-from cost_query_pro.models.user import User
 
 # Load alembic.ini explicitly
 config = Config("alembic.ini")

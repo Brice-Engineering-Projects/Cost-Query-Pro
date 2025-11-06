@@ -2,7 +2,7 @@
 
 ---
 
-This document lists all recommended internal documentation for the **Unit Cost Query App for Infrastructure Projects**. Each section describes the purpose of the doc, typical contents, and why it’s valuable.  
+This document lists all recommended internal documentation for the **Unit Cost Query App for Infrastructure Projects**. Each section describes the purpose of the doc, typical contents, and why it’s valuable.
 
 ---
 

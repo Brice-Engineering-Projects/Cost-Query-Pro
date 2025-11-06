@@ -1,17 +1,17 @@
 
 # Cost Query Pro — Developer Diary Logs
-**Last Updated:** 2025-10-12  
-**Maintainer:** Brice Nelson, P.E., MBA  
+**Last Updated:** 2025-10-12
+**Maintainer:** Brice Nelson, P.E., MBA
 **Project:** Cost Query Pro (FastAPI + PostgreSQL + Alembic)
 
 ---
 
 ## 📘 Purpose
 
-This directory contains the full developer diary for Cost Query Pro, 
+This directory contains the full developer diary for Cost Query Pro,
 split by functional areas and enhanced with metadata and auto-generated tags.
 
-Each log includes the full narrative, code snippets, and engineering decisions 
+Each log includes the full narrative, code snippets, and engineering decisions
 exactly as recorded.
 
 ---

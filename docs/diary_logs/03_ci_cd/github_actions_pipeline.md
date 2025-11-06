@@ -110,7 +110,7 @@ Setting up a robust CI/CD pipeline for the FastAPI project with proper test isol
 
 **GitHub Actions Workflow Setup:**
 - Install dependencies with pip requirements
-- Run database migrations with alembic upgrade head  
+- Run database migrations with alembic upgrade head
 - Execute tests with pytest -v --tb=short
 
 **Schema Refactoring Example:**

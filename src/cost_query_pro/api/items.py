@@ -203,7 +203,7 @@ def get_price_range(
 
 
 @router.get("/search")
-def search_items(current_user: DBUser = Depends(get_current_user)):
+def search_items_placeholder(current_user: DBUser = Depends(get_current_user)):
     """
     Placeholder route to demonstrate authentication.
 

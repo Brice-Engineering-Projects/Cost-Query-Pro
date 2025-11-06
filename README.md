@@ -1,7 +1,7 @@
 # 💼 Cost Query Pro
 
 
-**A backend platform for infrastructure cost intelligence and bid-item analysis.**  
+**A backend platform for infrastructure cost intelligence and bid-item analysis.**
 Built with **FastAPI**, **SQLAlchemy**, and **PostgreSQL**, Cost Query Pro is designed to query, clean, and analyze construction cost data at scale — empowering engineers, estimators, and project managers with smarter insights.
 
 ---
@@ -32,12 +32,12 @@ Built with **FastAPI**, **SQLAlchemy**, and **PostgreSQL**, Cost Query Pro is de
 
 ## 🧠 Core Features
 
-- 🔐 Secure authentication with JWT  
-- 🧮 Project, item, and cost model endpoints  
-- 🧹 Automated purge routines for old or duplicate data  
-- 🧱 Database migrations and ORM models  
-- 🧰 Modular architecture with dedicated folders for logic, schemas, and services  
-- 🧾 Built-in API documentation via Swagger UI (`/docs`)  
+- 🔐 Secure authentication with JWT
+- 🧮 Project, item, and cost model endpoints
+- 🧹 Automated purge routines for old or duplicate data
+- 🧱 Database migrations and ORM models
+- 🧰 Modular architecture with dedicated folders for logic, schemas, and services
+- 🧾 Built-in API documentation via Swagger UI (`/docs`)
 
 ---
 
@@ -155,14 +155,14 @@ cost_query_pro/
 
 ## 🌱 Future Enhancements
 
-- 🔑 **Role-based access control (RBAC):** differentiate between admin, project manager, and analyst users  
-- 🧾 **Bid-item cost analytics:** integrate real municipal datasets to benchmark infrastructure costs  
-- 💾 **Caching layer:** add Redis or SQLite caching for faster repeat queries  
-- 📊 **Reporting tools:** export project summaries to PDF and Excel  
-- ⚙️ **Background tasks:** schedule cost refreshes or purge routines asynchronously  
-- ☁️ **Cloud deployment:** Dockerize and deploy to AWS App Runner with RDS Postgres backend  
-- 🤖 **Machine learning integration:** train models to detect anomalies or pricing trends across regions  
-- 🧰 **API Gateway Integration:** expose authenticated endpoints for external engineering dashboards  
+- 🔑 **Role-based access control (RBAC):** differentiate between admin, project manager, and analyst users
+- 🧾 **Bid-item cost analytics:** integrate real municipal datasets to benchmark infrastructure costs
+- 💾 **Caching layer:** add Redis or SQLite caching for faster repeat queries
+- 📊 **Reporting tools:** export project summaries to PDF and Excel
+- ⚙️ **Background tasks:** schedule cost refreshes or purge routines asynchronously
+- ☁️ **Cloud deployment:** Dockerize and deploy to AWS App Runner with RDS Postgres backend
+- 🤖 **Machine learning integration:** train models to detect anomalies or pricing trends across regions
+- 🧰 **API Gateway Integration:** expose authenticated endpoints for external engineering dashboards
 
 ---
 
@@ -170,8 +170,8 @@ cost_query_pro/
 
 This project is open source under the **MIT License** — free to use, modify, and distribute.
 
-**Author:** Brice A. Nelson  
-🌐 [devbybrice.com](https://www.devbybrice.com)  
+**Author:** Brice A. Nelson
+🌐 [devbybrice.com](https://www.devbybrice.com)
 💼 [LinkedIn](https://www.linkedin.com/in/brice-a-nelson-p-e-mba-36b28b15/)
 
 ---

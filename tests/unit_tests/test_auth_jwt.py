@@ -74,9 +74,9 @@ def test_jwt_token_created_on_login(create_test_user):
     assert "access_token" in data
     token = data["access_token"]
 
-    decoded = jwt.decode(token, settings.secret_key, algorithms=[settings.algorithm])
-    assert decoded.get("sub") == create_test_user["username"]
-    assert "exp" in decoded
+    _decoded = jwt.decode(token, settings.secret_key, algorithms=[settings.algorithm])
+    assert _decoded.get("sub") == create_test_user["username"]
+    assert "exp" in _decoded
 
 
 def test_invalid_login_returns_401():
@@ -138,7 +138,7 @@ def test_revoked_user_rejected(db_session):
     db_session.commit()
 
     token = _make_token(sub=user.username)
-    decoded = jwt.decode(token, settings.secret_key, algorithms=[settings.algorithm])
+    _decoded = jwt.decode(token, settings.secret_key, algorithms=[settings.algorithm])
 
     # simulate revocation logic — in real app you'd check user.active flag
     if not user.is_admin:

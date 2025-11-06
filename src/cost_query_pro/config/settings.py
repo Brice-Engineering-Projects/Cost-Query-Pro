@@ -4,7 +4,10 @@ import logging
 from typing import Optional
 
 from pydantic import ConfigDict, Field, PostgresDsn, RedisDsn
-from pydantic_settings import BaseSettings
+from pydantic_settings import BaseSettings, SettingsConfigDict
+
+model_config: SettingsConfigDict = {"env_file": ".env"}
+
 
 # ------------------------------------------------------------
 # Logging setup

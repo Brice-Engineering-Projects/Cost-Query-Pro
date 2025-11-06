@@ -1,0 +1,71 @@
+# .pre-commit-config.yaml
+# Unified lint + format + security + type-check automation
+# Compatible with uv environments
+
+repos:
+  # 1️⃣ Remove unused imports / variables
+  - repo: https://github.com/myint/autoflake
+    rev: v2.3.1
+    hooks:
+      - id: autoflake
+        name: Remove unused imports and variables
+        args:
+          [
+            "--in-place",
+            "--remove-all-unused-imports",
+            "--recursive",
+            "--expand-star-imports",
+            "--remove-unused-variables",
+            "--ignore-init-module-imports",
+            "src",
+            "tests",
+          ]
+
+  # 2️⃣ Sort and group imports
+  - repo: https://github.com/PyCQA/isort
+    rev: 7.0.0
+    hooks:
+      - id: isort
+        name: Sort imports
+        args: ["--profile=black"]
+
+  # 3️⃣ Format with Black
+  - repo: https://github.com/psf/black
+    rev: 25.9.0
+    hooks:
+      - id: black
+        name: Format code with Black
+        args: ["--line-length=88"]
+
+  # 4️⃣ Lint with Ruff (fast replacement for Flake8 + some autofixes)
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.14.3
+    hooks:
+      - id: ruff
+        name: Ruff Linter
+        args: ["--fix", "--exit-non-zero-on-fix"]
+
+  # 5️⃣ Security static analysis with Bandit
+  - repo: https://github.com/PyCQA/bandit
+    rev: 1.8.6
+    hooks:
+      - id: bandit
+        name: Run Bandit Security Scan
+        args: ["-r", "src"]
+
+  # 6️⃣ Type checking with Mypy
+#  - repo: https://github.com/pre-commit/mirrors-mypy
+#    rev: v1.18.2
+#    hooks:
+#      - id: mypy
+#        name: Static Type Checking
+#        args: ["--ignore-missing-imports", "--show-error-codes", "src"]
+
+  # 7️⃣ Hygiene checks (YAML, whitespace, merge conflicts)
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v6.0.0
+    hooks:
+      - id: check-merge-conflict
+      - id: check-yaml
+      - id: end-of-file-fixer
+      - id: trailing-whitespace

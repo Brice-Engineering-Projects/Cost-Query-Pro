@@ -158,6 +158,10 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements.txt
 
+      - name: Run Pre-Commit Checks
+        run: uv run pre-commit run --all-files
+
+
       - name: Run tests (pytest if present)
         if: ${{ steps.detect.outputs.has_tests == 'true' }}
         run: pytest -q
@@ -165,63 +169,63 @@ jobs:
 # ------------------------------
 # DEPLOY JOB: Vercel (Preview on PR, Prod on main)
 # ------------------------------
-  deploy:
-    name: Deploy to Vercel (Preview PR / Prod main)
-    runs-on: ubuntu-latest
-    needs: [lint, security, ci]
-    if: ${{ github.event_name == 'pull_request' || github.ref == 'refs/heads/main' }}
-
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-
-      - name: Set deployment environment
-        id: env
-        run: |
-          if [ "${GITHUB_REF}" = "refs/heads/main" ]; then
-            echo "vercel_env=production" >> "$GITHUB_OUTPUT"
-            echo "is_prod=true" >> "$GITHUB_OUTPUT"
-          else
-            echo "vercel_env=preview" >> "$GITHUB_OUTPUT"
-            echo "is_prod=false" >> "$GITHUB_OUTPUT"
-          fi
-
-      - name: Set up Node.js (for Vercel CLI)
-        uses: actions/setup-node@v4
-        with:
-          node-version: "20"
-
-      - name: Install Vercel CLI
-        run: npm i -g vercel@latest
-
-      - name: Configure Vercel project
-        env:
-          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
-          VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
-          VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
-        run: vercel pull --yes --environment=${{ steps.env.outputs.vercel_env }} --token="$VERCEL_TOKEN"
-
-      - name: Build with Vercel
-        env:
-          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
-        run: |
-          if [ "${{ steps.env.outputs.is_prod }}" = "true" ]; then
-            vercel build --prod --token="$VERCEL_TOKEN"
-          else
-            vercel build --token="$VERCEL_TOKEN"
-          fi
-
-      - name: Deploy (prebuilt output)
-        id: deploy
-        env:
-          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
-        run: |
-          if [ "${{ steps.env.outputs.is_prod }}" = "true" ]; then
-            URL=$(vercel deploy --prebuilt --prod --token="$VERCEL_TOKEN")
-          else
-            URL=$(vercel deploy --prebuilt --token="$VERCEL_TOKEN")
-          fi
-          echo "url=$URL" >> "$GITHUB_OUTPUT"
-
-      - name: Output Deployment URL
-        run: echo "Deployed to ${{ steps.deploy.outputs.url }}"
+#  deploy:
+#    name: Deploy to Vercel (Preview PR / Prod main)
+#    runs-on: ubuntu-latest
+#    needs: [lint, security, ci]
+#    if: ${{ github.event_name == 'pull_request' || github.ref == 'refs/heads/main' }}
+#
+#    steps:
+#      - name: Checkout repository
+#        uses: actions/checkout@v4
+#
+#      - name: Set deployment environment
+#        id: env
+#        run: |
+#          if [ "${GITHUB_REF}" = "refs/heads/main" ]; then
+#            echo "vercel_env=production" >> "$GITHUB_OUTPUT"
+#            echo "is_prod=true" >> "$GITHUB_OUTPUT"
+#          else
+#            echo "vercel_env=preview" >> "$GITHUB_OUTPUT"
+#            echo "is_prod=false" >> "$GITHUB_OUTPUT"
+#          fi
+#
+#      - name: Set up Node.js (for Vercel CLI)
+#        uses: actions/setup-node@v4
+#        with:
+#          node-version: "20"
+#
+#      - name: Install Vercel CLI
+#        run: npm i -g vercel@latest
+#
+#      - name: Configure Vercel project
+#        env:
+#          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+#          VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+#          VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+#        run: vercel pull --yes --environment=${{ steps.env.outputs.vercel_env }} --token="$VERCEL_TOKEN"
+#
+#      - name: Build with Vercel
+#        env:
+#          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+#        run: |
+#          if [ "${{ steps.env.outputs.is_prod }}" = "true" ]; then
+#            vercel build --prod --token="$VERCEL_TOKEN"
+#          else
+#            vercel build --token="$VERCEL_TOKEN"
+#          fi
+#
+#      - name: Deploy (prebuilt output)
+#        id: deploy
+#        env:
+#          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+#        run: |
+#          if [ "${{ steps.env.outputs.is_prod }}" = "true" ]; then
+#            URL=$(vercel deploy --prebuilt --prod --token="$VERCEL_TOKEN")
+#          else
+#            URL=$(vercel deploy --prebuilt --token="$VERCEL_TOKEN")
+#          fi
+#          echo "url=$URL" >> "$GITHUB_OUTPUT"
+#
+#      - name: Output Deployment URL
+#        run: echo "Deployed to ${{ steps.deploy.outputs.url }}"
