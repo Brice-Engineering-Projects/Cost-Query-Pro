@@ -1,4 +1,3 @@
-
 """utils/debug_url.py"""
 
 from cost_query_pro.config.settings import settings

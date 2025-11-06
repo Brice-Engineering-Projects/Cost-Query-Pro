@@ -12,17 +12,14 @@ from cost_query_pro.models.user import User
 
 logger = logging.getLogger(__name__)
 
-router = APIRouter(
-    prefix="/admin",
-    tags=["admin"]
-)
+router = APIRouter(prefix="/admin", tags=["admin"])
 
 
 @router.delete("/purge")
 def purge_data(
-        year_cutoff: int = Query(..., description="Purge data older than this year"),
-        db: Session = Depends(get_db),
-        current_admin: User = Depends(get_current_admin),
+    year_cutoff: int = Query(..., description="Purge data older than this year"),
+    db: Session = Depends(get_db),
+    current_admin: User = Depends(get_current_admin),
 ) -> Dict[str, Any]:
     """
     Delete all projects and items older than the specified year_cutoff.
@@ -35,7 +32,7 @@ def purge_data(
         return {
             "message": f"No projects older than {year_cutoff} found.",
             "projects_deleted": 0,
-            "items_deleted": 0
+            "items_deleted": 0,
         }
 
     # Perform the purge operation
@@ -57,11 +54,11 @@ def purge_data(
 def _purge_old_projects(db: Session, projects: list[Project]) -> Dict[str, int]:
     """
     Delete the specified projects and their related items.
-    
+
     Args:
         db: Database session
         projects: List of projects to delete
-        
+
     Returns:
         Dictionary with counts of deleted projects and items
     """

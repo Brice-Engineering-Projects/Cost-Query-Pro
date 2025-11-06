@@ -13,11 +13,8 @@ from typing import Optional
 
 logging.basicConfig(
     level=logging.DEBUG,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
-    handlers=[
-        logging.StreamHandler(),
-        logging.FileHandler('cost_query_pro.log')
-    ]
+    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
+    handlers=[logging.StreamHandler(), logging.FileHandler("cost_query_pro.log")],
 )
 
 # ------------------------------------------------------------
@@ -27,6 +24,7 @@ logging.basicConfig(
 
 class GeneralSettings(BaseSettings):
     """General application settings"""
+
     secret_key: str = Field("default_secret_key", env="SECRET_KEY")
     environment: str = Field("production", env="ENVIRONMENT")
     fastapi_debug: bool = Field(False, env="FASTAPI_DEBUG")
@@ -35,6 +33,7 @@ class GeneralSettings(BaseSettings):
 
 class DatabaseSettings(BaseSettings):
     """Database configuration settings"""
+
     database_url: Optional[PostgresDsn] = Field(None, env="DATABASE_URL")
     dev_database_url: Optional[PostgresDsn] = Field(None, env="DEV_DATABASE_URL")
     test_database_url: Optional[PostgresDsn] = Field(None, env="TEST_DATABASE_URL")
@@ -48,6 +47,7 @@ class DatabaseSettings(BaseSettings):
 
 class SessionSettings(BaseSettings):
     """Session and Redis configuration"""
+
     session_type: str = Field("filesystem", env="SESSION_TYPE")
     session_permanent: bool = Field(False, env="SESSION_PERMANENT")
     redis_url: Optional[RedisDsn] = Field("redis://localhost:6379/0", env="REDIS_URL")
@@ -55,6 +55,7 @@ class SessionSettings(BaseSettings):
 
 class AuthSettings(BaseSettings):
     """Authentication configuration"""
+
     # Auth0 settings
     auth0_client_id: Optional[str] = Field(None, env="AUTH0_CLIENT_ID")
     auth0_client_secret: Optional[str] = Field(None, env="AUTH0_CLIENT_SECRET")
@@ -112,7 +113,7 @@ class Settings(BaseSettings):
             secret_key=self.secret_key,
             environment=self.environment,
             fastapi_debug=self.fastapi_debug,
-            testing=self.testing
+            testing=self.testing,
         )
 
     @property
@@ -125,7 +126,7 @@ class Settings(BaseSettings):
             db_pool_size=self.db_pool_size,
             db_pool_timeout=self.db_pool_timeout,
             db_pool_recycle=self.db_pool_recycle,
-            db_max_overflow=self.db_max_overflow
+            db_max_overflow=self.db_max_overflow,
         )
 
     @property
@@ -134,7 +135,7 @@ class Settings(BaseSettings):
         return SessionSettings(
             session_type=self.session_type,
             session_permanent=self.session_permanent,
-            redis_url=self.redis_url
+            redis_url=self.redis_url,
         )
 
     @property
@@ -148,7 +149,7 @@ class Settings(BaseSettings):
             auth0_audience=self.auth0_audience,
             access_token_expire_minutes=self.access_token_expire_minutes,
             algorithm=self.algorithm,
-            allow_admin_signup=self.allow_admin_signup
+            allow_admin_signup=self.allow_admin_signup,
         )
 
 

@@ -11,6 +11,7 @@ from sqlalchemy.orm import relationship
 
 from cost_query_pro.db import Base
 
+
 class ArchivedProject(Base):
     __tablename__ = "projects"
 
@@ -24,9 +25,7 @@ class ArchivedProject(Base):
 
     # Relationship to Items
     archived_items = relationship(
-        "ArchivedItem",
-        back_populates="archived_project",
-        cascade="all, delete-orphan"
+        "ArchivedItem", back_populates="archived_project", cascade="all, delete-orphan"
     )
 
     def __repr__(self):

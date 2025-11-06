@@ -9,8 +9,9 @@ Allows storage of configurable values (e.g., “default_purge_years = 5”) dire
 from sqlalchemy import Column, Integer, String, Text, DateTime, ForeignKey, func
 from cost_query_pro.db import Base
 
+
 class SystemSetting(Base):
-    __tablename__ =   "system_settings"
+    __tablename__ = "system_settings"
 
     id = Column(Integer, primary_key=True, index=True)
     key = Column(String(100), nullable=False, unique=True)

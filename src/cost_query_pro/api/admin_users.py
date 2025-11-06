@@ -11,10 +11,7 @@ from cost_query_pro.core.security import get_current_admin
 
 logger = logging.getLogger(__name__)
 
-router = APIRouter(
-    prefix="/api/v1/admin/users",
-    tags=["admin"]
-)
+router = APIRouter(prefix="/api/v1/admin/users", tags=["admin"])
 
 
 # ------------------------------------------------------------
@@ -47,19 +44,21 @@ def delete_user(
     if not user:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
-            detail=f"User with id {user_id} not found."
+            detail=f"User with id {user_id} not found.",
         )
 
     if user.id == current_admin.id:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Admins cannot delete themselves."
+            detail="Admins cannot delete themselves.",
         )
 
     db.delete(user)
     db.commit()
 
-    logger.info(f"Admin '{current_admin.username}' deleted user '{user.username}' (id={user_id}).")
+    logger.info(
+        f"Admin '{current_admin.username}' deleted user '{user.username}' (id={user_id})."
+    )
 
     return {"message": f"User '{user.username}' deleted successfully."}
 
@@ -67,7 +66,9 @@ def delete_user(
 # ------------------------------------------------------------
 # PUT /admin/users/promote/{user_id}
 # ------------------------------------------------------------
-@router.put("/promote/{user_id}", response_model=UserRead, status_code=status.HTTP_200_OK)
+@router.put(
+    "/promote/{user_id}", response_model=UserRead, status_code=status.HTTP_200_OK
+)
 def promote_user(
     user_id: int = Path(..., description="ID of the user to promote"),
     db: Session = Depends(get_db),
@@ -82,13 +83,13 @@ def promote_user(
     if not user:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
-            detail=f"User with id {user_id} not found."
+            detail=f"User with id {user_id} not found.",
         )
 
     if user.is_admin:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail=f"User '{user.username}' is already an admin."
+            detail=f"User '{user.username}' is already an admin.",
         )
 
     user.is_admin = True

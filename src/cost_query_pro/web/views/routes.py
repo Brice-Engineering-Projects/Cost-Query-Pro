@@ -12,6 +12,7 @@ from cost_query_pro.config.settings import settings
 router = APIRouter()
 templates = Jinja2Templates(directory="src/cost_query_pro/templates")
 
+
 @router.get("/dashboard", response_class=HTMLResponse)
 async def dashboard(request: Request, user=Depends(get_current_user)):
     async with httpx.AsyncClient(base_url=settings.api_base_url) as client:

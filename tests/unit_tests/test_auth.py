@@ -105,5 +105,5 @@ def test_non_admin_cannot_purge(client):
     assert response.json().get("detail") in {
         "Not enough permissions",
         "Forbidden",
-        "Admin privileges required"
+        "Admin privileges required",
     }

@@ -10,6 +10,7 @@ from sqlalchemy import Column, Integer, String, Text, DateTime, ForeignKey, func
 from sqlalchemy.orm import relationship
 from cost_query_pro.db import Base
 
+
 class DataQualityIssue(Base):
     __tablename__ = "data_quality_issues"
 

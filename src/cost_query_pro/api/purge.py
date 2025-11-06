@@ -12,10 +12,7 @@ from cost_query_pro.core.security import get_current_admin
 
 logger = logging.getLogger(__name__)
 
-router = APIRouter(
-    prefix="/api/v1/admin",
-    tags=["admin"]
-)
+router = APIRouter(prefix="/api/v1/admin", tags=["admin"])
 
 
 @router.delete("/purge", status_code=status.HTTP_200_OK)
@@ -33,7 +30,7 @@ def purge_data(
     if not old_projects:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
-            detail=f"No projects older than {year_cutoff} found."
+            detail=f"No projects older than {year_cutoff} found.",
         )
 
     deleted_projects_count = len(old_projects)

@@ -10,7 +10,7 @@ os.environ["ENVIRONMENT"] = "testing"
 os.environ["ALLOW_ADMIN_SIGNUP"] = "true"  # Enable admin signup for tests
 
 # Add src directory to Python path
-sys.path.append(os.path.join(os.path.dirname(__file__), '..', 'src'))
+sys.path.append(os.path.join(os.path.dirname(__file__), "..", "src"))
 
 import pytest
 from fastapi.testclient import TestClient
@@ -143,6 +143,7 @@ def client(db_session):
     """
     Yields a FastAPI TestClient with DB overrides in place.
     """
+
     def override_get_db():
         try:
             yield db_session

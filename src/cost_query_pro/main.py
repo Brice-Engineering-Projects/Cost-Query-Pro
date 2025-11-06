@@ -20,10 +20,11 @@ from cost_query_pro.web.views.routes import router as web_router
 
 logger = logging.getLogger(__name__)
 
+
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    """ --- startup ---
-    # Log the route map so prefix issues are visible at boot. """
+    """--- startup ---
+    # Log the route map so prefix issues are visible at boot."""
     for r in app.routes:
         methods = sorted(list(getattr(r, "methods", []) or []))
         path = getattr(r, "path", "")
@@ -40,9 +41,9 @@ class CustomJSONResponse(JSONResponse):
                 return float(obj)
             return obj
 
-        return super().render(jsonable_encoder(content, custom_encoder={Decimal: convert_decimal}))
-
-
+        return super().render(
+            jsonable_encoder(content, custom_encoder={Decimal: convert_decimal})
+        )
 
 
 app = FastAPI(
@@ -51,7 +52,7 @@ app = FastAPI(
     version="1.0.0",
     debug=settings.fastapi_debug,
     lifespan=lifespan,
-    default_response_class=CustomJSONResponse
+    default_response_class=CustomJSONResponse,
 )
 
 # Include routers (no duplicate prefixes)
@@ -76,11 +77,8 @@ def read_root(db: Session = Depends(get_db)):
         return {
             "message": "Cost Query Pro is alive!",
             "db_check": result,
-            "environment": settings.environment
+            "environment": settings.environment,
         }
     except Exception as e:
         logger.exception("DB connectivity check failed.")
-        return {
-            "message": "Error connecting to DB",
-            "error": str(e)
-        }
+        return {"message": "Error connecting to DB", "error": str(e)}

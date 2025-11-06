@@ -25,6 +25,7 @@ pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 # Password helpers
 # ------------------------------------------------------------
 
+
 def verify_password(plain_password: str, hashed_password: str) -> bool:
     """Verify a plain-text password against a hashed password."""
     return pwd_context.verify(plain_password, hashed_password)
@@ -39,13 +40,13 @@ def get_password_hash(password: str) -> str:
 # Token creation
 # ------------------------------------------------------------
 
-def create_access_token(
-    data: dict,
-    expires_delta: Optional[timedelta] = None
-) -> str:
+
+def create_access_token(data: dict, expires_delta: Optional[timedelta] = None) -> str:
     """Generate a signed JWT access token."""
     to_encode = data.copy()
-    expire = datetime.now(UTC) + (expires_delta or timedelta(minutes=settings.access_token_expire_minutes))
+    expire = datetime.now(UTC) + (
+        expires_delta or timedelta(minutes=settings.access_token_expire_minutes)
+    )
     to_encode.update({"exp": expire})
 
     encoded_jwt = jwt.encode(
@@ -60,9 +61,9 @@ def create_access_token(
 # User / Authorization helpers
 # ------------------------------------------------------------
 
+
 def get_current_user(
-    token: str = Depends(oauth2_scheme),
-    db: Session = Depends(get_db)
+    token: str = Depends(oauth2_scheme), db: Session = Depends(get_db)
 ) -> DBUser:
     """Decode JWT, validate it, and return the current DB user."""
     credentials_exception = HTTPException(
@@ -71,7 +72,9 @@ def get_current_user(
         headers={"WWW-Authenticate": "Bearer"},
     )
     try:
-        payload = jwt.decode(token, settings.secret_key, algorithms=[settings.algorithm])
+        payload = jwt.decode(
+            token, settings.secret_key, algorithms=[settings.algorithm]
+        )
         username: str = payload.get("sub")
         if username is None:
             raise credentials_exception
@@ -99,7 +102,6 @@ def admin_required(current_user: DBUser = Depends(get_current_user)) -> DBUser:
     """Dependency for use in decorator form on routes."""
     if not bool(current_user.is_admin):
         raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail="Admin access required"
+            status_code=status.HTTP_403_FORBIDDEN, detail="Admin access required"
         )
     return current_user

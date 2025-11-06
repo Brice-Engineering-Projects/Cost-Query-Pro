@@ -17,21 +17,20 @@ from cost_query_pro.schemas.user import UserCreate, UserRead
 from cost_query_pro.schemas.token import Token
 from cost_query_pro.config.settings import settings
 
-router = APIRouter(
-    prefix="/auth",
-    tags=["auth"]
-)
+router = APIRouter(prefix="/auth", tags=["auth"])
 
 
 # OAuth2 standard login (for forms/browser)
 @router.post("/login", response_model=Token)
-def login_form(form_data: OAuth2PasswordRequestForm = Depends(), db: Session = Depends(get_db)) -> TokenResponse:
+def login_form(
+    form_data: OAuth2PasswordRequestForm = Depends(), db: Session = Depends(get_db)
+) -> TokenResponse:
     """OAuth2 compliant login endpoint for form-based authentication."""
     user = db.query(DBUser).filter(DBUser.username == form_data.username).first()
     if not user or not verify_password(form_data.password, user.password_hash):
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Invalid username or password"
+            detail="Invalid username or password",
         )
     access_token = create_access_token(
         data={"sub": user.username, "is_admin": user.is_admin}
@@ -47,15 +46,17 @@ def login_json(payload: LoginRequest, db: Session = Depends(get_db)) -> TokenRes
     if not user or not verify_password(payload.password, user.password_hash):
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Invalid username or password"
+            detail="Invalid username or password",
         )
     access_token = create_access_token(
         data={"sub": user.username, "is_admin": user.is_admin}
     )
     return TokenResponse(access_token=access_token, token_type="bearer")
 
+
 # REGISTER (optionally admin-only)
 # ------------------------------------------
+
 
 # ------------------------------------------
 @router.post("/register", response_model=UserRead, status_code=status.HTTP_201_CREATED)
@@ -111,8 +112,8 @@ async def register(
     return UserRead.model_validate(new_user, from_attributes=True)
 
 
-
 # Placeholder protected route
+
 
 @router.get("/me", response_model=UserRead)
 def read_me(current_user: DBUser = Depends(get_current_user)) -> UserRead:

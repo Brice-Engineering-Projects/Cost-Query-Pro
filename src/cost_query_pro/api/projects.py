@@ -15,18 +15,21 @@ router = APIRouter(
     tags=["projects"],
 )
 
+
 @router.post("/", response_model=ProjectOut, status_code=status.HTTP_201_CREATED)
 def create_project(
     project: ProjectCreate,
     db: Session = Depends(get_db),
-    current_user = Depends(get_current_user),
+    current_user=Depends(get_current_user),
 ):
     """
     Create a new project.
     """
-    existing = db.query(Project).filter(
-        Project.project_number == project.project_number
-    ).first()
+    existing = (
+        db.query(Project)
+        .filter(Project.project_number == project.project_number)
+        .first()
+    )
 
     if existing:
         raise HTTPException(
@@ -53,7 +56,7 @@ def get_projects(
     state: Optional[str] = Query(None, max_length=2),
     year: Optional[int] = Query(None, ge=1900),
     db: Session = Depends(get_db),
-    current_user = Depends(get_current_user),
+    current_user=Depends(get_current_user),
 ):
     """
     Retrieve a list of projects, optionally filtered by state and/or year.
@@ -72,7 +75,7 @@ def get_projects(
 def get_project(
     project_id: int,
     db: Session = Depends(get_db),
-    current_user = Depends(get_current_user),
+    current_user=Depends(get_current_user),
 ):
     """
     Retrieve a specific project by ID.
@@ -91,7 +94,7 @@ def update_project(
     project_id: int,
     project: ProjectUpdate,
     db: Session = Depends(get_db),
-    current_user = Depends(get_current_user),
+    current_user=Depends(get_current_user),
 ):
     """
     Update an existing project.
@@ -115,7 +118,7 @@ def update_project(
 def delete_project(
     project_id: int,
     db: Session = Depends(get_db),
-    current_user = Depends(get_current_user),
+    current_user=Depends(get_current_user),
 ):
     """
     Delete a project and all its associated items.
@@ -136,7 +139,7 @@ def delete_project(
 def get_project_items(
     project_id: int,
     db: Session = Depends(get_db),
-    current_user = Depends(get_current_user),
+    current_user=Depends(get_current_user),
 ):
     """
     Retrieve all items associated with a specific project.

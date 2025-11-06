@@ -125,7 +125,9 @@ def test_revoked_user_rejected(db_session):
     """
     user = db_session.query(User).filter(User.username == "test_user").first()
     if not user:
-        user = User(username="test_user", password_hash=pwd_context.hash("x"), is_admin=False)
+        user = User(
+            username="test_user", password_hash=pwd_context.hash("x"), is_admin=False
+        )
         db_session.add(user)
         db_session.commit()
         db_session.refresh(user)
