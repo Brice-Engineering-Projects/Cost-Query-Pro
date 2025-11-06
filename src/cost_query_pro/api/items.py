@@ -1,16 +1,18 @@
 """src/cost_query_pro/api/items.py"""
 
-from fastapi import APIRouter, Depends, HTTPException, Query, status, Response
-from sqlalchemy.orm import Session, joinedload
-from typing import List, Optional
 from decimal import Decimal
-from cost_query_pro.models.user import User as DBUser
+from typing import List, Optional
+
+from fastapi import APIRouter, Depends, HTTPException, Query, Response, status
+from pydantic import BaseModel
+from sqlalchemy.orm import Session, joinedload
+
+from cost_query_pro.api.auth import get_current_user
 from cost_query_pro.db.session import get_db
 from cost_query_pro.models import Item, Project
-from cost_query_pro.schemas.item import ItemCreate, ItemOut, ItemUpdate
-from cost_query_pro.schemas.item import ItemWithProject
-from cost_query_pro.api.auth import get_current_user
-from pydantic import BaseModel
+from cost_query_pro.models.user import User as DBUser
+from cost_query_pro.schemas.item import (ItemCreate, ItemOut, ItemUpdate,
+                                         ItemWithProject)
 
 router = APIRouter(prefix="/items", tags=["items"])
 

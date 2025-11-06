@@ -1,13 +1,14 @@
 """src/cost_query_pro/api/admin_users.py"""
 
-from fastapi import APIRouter, Depends, HTTPException, status, Path
-from sqlalchemy.orm import Session
 import logging
 
+from fastapi import APIRouter, Depends, HTTPException, Path, status
+from sqlalchemy.orm import Session
+
+from cost_query_pro.core.security import get_current_admin
 from cost_query_pro.db.session import get_db
 from cost_query_pro.models.user import User as DBUser
 from cost_query_pro.schemas.user import UserRead
-from cost_query_pro.core.security import get_current_admin
 
 logger = logging.getLogger(__name__)
 

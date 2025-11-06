@@ -1,23 +1,23 @@
 """migrations/env.py"""
 
 import sys
-from pathlib import Path
 from logging.config import fileConfig
+from pathlib import Path
 
 from alembic import context
 from alembic.config import Config
-from sqlalchemy import engine_from_config, pool, create_engine
+from sqlalchemy import create_engine, engine_from_config, pool
 
 # Ensure Alembic can find `src/cost_query_pro`
 BASE_DIR = Path(__file__).resolve().parents[1]
 sys.path.append(str(BASE_DIR / "src"))
 
+from cost_query_pro.config.settings import settings
 # --- import app modules ---
 from cost_query_pro.db import Base
-from cost_query_pro.models.user import User
-from cost_query_pro.models.project import Project
 from cost_query_pro.models.item import Item
-from cost_query_pro.config.settings import settings
+from cost_query_pro.models.project import Project
+from cost_query_pro.models.user import User
 
 # Load alembic.ini explicitly
 config = Config("alembic.ini")

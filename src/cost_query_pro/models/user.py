@@ -6,8 +6,9 @@ Item Model
 Stores user details for authentication.
 """
 
-from sqlalchemy import Column, Integer, String, Boolean
+from sqlalchemy import Boolean, Column, Integer, String
 from sqlalchemy.orm import relationship
+
 from cost_query_pro.db import Base
 
 

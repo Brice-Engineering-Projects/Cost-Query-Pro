@@ -6,8 +6,9 @@ Upload History Model:
 Enables audit trails, debugging, and UI history (admins can review past uploads.
 """
 
-from sqlalchemy import Column, Integer, String, Text, DateTime, ForeignKey, func
+from sqlalchemy import (Column, DateTime, ForeignKey, Integer, Text, func)
 from sqlalchemy.orm import relationship
+
 from cost_query_pro.db import Base
 
 

@@ -1,7 +1,8 @@
 """tests/test_routes.py"""
 
 import pytest
-from cost_query_pro.models import Project, Item, AuditLog
+
+from cost_query_pro.models import Item, Project
 
 
 @pytest.fixture

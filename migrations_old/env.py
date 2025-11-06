@@ -1,9 +1,9 @@
-from logging.config import fileConfig
-import sys
 import os
+import sys
+from logging.config import fileConfig
 
-from sqlalchemy import create_engine, pool
 from alembic import context
+from sqlalchemy import create_engine, pool
 
 # this is the Alembic Config object
 config = context.config

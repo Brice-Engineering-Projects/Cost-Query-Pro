@@ -1,11 +1,10 @@
 """src/cost_query_pro/config/settings.py"""
 
-import os
 import logging
-from pydantic_settings import BaseSettings
-from pydantic import PostgresDsn, RedisDsn, Field, ConfigDict
 from typing import Optional
 
+from pydantic import ConfigDict, Field, PostgresDsn, RedisDsn
+from pydantic_settings import BaseSettings
 
 # ------------------------------------------------------------
 # Logging setup

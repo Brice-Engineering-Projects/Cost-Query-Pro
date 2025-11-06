@@ -1,19 +1,19 @@
 """src/cost_query_pro/main.py"""
 
-from fastapi import FastAPI, Depends
-from contextlib import asynccontextmanager
-from sqlalchemy.orm import Session
-from sqlalchemy import text
 import logging
+from contextlib import asynccontextmanager
 from decimal import Decimal
-from fastapi.responses import JSONResponse
-from fastapi.encoders import jsonable_encoder
 
-from cost_query_pro.config.settings import settings
-from cost_query_pro.db.session import get_db
+from fastapi import Depends, FastAPI
+from fastapi.encoders import jsonable_encoder
+from fastapi.responses import JSONResponse
+from sqlalchemy import text
+from sqlalchemy.orm import Session
 
 # Import routers
-from cost_query_pro.api import auth, admin, projects, items, purge, admin_users
+from cost_query_pro.api import admin, admin_users, auth, items, projects, purge
+from cost_query_pro.config.settings import settings
+from cost_query_pro.db.session import get_db
 from cost_query_pro.web.views.routes import router as web_router
 
 # Import models to register them

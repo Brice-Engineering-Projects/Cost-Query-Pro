@@ -1,15 +1,16 @@
 """tests/unit_tests/test_auth_jwt.py"""
 
-import pytest
 from datetime import datetime, timedelta, timezone
+
+import pytest
 from fastapi.testclient import TestClient
-from jose import jwt, JWTError, ExpiredSignatureError
+from jose import ExpiredSignatureError, JWTError, jwt
 from passlib.context import CryptContext
 
-from src.cost_query_pro.main import app
-from src.cost_query_pro.db import get_db
-from src.cost_query_pro.models import User
 from src.cost_query_pro.config.settings import settings
+from src.cost_query_pro.db import get_db
+from src.cost_query_pro.main import app
+from src.cost_query_pro.models import User
 
 client = TestClient(app)
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")

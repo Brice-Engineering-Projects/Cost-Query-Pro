@@ -3,7 +3,8 @@ This module contains payloads for the cost query pro application.
 src/cost_query_pro/deps/payloads.py
 """
 
-from fastapi import Request, HTTPException
+from fastapi import HTTPException, Request
+
 from cost_query_pro.schemas.user import UserCreate
 
 

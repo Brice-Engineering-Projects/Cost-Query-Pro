@@ -1,6 +1,7 @@
 """src/cost_query_pro/db/session.py"""
 
 import os
+
 from sqlalchemy import create_engine
 from sqlalchemy.engine.url import make_url
 from sqlalchemy.orm import sessionmaker

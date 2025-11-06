@@ -1,16 +1,17 @@
 """src/cost_query_pro/core/security.py"""
 
-from datetime import datetime, timedelta, UTC
+from datetime import UTC, datetime, timedelta
 from typing import Optional
-from fastapi import Depends, status, HTTPException
+
+from fastapi import Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer
-from jose import jwt, JWTError
+from jose import JWTError, jwt
 from passlib.context import CryptContext
 from sqlalchemy.orm.session import Session
 
+from cost_query_pro.config.settings import settings
 from cost_query_pro.db.session import get_db
 from cost_query_pro.models.user import User as DBUser
-from cost_query_pro.config.settings import settings
 
 # ------------------------------------------------------------
 # OAuth2 / JWT setup

@@ -1,7 +1,8 @@
 """src/cost_query_pro/schemas/project.py"""
 
-from pydantic import BaseModel, Field, ConfigDict
 from typing import Optional
+
+from pydantic import BaseModel, ConfigDict, Field
 
 
 class ProjectBase(BaseModel):
@@ -24,7 +25,6 @@ class ProjectCreate(ProjectBase):
     Schema for creating a new project.
     """
 
-    pass
 
 
 class ProjectUpdate(BaseModel):

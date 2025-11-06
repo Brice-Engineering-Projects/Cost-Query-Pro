@@ -1,7 +1,7 @@
 """tests/conftest.py"""
 
-import sys
 import os
+import sys
 
 # -----------------------------------------------------------
 # SET ENVIRONMENT VARIABLES FIRST, before any imports!
@@ -13,20 +13,18 @@ os.environ["ALLOW_ADMIN_SIGNUP"] = "true"  # Enable admin signup for tests
 sys.path.append(os.path.join(os.path.dirname(__file__), "..", "src"))
 
 import pytest
+# Alembic (build schema via migrations once per session)
+from alembic import command
+from alembic.config import Config as AlembicConfig
 from fastapi.testclient import TestClient
-
 # SQLAlchemy
 from sqlalchemy import create_engine, event
 from sqlalchemy.orm import sessionmaker
 
-# Alembic (build schema via migrations once per session)
-from alembic import command
-from alembic.config import Config as AlembicConfig
-
+from cost_query_pro.config.settings import settings
+from cost_query_pro.db.session import get_db
 # App imports
 from cost_query_pro.main import app
-from cost_query_pro.db.session import get_db
-from cost_query_pro.config.settings import settings
 
 # ------------------------------------------------------------
 # Loading banner

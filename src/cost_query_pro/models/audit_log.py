@@ -6,7 +6,8 @@ Audit Log Model:
 Tracks key user and system events, such as login, purge, deletion. Essential for enterprise-grade traceability and compliance.
 """
 
-from sqlalchemy import Column, Integer, String, Text, DateTime, ForeignKey, func
+from sqlalchemy import (Column, DateTime, ForeignKey, Integer, String, Text,
+                        func)
 from sqlalchemy.orm import relationship
 
 from cost_query_pro.db import Base

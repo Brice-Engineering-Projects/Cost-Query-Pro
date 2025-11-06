@@ -1,8 +1,11 @@
 """src/cost_query_pro/schemas/item.py"""
 
-from pydantic import BaseModel, Field, ConfigDict, field_serializer, computed_field
-from typing import Optional
 from decimal import Decimal
+from typing import Optional
+
+from pydantic import (BaseModel, ConfigDict, Field, computed_field,
+                      field_serializer)
+
 from cost_query_pro.schemas.project import ProjectOut
 
 
