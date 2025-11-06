@@ -5,7 +5,6 @@ from datetime import datetime, timedelta, timezone
 from fastapi.testclient import TestClient
 from jose import jwt, JWTError, ExpiredSignatureError
 from passlib.context import CryptContext
-from sqlalchemy.orm import Session
 
 from src.cost_query_pro.main import app
 from src.cost_query_pro.db import get_db
