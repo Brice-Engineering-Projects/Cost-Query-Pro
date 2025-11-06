@@ -9,8 +9,7 @@ from cost_query_pro.api.auth import get_current_user
 from cost_query_pro.db.session import get_db
 from cost_query_pro.models import Project
 from cost_query_pro.schemas.item import ItemOut
-from cost_query_pro.schemas.project import (ProjectCreate, ProjectOut,
-                                            ProjectUpdate)
+from cost_query_pro.schemas.project import ProjectCreate, ProjectOut, ProjectUpdate
 
 router = APIRouter(
     prefix="/projects",

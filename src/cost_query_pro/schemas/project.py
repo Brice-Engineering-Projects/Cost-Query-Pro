@@ -26,7 +26,6 @@ class ProjectCreate(ProjectBase):
     """
 
 
-
 class ProjectUpdate(BaseModel):
     """
     Schema for updating an existing project.

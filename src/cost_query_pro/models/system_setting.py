@@ -6,7 +6,7 @@ System Setting Model:
 Allows storage of configurable values (e.g., “default_purge_years = 5”) directly in the DB instead of hardcoding them.
 """
 
-from sqlalchemy import (Column, DateTime, Integer, String, Text, func)
+from sqlalchemy import Column, DateTime, Integer, String, Text, func
 
 from cost_query_pro.db import Base
 

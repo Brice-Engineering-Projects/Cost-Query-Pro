@@ -13,6 +13,7 @@ BASE_DIR = Path(__file__).resolve().parents[1]
 sys.path.append(str(BASE_DIR / "src"))
 
 from cost_query_pro.config.settings import settings
+
 # --- import app modules ---
 from cost_query_pro.db import Base
 from cost_query_pro.models.item import Item

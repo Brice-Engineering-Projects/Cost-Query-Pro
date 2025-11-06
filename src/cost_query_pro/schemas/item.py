@@ -3,8 +3,7 @@
 from decimal import Decimal
 from typing import Optional
 
-from pydantic import (BaseModel, ConfigDict, Field, computed_field,
-                      field_serializer)
+from pydantic import BaseModel, ConfigDict, Field, computed_field, field_serializer
 
 from cost_query_pro.schemas.project import ProjectOut
 

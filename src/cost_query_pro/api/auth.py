@@ -5,9 +5,12 @@ from fastapi.security import OAuth2PasswordRequestForm
 from sqlalchemy.orm import Session
 
 from cost_query_pro.config.settings import settings
-from cost_query_pro.core.security import (create_access_token,
-                                          get_current_user, get_password_hash,
-                                          verify_password)
+from cost_query_pro.core.security import (
+    create_access_token,
+    get_current_user,
+    get_password_hash,
+    verify_password,
+)
 from cost_query_pro.db.session import get_db
 from cost_query_pro.models.user import User as DBUser
 from cost_query_pro.schemas.auth import LoginRequest, TokenResponse
