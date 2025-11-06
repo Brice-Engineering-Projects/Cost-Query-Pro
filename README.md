@@ -1,7 +1,18 @@
 # 💼 Cost Query Pro
 
+
 **A backend platform for infrastructure cost intelligence and bid-item analysis.**  
 Built with **FastAPI**, **SQLAlchemy**, and **PostgreSQL**, Cost Query Pro is designed to query, clean, and analyze construction cost data at scale — empowering engineers, estimators, and project managers with smarter insights.
+
+---
+
+## 🛠️ Build Status & Metadata
+
+| Branch | Build Status | Python | Framework | License | Project Status |
+|---------|---------------|--------|------------|----------|----------------|
+| **main** | [![Main Build](https://github.com/Brice-Engineering-Projects/Cost-Query-Pro/actions/workflows/ci-cd.yml/badge.svg?branch=main)](https://github.com/Brice-Engineering-Projects/Cost-Query-Pro/actions/workflows/ci-cd.yml) | ![Python](https://img.shields.io/badge/python-3.12-blue.svg) | ![FastAPI](https://img.shields.io/badge/FastAPI-Backend-green.svg) | ![License](https://img.shields.io/github/license/Brice-Engineering-Projects/Cost-Query-Pro) | ![Status](https://img.shields.io/badge/status-in%20development-orange) |
+| **dev**  | [![Dev Build](https://github.com/Brice-Engineering-Projects/Cost-Query-Pro/actions/workflows/ci-cd.yml/badge.svg?branch=dev)](https://github.com/Brice-Engineering-Projects/Cost-Query-Pro/actions/workflows/ci-cd.yml) |  |  |  |  |
+
 
 ---
 

@@ -313,11 +313,11 @@ def register(...): ...
 - [ ] Return **201 Created** for `POST /api/v1/auth/register` (optional, but recommended).
 
 ### Testing
-- [ ] Add unit tests for JWT:
-  - [ ] Expiration handling.
-  - [ ] Invalid signature / malformed token.
-  - [ ] Missing/empty `sub`.
-  - [ ] Revoked/disabled user.
+- [x] Add unit tests for JWT:
+  - [x] Expiration handling.
+  - [x] Invalid signature / malformed token.
+  - [x] Missing/empty `sub`.
+  - [x] Revoked/disabled user.
 - [ ] Add integration test: login → hit protected route → expect 200; bad token → expect 401.
 - [ ] Create **snapshot DB fixtures** for deterministic auth tests.
 - [ ] Add `/admin/purge` tests with `get_current_admin` override.

@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+{% block title %}Dashboard - Cost Query Pro{% endblock %}
+
+{% block content %}
+  <div class="row">
+    <div class="col-md-8">
+      <h1 class="mb-4">Dashboard</h1>
+      <div class="card mb-4 shadow-sm">
+        <div class="card-body">
+          <h5 class="card-title">Search Items</h5>
+          <form method="get" action="/api/v1/items/search">
+            <div class="row g-3 align-items-center">
+              <div class="col-auto">
+                <label for="query" class="col-form-label">Query</label>
+              </div>
+              <div class="col-auto">
+                <input type="text" id="query" name="q" class="form-control" placeholder="Enter keyword" />
+              </div>
+              <div class="col-auto">
+                <button type="submit" class="btn btn-primary">Search</button>
+              </div>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+{% endblock %}
