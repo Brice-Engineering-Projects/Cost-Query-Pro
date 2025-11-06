@@ -10,8 +10,9 @@ Built with **FastAPI**, **SQLAlchemy**, and **PostgreSQL**, Cost Query Pro is de
 
 | Branch | Build Status | Python | Framework | License | Project Status |
 |---------|---------------|--------|------------|----------|----------------|
-| **main** | ![Main Build](https://img.shields.io/github/actions/workflow/status/Brice-Engineering-Projects/Cost-Query-Pro/ci-cd.yml?branch=main&label=main%20build) | ![Python](https://img.shields.io/badge/python-3.12-blue.svg) | ![FastAPI](https://img.shields.io/badge/FastAPI-Backend-green.svg) | ![License](https://img.shields.io/github/license/Brice-Engineering-Projects/Cost-Query-Pro) | ![Status](https://img.shields.io/badge/status-in%20development-orange) |
-| **dev**  | ![Dev Build](https://img.shields.io/github/actions/workflow/status/Brice-Engineering-Projects/Cost-Query-Pro/ci-cd.yml?branch=dev&label=dev%20build) |  |  |  |  |
+| **main** | [![Main Build](https://github.com/Brice-Engineering-Projects/Cost-Query-Pro/actions/workflows/ci-cd.yml/badge.svg?branch=main)](https://github.com/Brice-Engineering-Projects/Cost-Query-Pro/actions/workflows/ci-cd.yml) | ![Python](https://img.shields.io/badge/python-3.12-blue.svg) | ![FastAPI](https://img.shields.io/badge/FastAPI-Backend-green.svg) | ![License](https://img.shields.io/github/license/Brice-Engineering-Projects/Cost-Query-Pro) | ![Status](https://img.shields.io/badge/status-in%20development-orange) |
+| **dev**  | [![Dev Build](https://github.com/Brice-Engineering-Projects/Cost-Query-Pro/actions/workflows/ci-cd.yml/badge.svg?branch=dev)](https://github.com/Brice-Engineering-Projects/Cost-Query-Pro/actions/workflows/ci-cd.yml) |  |  |  |  |
+
 
 ---
 
