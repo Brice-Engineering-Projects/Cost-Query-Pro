@@ -1,6 +1,6 @@
 # .github/workflows/ci-cd.yml
 
-name: CI/CD (Conda | uv | pip) + Lint + Security + Vercel
+name: CI/CD # (Conda | uv | pip) + Lint + Security + Vercel
 
 # --------------------------
 # Commented out until more established
