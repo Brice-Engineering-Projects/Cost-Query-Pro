@@ -1,6 +1,5 @@
 # 💼 Cost Query Pro
 
-
 **A backend platform for infrastructure cost intelligence and bid-item analysis.**
 Built with **FastAPI**, **SQLAlchemy**, and **PostgreSQL**, Cost Query Pro is designed to query, clean, and analyze construction cost data at scale — empowering engineers, estimators, and project managers with smarter insights.
 
@@ -10,8 +9,8 @@ Built with **FastAPI**, **SQLAlchemy**, and **PostgreSQL**, Cost Query Pro is de
 
 | Branch | Build Status | Python | Framework | License | Project Status |
 |---------|---------------|--------|------------|----------|----------------|
-| **main** | [![Main Build](https://github.com/Brice-Engineering-Projects/Cost-Query-Pro/actions/workflows/ci-cd.yml/badge.svg?branch=main)](https://github.com/Brice-Engineering-Projects/Cost-Query-Pro/actions/workflows/ci-cd.yml) | ![Python 3.12](https://img.shields.io/badge/Python-3.12-blue?logo=python&logoColor=white) | ![FastAPI](https://img.shields.io/badge/FastAPI-Backend-green?logo=fastapi&logoColor=white) | ![License](https://img.shields.io/github/license/Brice-Engineering-Projects/Cost-Query-Pro?color=blue) | ![Status](https://img.shields.io/badge/Status-In%20Development-orange) |
-| **dev**  | [![Dev Build](https://github.com/Brice-Engineering-Projects/Cost-Query-Pro/actions/workflows/ci-cd.yml/badge.svg?branch=dev)](https://github.com/Brice-Engineering-Projects/Cost-Query-Pro/actions/workflows/ci-cd.yml) | ![Python 3.12](https://img.shields.io/badge/Python-3.12-blue?logo=python&logoColor=white) | ![FastAPI](https://img.shields.io/badge/FastAPI-Backend-green?logo=fastapi&logoColor=white) | ![License](https://img.shields.io/github/license/Brice-Engineering-Projects/Cost-Query-Pro?color=blue) | ![Status](https://img.shields.io/badge/Status-In%20Development-orange) |
+| **main** | [![Main Build](https://github.com/Brice-Engineering-Projects/Cost-Query-Pro/actions/workflows/ci-cd.yml/badge.svg?branch=main)](https://github.com/Brice-Engineering-Projects/Cost-Query-Pro/actions/workflows/ci-cd.yml) | ![Python 3.12](https://img.shields.io/badge/Python-3.12-blue?logo=python&logoColor=white) | ![FastAPI](https://img.shields.io/badge/FastAPI-Backend-green?logo=fastapi&logoColor=white) | ![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg) | ![Status](https://img.shields.io/badge/Status-In%20Development-orange) |
+| **dev**  | [![Dev Build](https://github.com/Brice-Engineering-Projects/Cost-Query-Pro/actions/workflows/ci-cd.yml/badge.svg?branch=dev)](https://github.com/Brice-Engineering-Projects/Cost-Query-Pro/actions/workflows/ci-cd.yml) | ![Python 3.12](https://img.shields.io/badge/Python-3.12-blue?logo=python&logoColor=white) | ![FastAPI](https://img.shields.io/badge/FastAPI-Backend-green?logo=fastapi&logoColor=white) | ![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg) | ![Status](https://img.shields.io/badge/Status-In%20Development-orange) |
 
 **Version:** v0.1.0
 **Status:** Early Release (MVP)
@@ -47,6 +46,7 @@ Built with **FastAPI**, **SQLAlchemy**, and **PostgreSQL**, Cost Query Pro is de
 ## 🚀 Getting Started (with `uv`)
 
 ### 1️⃣ Clone the Repository
+
 ```bash
 git clone https://github.com/Brice-Backend-Projects/Cost-Query-Pro.git
 cd Cost-Query-Pro
@@ -74,11 +74,13 @@ uv sync
 ### 4️⃣ Run the App
 
 ensure the following environment variables are set:
+
 ```bash
 export PYTHONPATH=$PWD/src
 ```
 
 then run the app:
+
 ```bash
 uvicorn cost_query_pro.main:app --reload
 ```
@@ -168,9 +170,11 @@ cost_query_pro/
 - 🧰 **API Gateway Integration:** expose authenticated endpoints for external engineering dashboards
 
 ---
+
 ## Version History
 
 ### v0.1.0 — MVP Release
+
 - FastAPI application structure implemented
 - Core endpoints for project and cost queries
 - SQLAlchemy ORM models created
@@ -185,6 +189,7 @@ cost_query_pro/
 ---
 
 ### v0.2.0 — Production Deployment (Planned)
+
 - Production configuration profiles
 - PostgreSQL / AWS RDS integration
 - Gunicorn/Uvicorn production server setup
@@ -195,6 +200,7 @@ cost_query_pro/
 ---
 
 ### v0.3.0 — API Hardening & Data Expansion (Planned)
+
 - Expanded project type taxonomy
 - Advanced querying features
 - Pagination & filtering
@@ -206,6 +212,7 @@ cost_query_pro/
 ---
 
 ### v0.4.0 — Admin & Role-Based Access (Planned)
+
 - Admin dashboard endpoints
 - Role-based permissions (admin, analyst, standard)
 - API key generation for internal services
@@ -214,6 +221,7 @@ cost_query_pro/
 ---
 
 ### v0.5.0 — Integrations & Interoperability (Planned)
+
 - Export cost data (CSV/JSON)
 - Webhook support for events
 - REST-to-REST integration examples
@@ -222,6 +230,7 @@ cost_query_pro/
 ---
 
 ### v1.0.0 — Full Architectural Refactor (Planned)
+
 - Final migration to fully modular **src/** layout
 - Clear separation of:
   - `routers/`
@@ -240,8 +249,8 @@ cost_query_pro/
 
 This project is open source under the **MIT License** — free to use, modify, and distribute.
 
-**Author:** Brice A. Nelson
-🌐 [devbybrice.com](https://www.devbybrice.com)
+**Author:** Brice A. Nelson<br>
+🌐 [devbybrice.com](https://www.devbybrice.com)<br>
 💼 [LinkedIn](https://www.linkedin.com/in/brice-a-nelson-p-e-mba-36b28b15/)
 
 ---
