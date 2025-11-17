@@ -195,8 +195,10 @@ jobs:
       - name: Run tests (pytest if present)
         if: ${{ steps.detect.outputs.has_tests == 'true' }}
         env:
-          TEST_DATABASE_URL: postgresql+psycopg2://postgres:postgres@localhost:5432/test_db
-        run: TEST_DATABASE_URL=$TEST_DATABASE_URL uv run pytest -q
+          TEST_DATABASE_URL: postgresql+psycopg2://postgres:postgres@postgres:5432/test_db
+        run: |
+          uv run --env TEST_DATABASE_URL="$TEST_DATABASE_URL" pytest -q
+
 
 
 

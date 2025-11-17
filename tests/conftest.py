@@ -7,6 +7,11 @@ import sys
 # -----------------------------------------------------------
 # SET ENVIRONMENT VARIABLES FIRST, before any imports!
 # -----------------------------------------------------------
+# Guarantee correct DB inside GitHub Actions AND local CLI
+os.environ.setdefault(
+    "TEST_DATABASE_URL", "postgresql+psycopg2://postgres:postgres@postgres:5432/test_db"
+)
+
 os.environ["ENVIRONMENT"] = "testing"
 os.environ["ALLOW_ADMIN_SIGNUP"] = "true"  # Enable admin signup for tests
 
