@@ -13,6 +13,9 @@ Built with **FastAPI**, **SQLAlchemy**, and **PostgreSQL**, Cost Query Pro is de
 | **main** | [![Main Build](https://github.com/Brice-Engineering-Projects/Cost-Query-Pro/actions/workflows/ci-cd.yml/badge.svg?branch=main)](https://github.com/Brice-Engineering-Projects/Cost-Query-Pro/actions/workflows/ci-cd.yml) | ![Python 3.12](https://img.shields.io/badge/Python-3.12-blue?logo=python&logoColor=white) | ![FastAPI](https://img.shields.io/badge/FastAPI-Backend-green?logo=fastapi&logoColor=white) | ![License](https://img.shields.io/github/license/Brice-Engineering-Projects/Cost-Query-Pro?color=blue) | ![Status](https://img.shields.io/badge/Status-In%20Development-orange) |
 | **dev**  | [![Dev Build](https://github.com/Brice-Engineering-Projects/Cost-Query-Pro/actions/workflows/ci-cd.yml/badge.svg?branch=dev)](https://github.com/Brice-Engineering-Projects/Cost-Query-Pro/actions/workflows/ci-cd.yml) | ![Python 3.12](https://img.shields.io/badge/Python-3.12-blue?logo=python&logoColor=white) | ![FastAPI](https://img.shields.io/badge/FastAPI-Backend-green?logo=fastapi&logoColor=white) | ![License](https://img.shields.io/github/license/Brice-Engineering-Projects/Cost-Query-Pro?color=blue) | ![Status](https://img.shields.io/badge/Status-In%20Development-orange) |
 
+**Version:** v0.1.0  
+**Status:** Early Release (MVP)
+
 ---
 
 ## ⚙️ Tech Stack
@@ -163,6 +166,73 @@ cost_query_pro/
 - ☁️ **Cloud deployment:** Dockerize and deploy to AWS App Runner with RDS Postgres backend
 - 🤖 **Machine learning integration:** train models to detect anomalies or pricing trends across regions
 - 🧰 **API Gateway Integration:** expose authenticated endpoints for external engineering dashboards
+
+---
+## Version History
+
+### v0.1.0 — MVP Release
+- FastAPI application structure implemented  
+- Core endpoints for project and cost queries  
+- SQLAlchemy ORM models created  
+- Alembic migrations enabled  
+- JWT authentication (access + refresh)  
+- Modular routing with dependency injection  
+- Basic schema validation  
+- CI/CD pipeline fully configured (GitHub Actions)  
+- Local development environment configured  
+- Early testing with internal datasets  
+
+---
+
+### v0.2.0 — Production Deployment (Planned)
+- Production configuration profiles  
+- PostgreSQL / AWS RDS integration  
+- Gunicorn/Uvicorn production server setup  
+- Security headers, CORS configuration, rate limiting  
+- Logging & error-handling improvements  
+- Environment-based settings cleanup  
+
+---
+
+### v0.3.0 — API Hardening & Data Expansion (Planned)
+- Expanded project type taxonomy  
+- Advanced querying features  
+- Pagination & filtering  
+- Enhanced input validation  
+- Robust exception handling  
+- Performance profiling & endpoint optimization  
+- Caching layer (Redis) for high-traffic endpoints  
+
+---
+
+### v0.4.0 — Admin & Role-Based Access (Planned)
+- Admin dashboard endpoints  
+- Role-based permissions (admin, analyst, standard)  
+- API key generation for internal services  
+- Audit logging for sensitive operations  
+
+---
+
+### v0.5.0 — Integrations & Interoperability (Planned)
+- Export cost data (CSV/JSON)  
+- Webhook support for events  
+- REST-to-REST integration examples  
+- Optional ETL pipelines for external civil engineering datasets  
+
+---
+
+### v1.0.0 — Full Architectural Refactor (Planned)
+- Final migration to fully modular **src/** layout  
+- Clear separation of:  
+  - `routers/`  
+  - `services/`  
+  - `repositories/`  
+  - `schemas/`  
+  - `core/`  
+- Full end-to-end test suite (pytest)  
+- Type-hint and docstring coverage improvements  
+- Performance tuning  
+- Documentation overhaul (OpenAPI + Markdown)
 
 ---
 
