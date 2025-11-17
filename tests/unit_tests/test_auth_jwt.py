@@ -3,31 +3,18 @@
 from datetime import datetime, timedelta, timezone
 
 import pytest
-from fastapi.testclient import TestClient
 from jose import ExpiredSignatureError, JWTError, jwt
 from passlib.context import CryptContext
 
 from src.cost_query_pro.config.settings import settings
-from src.cost_query_pro.db import get_db
-from src.cost_query_pro.main import app
 from src.cost_query_pro.models import User
 
-client = TestClient(app)
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 
 # ---------------------------------------------------------------------
 # Fixtures
 # ---------------------------------------------------------------------
-@pytest.fixture(scope="function")
-def db_session():
-    """Provides a temporary database session for testing."""
-    db = next(get_db())
-    yield db
-    db.rollback()
-    db.close()
-
-
 @pytest.fixture
 def create_test_user(db_session):
     """Creates a test user in the test database before the JWT test runs."""
@@ -61,7 +48,7 @@ def _make_token(sub="test_user", exp_delta_minutes=60, key=None, alg=None):
 # ---------------------------------------------------------------------
 # Tests
 # ---------------------------------------------------------------------
-def test_jwt_token_created_on_login(create_test_user):
+def test_jwt_token_created_on_login(client, create_test_user):
     """Valid login should return a properly signed JWT."""
     response = client.post(
         "/api/v1/auth/login",
@@ -81,7 +68,7 @@ def test_jwt_token_created_on_login(create_test_user):
     assert "exp" in _decoded
 
 
-def test_invalid_login_returns_401():
+def test_invalid_login_returns_401(client):
     """Invalid credentials should return 401."""
     response = client.post(
         "/api/v1/auth/login",
