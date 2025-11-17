@@ -29,4 +29,7 @@ class UploadHistory(Base):
     )
 
     def __repr__(self):
-        return f"UploadHistory(id={self.id}, filename='{self.filename}', records_inserted={self.records_inserted}, status='{self.status}', created_at='{self.created_at}')"
+        return (
+            f"UploadHistory(id={self.id}, filename='{self.filename}', records_inserted={self.records_inserted}, \n"
+            f"status='{self.status}', created_at='{self.created_at}')"
+        )

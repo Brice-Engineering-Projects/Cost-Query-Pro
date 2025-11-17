@@ -28,4 +28,7 @@ class Item(Base):
     project = relationship("Project", back_populates="items")
 
     def __repr__(self):
-        return f"Item(id={self.id}, project_id={self.project_id}, item_description='{self.item_description}', unit='{self.unit}', unit_price={self.unit_price}, quantity={self.quantity})"
+        return (
+            f"Item(id={self.id}, project_id={self.project_id}, item_description='{self.item_description}', \n"
+            f"unit='{self.unit}', unit_price={self.unit_price}, quantity={self.quantity})"
+        )

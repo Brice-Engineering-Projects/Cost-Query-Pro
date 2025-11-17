@@ -103,7 +103,7 @@ jobs:
           else
             echo "No dependency manifest found; skipping pip-audit."
           fi
-  
+
   # ------------------------------
 # CI JOB: Env-aware install + tests
 # ------------------------------

@@ -21,7 +21,10 @@ class SystemSetting(Base):
     timestamp = Column(DateTime, default=func.now(), nullable=False)
 
     def __repr__(self):
-        return f"<SystemSetting(id={self.id}, key='{self.key}', value='{self.value}', description='{self.description}', timestamp='{self.timestamp}')>"
+        return (
+            f"<SystemSetting(id={self.id}, key='{self.key}', value='{self.value}', \n"
+            f"description='{self.description}', timestamp='{self.timestamp}')>"
+        )
 
     def __str__(self):
         return f"SystemSetting(key='{self.key}', value='{self.value}', description='{self.description}')"

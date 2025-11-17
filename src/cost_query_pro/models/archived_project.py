@@ -29,4 +29,8 @@ class ArchivedProject(Base):
     )
 
     def __repr__(self):
-        return f"ArchivedProject(id={self.id}, project_name='{self.project_name}', project_number='{self.project_number}', state='{self.state}', year={self.year}, archived_at={self.archived_at}, purged_by_user_id={self.purged_by_user_id})"
+        return (
+            f"ArchivedProject(id={self.id}, project_name='{self.project_name}', project_number='\n"
+            f"{self.project_number}', state='{self.state}', year={self.year}, archived_at={self.archived_at}, \n"
+            f"purged_by_user_id={self.purged_by_user_id})"
+        )

@@ -3,7 +3,8 @@ src/cost_query_pro/models/data_quality_issue.py
 
 Data Quality Issue Model:
 -------------------------
-Logging any failed or partial uploads (bad formatting, invalid data). Helps detect patterns of data issues — e.g., recurring format problems from certain agencies.
+Logging any failed or partial uploads (bad formatting, invalid data). Helps detect patterns of data issues — e.g.,
+recurring format problems from certain agencies.
 """
 
 from sqlalchemy import Column, DateTime, ForeignKey, Integer, String, Text, func
@@ -25,4 +26,7 @@ class DataQualityIssue(Base):
     upload = relationship("Upload", back_populates="data_quality_issues")
 
     def __repr__(self):
-        return f"<DataQualityIssue(id={self.id}, upload_id={self.upload_id}, issue_type='{self.issue_type}', description='{self.description}', timestamp='{self.timestamp}')>"
+        return (
+            f"<DataQualityIssue(id={self.id}, upload_id={self.upload_id}, issue_type='{self.issue_type}', \n"
+            f"description='{self.description}', timestamp='{self.timestamp}')>"
+        )
