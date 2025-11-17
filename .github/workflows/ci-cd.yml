@@ -2,7 +2,6 @@
 
 name: CI/CD
 
-
 # --------------------------
 # Commented out until more established
 # --------------------------
@@ -15,7 +14,6 @@ on:
 
 #on:
 #  workflow_dispatch: {}
-
 
 concurrency:
   group: ci-cd-${{ github.ref }}
@@ -56,9 +54,9 @@ jobs:
       - name: Flake8
         run: flake8 .
 
-# ------------------------------
-# SECURITY JOB: Bandit + pip-audit
-# ------------------------------
+  # ------------------------------
+  # SECURITY JOB: Bandit + pip-audit
+  # ------------------------------
   security:
     name: Security (Bandit + pip-audit)
     runs-on: ubuntu-latest
@@ -109,12 +107,35 @@ jobs:
           fi
 
   # ------------------------------
-# CI JOB: Env-aware install + tests
-# ------------------------------
+  # CI JOB: Env-aware install + tests
+  # ------------------------------
   ci:
     name: Build & Test
     runs-on: ubuntu-latest
-    needs: [lint, security]
+    needs: [ lint, security ]
+
+    # -----------------------------------
+    # TEST DATABASE SERVICE (PostgreSQL)
+    # -----------------------------------
+    # Senior Dev Notes:
+    # - This containerized Postgres instance is used only for pytest.
+    # - TEST_DATABASE_URL below points to this service.
+    # - Alembic migrations run via conftest before tests execute.
+    # - Health checks ensure DB is ready before pytest begins.
+    services:
+      postgres:
+        image: postgres:14
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: test_db
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd="pg_isready -U postgres"
+          --health-interval=5s
+          --health-timeout=5s
+          --health-retries=5
 
     steps:
       - name: Checkout repository
@@ -171,9 +192,10 @@ jobs:
       - name: Run Pre-Commit Checks
         run: uv run pre-commit run --all-files
 
-
       - name: Run tests (pytest if present)
         if: ${{ steps.detect.outputs.has_tests == 'true' }}
+        env:
+          TEST_DATABASE_URL: postgresql+psycopg2://postgres:postgres@localhost:5432/test_db
         run: uv run pytest -q
 
 
