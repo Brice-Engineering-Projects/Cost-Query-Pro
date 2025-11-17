@@ -105,7 +105,11 @@ class Settings(BaseSettings):
     algorithm: str = Field("HS256", env="ALGORITHM")
     allow_admin_signup: bool = Field(default=False, alias="ALLOW_ADMIN_SIGNUP")
 
-    model_config = ConfigDict(env_file=".env")
+    model_config = ConfigDict(
+        env_file=".env",
+        env_ignore_empty=True,
+        env_prefix="",
+    )
 
     # Convenience property accessors for organized access
     @property
