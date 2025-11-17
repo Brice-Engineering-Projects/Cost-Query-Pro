@@ -1,6 +1,7 @@
 """migrations/env.py"""
 
 # ruff: noqa: E402
+# flake8: noqa: E402
 import sys
 from logging.config import fileConfig
 from pathlib import Path
