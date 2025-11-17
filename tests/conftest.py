@@ -1,5 +1,6 @@
 """tests/conftest.py"""
 
+# flake8: noqa: E402
 import os
 import sys
 
