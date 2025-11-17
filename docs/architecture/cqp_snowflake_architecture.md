@@ -21,7 +21,7 @@ Users / Frontend → HTTPS (JWT) → FastAPI (uv)
 
 * High volume of short operations (millisecond-level response).
 * Focused on data integrity and ACID compliance.
-* Example: 
+* Example:
 ```sql
 INSERT INTO project_costs (id, amount) VALUES (...)
 ```
@@ -36,7 +36,7 @@ INSERT INTO project_costs (id, amount) VALUES (...)
 * Complex aggregations (SUM, AVG, joins across large tables).
 * Handles read-heavy workloads.
 * Prioritizes query speed and scalability over row-level transaction updates.
-* Example: 
+* Example:
 ```sql
 SELECT region, SUM(amount) FROM project_costs GROUP BY region
 ```

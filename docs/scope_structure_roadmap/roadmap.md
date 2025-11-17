@@ -10,7 +10,7 @@ In municipal and infrastructure projects, historical **unit costs** for items (e
 - Searching for specific items or prices across multiple projects and years is time-consuming.
 - There’s no centralized system to query historical unit prices quickly and reliably.
 
-**Goal:**  
+**Goal:**
 Build an application that allows users to search for **unit costs by item, state, and year**, returning the relevant pricing data along with project and source information.
 
 ---
@@ -45,7 +45,7 @@ Build an application that allows users to search for **unit costs by item, state
   - Purge data older than a specified timeframe (e.g. 5 years).
   - Manage user permissions.
 
-✅ **Data Maintenance**  
+✅ **Data Maintenance**
 
 - Ability to delete old data or archive it for storage efficiency.
 
@@ -125,7 +125,7 @@ Options:
 
 ## 🔎 Query Example (Conceptual)
 
-> **User Query:**  
+> **User Query:**
 > “Find all costs for ‘PVC Pipe’ in Florida from 2022 to 2024.”
 
 **Returned Results:**
@@ -225,5 +225,5 @@ Options:
 
 ---
 
-**TL;DR:**  
+**TL;DR:**
 This project will provide a powerful, searchable system for unit cost data in infrastructure projects, complete with secure admin controls and automated data maintenance. A perfect blend of Python, data engineering, and civil engineering knowledge—paving your way into fintech and beyond!

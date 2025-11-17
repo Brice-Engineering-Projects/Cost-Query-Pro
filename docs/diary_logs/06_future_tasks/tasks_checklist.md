@@ -71,7 +71,7 @@ status: On-going
 - [X] Verify `/api/v1/auth/me` end-to-end in Insomnia (expect 200 with `{id, username, is_admin}`) after adding `from fastapi import status`.
 
 *The below checklist items were done on 9-1-2025*
-- [X] Standardize login contract and update code/docs accordingly: 
+- [X] Standardize login contract and update code/docs accordingly:
   - [X] **Choose one:** JSON payload (`LoginRequest` schema) **or** form (`OAuth2PasswordRequestForm`).
   - [X] Update API docs and Insomnia collections to match the choice.
 - [ ] Return **201 Created** for `POST /api/v1/auth/register` (optional, but recommended).
@@ -102,7 +102,7 @@ status: On-going
 ### 📦 Status
 
 - ✅ **CI Pipeline:** Fully functional with PostgreSQL integration
-- ✅ **Tests:** Consistently passing in isolated environment  
+- ✅ **Tests:** Consistently passing in isolated environment
 - ✅ **Code Quality:** Schema refactoring complete with computed fields
 - ✅ **Environment Parity:** Local and CI environments aligned
 - 🚀 **Ready for:** Advanced CI features and deployment automation
@@ -119,7 +119,7 @@ status: On-going
 - [X] Verify `/api/v1/auth/me` end-to-end in Insomnia (expect 200 with `{id, username, is_admin}`) after adding `from fastapi import status`.
 
 *The below checklist items were done on 9-1-2025*
-- [X] Standardize login contract and update code/docs accordingly: 
+- [X] Standardize login contract and update code/docs accordingly:
   - [X] **Choose one:** JSON payload (`LoginRequest` schema) **or** form (`OAuth2PasswordRequestForm`).
   - [X] Update API docs and Insomnia collections to match the choice.
 - [X] Return **201 Created** for `POST /api/v1/auth/register` (optional, but recommended).
@@ -163,7 +163,7 @@ status: On-going
 
 ---
 
-## Schema 
+## Schema
 
 ### Documentation
 
@@ -250,7 +250,7 @@ status: On-going
   ```
   AttributeError: 'Settings' object has no attribute 'ACCESS_TOKEN_EXPIRE_MINUTES'
   ```
-- **Action needed:**  
+- **Action needed:**
   - Update `settings.py` with:
     ```python
     access_token_expire_minutes: int = Field(30, env="ACCESS_TOKEN_EXPIRE_MINUTES")

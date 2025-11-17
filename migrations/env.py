@@ -1,22 +1,31 @@
 """migrations/env.py"""
+
+# ruff: noqa: E402
+# flake8: noqa: E402
+import os
 import sys
-from pathlib import Path
 from logging.config import fileConfig
+from pathlib import Path
 
 from alembic import context
 from alembic.config import Config
-from sqlalchemy import engine_from_config, pool, create_engine
+from sqlalchemy import create_engine, pool
+
+# ------------------------------------------------------------
+# CI FIX: Force Alembic to use TEST_DATABASE_URL when provided
+# ------------------------------------------------------------
+test_db_url = os.getenv("TEST_DATABASE_URL")
+if test_db_url:
+    context.config.set_main_option("sqlalchemy.url", test_db_url)
 
 # Ensure Alembic can find `src/cost_query_pro`
 BASE_DIR = Path(__file__).resolve().parents[1]
 sys.path.append(str(BASE_DIR / "src"))
 
+from cost_query_pro.config.settings import settings
+
 # --- import app modules ---
 from cost_query_pro.db import Base
-from cost_query_pro.models.user import User
-from cost_query_pro.models.project import Project
-from cost_query_pro.models.item import Item
-from cost_query_pro.config.settings import settings
 
 # Load alembic.ini explicitly
 config = Config("alembic.ini")
@@ -44,6 +53,7 @@ if config.config_file_name is not None:
 
 target_metadata = Base.metadata
 
+
 def run_migrations_offline():
     context.configure(
         url=url,
@@ -53,6 +63,7 @@ def run_migrations_offline():
     )
     with context.begin_transaction():
         context.run_migrations()
+
 
 def run_migrations_online():
     connectable = create_engine(
@@ -67,6 +78,7 @@ def run_migrations_online():
         )
         with context.begin_transaction():
             context.run_migrations()
+
 
 if context.is_offline_mode():
     run_migrations_offline()

@@ -1,25 +1,25 @@
 """src/cost_query_pro/api/items.py"""
 
-from fastapi import APIRouter, Depends, HTTPException, Query, status, Response
-from sqlalchemy.orm import Session, joinedload
-from typing import List, Optional
 from decimal import Decimal
-from cost_query_pro.models.user import User as DBUser
+from typing import List, Optional
+
+from fastapi import APIRouter, Depends, HTTPException, Query, Response, status
+from pydantic import BaseModel
+from sqlalchemy.orm import Session, joinedload
+
+from cost_query_pro.api.auth import get_current_user
 from cost_query_pro.db.session import get_db
 from cost_query_pro.models import Item, Project
-from cost_query_pro.schemas.item import ItemCreate, ItemOut, ItemUpdate
-from cost_query_pro.schemas.item import ItemWithProject
-from cost_query_pro.api.auth import get_current_user
-from pydantic import BaseModel
+from cost_query_pro.models.user import User as DBUser
+from cost_query_pro.schemas.item import ItemCreate, ItemOut, ItemUpdate, ItemWithProject
 
-router = APIRouter(
-    prefix="/items",
-    tags=["items"]
-)
+router = APIRouter(prefix="/items", tags=["items"])
+
 
 class PriceRangeOut(BaseModel):
     min_price: Optional[Decimal]
     max_price: Optional[Decimal]
+
 
 @router.get("/search", response_model=List[ItemWithProject])
 def search_items(
@@ -33,7 +33,7 @@ def search_items(
     skip: int = 0,
     limit: int = 100,
     db: Session = Depends(get_db),
-    current_user = Depends(get_current_user),
+    current_user=Depends(get_current_user),
 ):
     """
     Search for items with various filters:
@@ -67,16 +67,21 @@ def search_items(
 def get_item(
     item_id: int,
     db: Session = Depends(get_db),
-    current_user = Depends(get_current_user),
+    current_user=Depends(get_current_user),
 ):
     """
     Retrieve a specific item by ID with its project details.
     """
-    item = db.query(Item).options(joinedload(Item.project)).filter(Item.id == item_id).first()
+    item = (
+        db.query(Item)
+        .options(joinedload(Item.project))
+        .filter(Item.id == item_id)
+        .first()
+    )
     if not item:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
-            detail=f"Item with ID {item_id} not found."
+            detail=f"Item with ID {item_id} not found.",
         )
     return item
 
@@ -85,7 +90,7 @@ def get_item(
 def create_item(
     item: ItemCreate,
     db: Session = Depends(get_db),
-    current_user = Depends(get_current_user),
+    current_user=Depends(get_current_user),
 ):
     """
     Create a new item.
@@ -94,7 +99,7 @@ def create_item(
     if not project:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
-            detail=f"Project with ID {item.project_id} not found."
+            detail=f"Project with ID {item.project_id} not found.",
         )
 
     db_item = Item(
@@ -114,7 +119,7 @@ def update_item(
     item_id: int,
     item: ItemUpdate,
     db: Session = Depends(get_db),
-    current_user = Depends(get_current_user),
+    current_user=Depends(get_current_user),
 ):
     """
     Update an existing item.
@@ -123,7 +128,7 @@ def update_item(
     if not db_item:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
-            detail=f"Item with ID {item_id} not found."
+            detail=f"Item with ID {item_id} not found.",
         )
 
     if item.project_id is not None and item.project_id != db_item.project_id:
@@ -131,7 +136,7 @@ def update_item(
         if not project:
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND,
-                detail=f"Project with ID {item.project_id} not found."
+                detail=f"Project with ID {item.project_id} not found.",
             )
 
     for key, value in item.model_dump(exclude_unset=True).items():
@@ -146,7 +151,7 @@ def update_item(
 def delete_item(
     item_id: int,
     db: Session = Depends(get_db),
-    current_user = Depends(get_current_user),
+    current_user=Depends(get_current_user),
 ):
     """
     Delete an item.
@@ -155,7 +160,7 @@ def delete_item(
     if not db_item:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
-            detail=f"Item with ID {item_id} not found."
+            detail=f"Item with ID {item_id} not found.",
         )
 
     db.delete(db_item)
@@ -166,7 +171,7 @@ def delete_item(
 @router.get("/units/distinct", response_model=List[str])
 def get_distinct_units(
     db: Session = Depends(get_db),
-    current_user = Depends(get_current_user),
+    current_user=Depends(get_current_user),
 ):
     """
     Get all distinct unit types in the DB.
@@ -179,7 +184,7 @@ def get_distinct_units(
 def get_price_range(
     item_query: Optional[str] = None,
     db: Session = Depends(get_db),
-    current_user = Depends(get_current_user),
+    current_user=Depends(get_current_user),
 ):
     """
     Get min and max price for items matching the query.
@@ -196,8 +201,9 @@ def get_price_range(
         max_price=max_price_item.unit_price if max_price_item else None,
     )
 
+
 @router.get("/search")
-def search_items(current_user: DBUser = Depends(get_current_user)):
+def search_items_placeholder(current_user: DBUser = Depends(get_current_user)):
     """
     Placeholder route to demonstrate authentication.
 

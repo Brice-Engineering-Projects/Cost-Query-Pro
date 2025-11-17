@@ -1,7 +1,9 @@
 """tests/test_routes.py"""
 
 import pytest
-from cost_query_pro.models import Project, Item, AuditLog
+
+from cost_query_pro.models import Item, Project
+
 
 @pytest.fixture
 def create_user(client):
@@ -14,6 +16,7 @@ def create_user(client):
         # Register returns 201 Created
         assert resp.status_code == 201, resp.text
         return resp
+
     return _create_user
 
 
@@ -28,6 +31,7 @@ def login_user(client):
         assert resp.status_code == 200, resp.text
         token = resp.json()["access_token"]
         return {"Authorization": f"Bearer {token}"}
+
     return _login_user
 
 
@@ -120,5 +124,5 @@ def test_non_admin_forbidden(client, create_user, login_user):
     assert response.json().get("detail") in {
         "Not enough permissions",
         "Forbidden",
-        "Admin privileges required"
+        "Admin privileges required",
     }

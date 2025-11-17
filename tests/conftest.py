@@ -1,32 +1,39 @@
 """tests/conftest.py"""
 
-import sys
+# flake8: noqa: E402
 import os
+import sys
 
 # -----------------------------------------------------------
 # SET ENVIRONMENT VARIABLES FIRST, before any imports!
 # -----------------------------------------------------------
+# Guarantee correct DB inside GitHub Actions AND local CLI
+os.environ.setdefault(
+    "TEST_DATABASE_URL", "postgresql+psycopg2://postgres:postgres@postgres:5432/test_db"
+)
+
 os.environ["ENVIRONMENT"] = "testing"
 os.environ["ALLOW_ADMIN_SIGNUP"] = "true"  # Enable admin signup for tests
 
 # Add src directory to Python path
-sys.path.append(os.path.join(os.path.dirname(__file__), '..', 'src'))
+sys.path.append(os.path.join(os.path.dirname(__file__), "..", "src"))
 
 import pytest
+
+# Alembic (build schema via migrations once per session)
+from alembic import command
+from alembic.config import Config as AlembicConfig
 from fastapi.testclient import TestClient
 
 # SQLAlchemy
 from sqlalchemy import create_engine, event
 from sqlalchemy.orm import sessionmaker
 
-# Alembic (build schema via migrations once per session)
-from alembic import command
-from alembic.config import Config as AlembicConfig
+from cost_query_pro.config.settings import settings
+from cost_query_pro.db.session import get_db
 
 # App imports
 from cost_query_pro.main import app
-from cost_query_pro.db.session import get_db
-from cost_query_pro.config.settings import settings
 
 # ------------------------------------------------------------
 # Loading banner
@@ -143,6 +150,7 @@ def client(db_session):
     """
     Yields a FastAPI TestClient with DB overrides in place.
     """
+
     def override_get_db():
         try:
             yield db_session

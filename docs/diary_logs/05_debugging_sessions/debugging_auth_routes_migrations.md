@@ -96,7 +96,7 @@ Date:  July 11, 2025
   ```
   AttributeError: 'Settings' object has no attribute 'ACCESS_TOKEN_EXPIRE_MINUTES'
   ```
-- **Action needed:**  
+- **Action needed:**
   - Update `settings.py` with:
     ```python
     access_token_expire_minutes: int = Field(30, env="ACCESS_TOKEN_EXPIRE_MINUTES")
@@ -147,6 +147,6 @@ Date:  July 11, 2025
 
 # ⏸️ Pausing Here
 
-✅ All critical architecture fixes are in place.  
-🔧 Remaining task is to fix the missing settings attribute and re-run tests.  
+✅ All critical architecture fixes are in place.
+🔧 Remaining task is to fix the missing settings attribute and re-run tests.
 🎯 Close to green tests!

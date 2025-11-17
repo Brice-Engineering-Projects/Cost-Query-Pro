@@ -1,9 +1,9 @@
 
 # Cost Query Pro — Authentication Contract & Auth Flow Hardening (Internal Engineering Design Note)
 
-**Status:** Draft for Engineering Review  
-**Scope:** Backend Auth Contract, Routing, Error Taxonomy, Observability, Tests  
-**Owners:** Backend Platform (FastAPI)  
+**Status:** Draft for Engineering Review
+**Scope:** Backend Auth Contract, Routing, Error Taxonomy, Observability, Tests
+**Owners:** Backend Platform (FastAPI)
 **Last Updated:** 2025-09-01
 
 ---

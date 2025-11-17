@@ -6,10 +6,11 @@ Archived Project Model:
 Stores archived project details for projects.
 """
 
-from sqlalchemy import Column, Integer, String, Boolean
+from sqlalchemy import Boolean, Column, Integer, String
 from sqlalchemy.orm import relationship
 
 from cost_query_pro.db import Base
+
 
 class ArchivedProject(Base):
     __tablename__ = "projects"
@@ -24,10 +25,12 @@ class ArchivedProject(Base):
 
     # Relationship to Items
     archived_items = relationship(
-        "ArchivedItem",
-        back_populates="archived_project",
-        cascade="all, delete-orphan"
+        "ArchivedItem", back_populates="archived_project", cascade="all, delete-orphan"
     )
 
     def __repr__(self):
-        return f"ArchivedProject(id={self.id}, project_name='{self.project_name}', project_number='{self.project_number}', state='{self.state}', year={self.year}, archived_at={self.archived_at}, purged_by_user_id={self.purged_by_user_id})"
+        return (
+            f"ArchivedProject(id={self.id}, project_name='{self.project_name}', project_number='\n"
+            f"{self.project_number}', state='{self.state}', year={self.year}, archived_at={self.archived_at}, \n"
+            f"purged_by_user_id={self.purged_by_user_id})"
+        )

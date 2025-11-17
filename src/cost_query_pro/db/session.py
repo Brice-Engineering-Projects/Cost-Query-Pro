@@ -1,11 +1,13 @@
 """src/cost_query_pro/db/session.py"""
 
 import os
+
 from sqlalchemy import create_engine
 from sqlalchemy.engine.url import make_url
 from sqlalchemy.orm import sessionmaker
 
 from cost_query_pro.config.settings import settings
+
 
 def _resolve_db_url() -> str:
     # Prefer env (so CI/local tests can override), otherwise settings
@@ -15,13 +17,15 @@ def _resolve_db_url() -> str:
         url = "sqlite:///./dev.db"
     return url
 
+
 def _safety_check(url: str) -> None:
     """If we're running tests, refuse to touch a non-test DB."""
     if os.getenv("TESTING") == "1":
         u = make_url(url)
-        assert str(u.host) in {"localhost", "127.0.0.1"} and str(u.database).endswith("_test"), (
-            f"Refusing to run tests against non-test DB: {u!s}"
-        )
+        assert str(u.host) in {"localhost", "127.0.0.1"} and str(u.database).endswith(
+            "_test"
+        ), f"Refusing to run tests against non-test DB: {u!s}"
+
 
 DB_URL = _resolve_db_url()
 _safety_check(DB_URL)
@@ -35,6 +39,7 @@ engine = create_engine(
 )
 
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
+
 
 def get_db():
     db = SessionLocal()

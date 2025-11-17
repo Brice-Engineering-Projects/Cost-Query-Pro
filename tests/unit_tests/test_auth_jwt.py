@@ -1,32 +1,20 @@
 """tests/unit_tests/test_auth_jwt.py"""
 
-import pytest
 from datetime import datetime, timedelta, timezone
-from fastapi.testclient import TestClient
-from jose import jwt, JWTError, ExpiredSignatureError
+
+import pytest
+from jose import ExpiredSignatureError, JWTError, jwt
 from passlib.context import CryptContext
 
-from src.cost_query_pro.main import app
-from src.cost_query_pro.db import get_db
-from src.cost_query_pro.models import User
 from src.cost_query_pro.config.settings import settings
+from src.cost_query_pro.models import User
 
-client = TestClient(app)
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 
 # ---------------------------------------------------------------------
 # Fixtures
 # ---------------------------------------------------------------------
-@pytest.fixture(scope="function")
-def db_session():
-    """Provides a temporary database session for testing."""
-    db = next(get_db())
-    yield db
-    db.rollback()
-    db.close()
-
-
 @pytest.fixture
 def create_test_user(db_session):
     """Creates a test user in the test database before the JWT test runs."""
@@ -60,7 +48,7 @@ def _make_token(sub="test_user", exp_delta_minutes=60, key=None, alg=None):
 # ---------------------------------------------------------------------
 # Tests
 # ---------------------------------------------------------------------
-def test_jwt_token_created_on_login(create_test_user):
+def test_jwt_token_created_on_login(client, create_test_user):
     """Valid login should return a properly signed JWT."""
     response = client.post(
         "/api/v1/auth/login",
@@ -73,12 +61,14 @@ def test_jwt_token_created_on_login(create_test_user):
     assert "access_token" in data
     token = data["access_token"]
 
-    decoded = jwt.decode(token, settings.secret_key, algorithms=[settings.algorithm])
-    assert decoded.get("sub") == create_test_user["username"]
-    assert "exp" in decoded
+    _decoded = jwt.decode(  # noqa: F841
+        token, settings.secret_key, algorithms=[settings.algorithm]
+    )  # noqa: F841
+    assert _decoded.get("sub") == create_test_user["username"]
+    assert "exp" in _decoded
 
 
-def test_invalid_login_returns_401():
+def test_invalid_login_returns_401(client):
     """Invalid credentials should return 401."""
     response = client.post(
         "/api/v1/auth/login",
@@ -125,7 +115,9 @@ def test_revoked_user_rejected(db_session):
     """
     user = db_session.query(User).filter(User.username == "test_user").first()
     if not user:
-        user = User(username="test_user", password_hash=pwd_context.hash("x"), is_admin=False)
+        user = User(
+            username="test_user", password_hash=pwd_context.hash("x"), is_admin=False
+        )
         db_session.add(user)
         db_session.commit()
         db_session.refresh(user)
@@ -135,7 +127,7 @@ def test_revoked_user_rejected(db_session):
     db_session.commit()
 
     token = _make_token(sub=user.username)
-    decoded = jwt.decode(token, settings.secret_key, algorithms=[settings.algorithm])
+    _decoded = jwt.decode(token, settings.secret_key, algorithms=[settings.algorithm])
 
     # simulate revocation logic — in real app you'd check user.active flag
     if not user.is_admin:

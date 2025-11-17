@@ -1,7 +1,7 @@
 # 💼 Cost Query Pro
 
 
-**A backend platform for infrastructure cost intelligence and bid-item analysis.**  
+**A backend platform for infrastructure cost intelligence and bid-item analysis.**
 Built with **FastAPI**, **SQLAlchemy**, and **PostgreSQL**, Cost Query Pro is designed to query, clean, and analyze construction cost data at scale — empowering engineers, estimators, and project managers with smarter insights.
 
 ---
@@ -10,9 +10,11 @@ Built with **FastAPI**, **SQLAlchemy**, and **PostgreSQL**, Cost Query Pro is de
 
 | Branch | Build Status | Python | Framework | License | Project Status |
 |---------|---------------|--------|------------|----------|----------------|
-| **main** | [![Main Build](https://github.com/Brice-Engineering-Projects/Cost-Query-Pro/actions/workflows/ci-cd.yml/badge.svg?branch=main)](https://github.com/Brice-Engineering-Projects/Cost-Query-Pro/actions/workflows/ci-cd.yml) | ![Python](https://img.shields.io/badge/python-3.12-blue.svg) | ![FastAPI](https://img.shields.io/badge/FastAPI-Backend-green.svg) | ![License](https://img.shields.io/github/license/Brice-Engineering-Projects/Cost-Query-Pro) | ![Status](https://img.shields.io/badge/status-in%20development-orange) |
-| **dev**  | [![Dev Build](https://github.com/Brice-Engineering-Projects/Cost-Query-Pro/actions/workflows/ci-cd.yml/badge.svg?branch=dev)](https://github.com/Brice-Engineering-Projects/Cost-Query-Pro/actions/workflows/ci-cd.yml) |  |  |  |  |
+| **main** | [![Main Build](https://github.com/Brice-Engineering-Projects/Cost-Query-Pro/actions/workflows/ci-cd.yml/badge.svg?branch=main)](https://github.com/Brice-Engineering-Projects/Cost-Query-Pro/actions/workflows/ci-cd.yml) | ![Python 3.12](https://img.shields.io/badge/Python-3.12-blue?logo=python&logoColor=white) | ![FastAPI](https://img.shields.io/badge/FastAPI-Backend-green?logo=fastapi&logoColor=white) | ![License](https://img.shields.io/github/license/Brice-Engineering-Projects/Cost-Query-Pro?color=blue) | ![Status](https://img.shields.io/badge/Status-In%20Development-orange) |
+| **dev**  | [![Dev Build](https://github.com/Brice-Engineering-Projects/Cost-Query-Pro/actions/workflows/ci-cd.yml/badge.svg?branch=dev)](https://github.com/Brice-Engineering-Projects/Cost-Query-Pro/actions/workflows/ci-cd.yml) | ![Python 3.12](https://img.shields.io/badge/Python-3.12-blue?logo=python&logoColor=white) | ![FastAPI](https://img.shields.io/badge/FastAPI-Backend-green?logo=fastapi&logoColor=white) | ![License](https://img.shields.io/github/license/Brice-Engineering-Projects/Cost-Query-Pro?color=blue) | ![Status](https://img.shields.io/badge/Status-In%20Development-orange) |
 
+**Version:** v0.1.0
+**Status:** Early Release (MVP)
 
 ---
 
@@ -33,12 +35,12 @@ Built with **FastAPI**, **SQLAlchemy**, and **PostgreSQL**, Cost Query Pro is de
 
 ## 🧠 Core Features
 
-- 🔐 Secure authentication with JWT  
-- 🧮 Project, item, and cost model endpoints  
-- 🧹 Automated purge routines for old or duplicate data  
-- 🧱 Database migrations and ORM models  
-- 🧰 Modular architecture with dedicated folders for logic, schemas, and services  
-- 🧾 Built-in API documentation via Swagger UI (`/docs`)  
+- 🔐 Secure authentication with JWT
+- 🧮 Project, item, and cost model endpoints
+- 🧹 Automated purge routines for old or duplicate data
+- 🧱 Database migrations and ORM models
+- 🧰 Modular architecture with dedicated folders for logic, schemas, and services
+- 🧾 Built-in API documentation via Swagger UI (`/docs`)
 
 ---
 
@@ -156,14 +158,81 @@ cost_query_pro/
 
 ## 🌱 Future Enhancements
 
-- 🔑 **Role-based access control (RBAC):** differentiate between admin, project manager, and analyst users  
-- 🧾 **Bid-item cost analytics:** integrate real municipal datasets to benchmark infrastructure costs  
-- 💾 **Caching layer:** add Redis or SQLite caching for faster repeat queries  
-- 📊 **Reporting tools:** export project summaries to PDF and Excel  
-- ⚙️ **Background tasks:** schedule cost refreshes or purge routines asynchronously  
-- ☁️ **Cloud deployment:** Dockerize and deploy to AWS App Runner with RDS Postgres backend  
-- 🤖 **Machine learning integration:** train models to detect anomalies or pricing trends across regions  
-- 🧰 **API Gateway Integration:** expose authenticated endpoints for external engineering dashboards  
+- 🔑 **Role-based access control (RBAC):** differentiate between admin, project manager, and analyst users
+- 🧾 **Bid-item cost analytics:** integrate real municipal datasets to benchmark infrastructure costs
+- 💾 **Caching layer:** add Redis or SQLite caching for faster repeat queries
+- 📊 **Reporting tools:** export project summaries to PDF and Excel
+- ⚙️ **Background tasks:** schedule cost refreshes or purge routines asynchronously
+- ☁️ **Cloud deployment:** Dockerize and deploy to AWS App Runner with RDS Postgres backend
+- 🤖 **Machine learning integration:** train models to detect anomalies or pricing trends across regions
+- 🧰 **API Gateway Integration:** expose authenticated endpoints for external engineering dashboards
+
+---
+## Version History
+
+### v0.1.0 — MVP Release
+- FastAPI application structure implemented
+- Core endpoints for project and cost queries
+- SQLAlchemy ORM models created
+- Alembic migrations enabled
+- JWT authentication (access + refresh)
+- Modular routing with dependency injection
+- Basic schema validation
+- CI/CD pipeline fully configured (GitHub Actions)
+- Local development environment configured
+- Early testing with internal datasets
+
+---
+
+### v0.2.0 — Production Deployment (Planned)
+- Production configuration profiles
+- PostgreSQL / AWS RDS integration
+- Gunicorn/Uvicorn production server setup
+- Security headers, CORS configuration, rate limiting
+- Logging & error-handling improvements
+- Environment-based settings cleanup
+
+---
+
+### v0.3.0 — API Hardening & Data Expansion (Planned)
+- Expanded project type taxonomy
+- Advanced querying features
+- Pagination & filtering
+- Enhanced input validation
+- Robust exception handling
+- Performance profiling & endpoint optimization
+- Caching layer (Redis) for high-traffic endpoints
+
+---
+
+### v0.4.0 — Admin & Role-Based Access (Planned)
+- Admin dashboard endpoints
+- Role-based permissions (admin, analyst, standard)
+- API key generation for internal services
+- Audit logging for sensitive operations
+
+---
+
+### v0.5.0 — Integrations & Interoperability (Planned)
+- Export cost data (CSV/JSON)
+- Webhook support for events
+- REST-to-REST integration examples
+- Optional ETL pipelines for external civil engineering datasets
+
+---
+
+### v1.0.0 — Full Architectural Refactor (Planned)
+- Final migration to fully modular **src/** layout
+- Clear separation of:
+  - `routers/`
+  - `services/`
+  - `repositories/`
+  - `schemas/`
+  - `core/`
+- Full end-to-end test suite (pytest)
+- Type-hint and docstring coverage improvements
+- Performance tuning
+- Documentation overhaul (OpenAPI + Markdown)
 
 ---
 
@@ -171,8 +240,8 @@ cost_query_pro/
 
 This project is open source under the **MIT License** — free to use, modify, and distribute.
 
-**Author:** Brice A. Nelson  
-🌐 [devbybrice.com](https://www.devbybrice.com)  
+**Author:** Brice A. Nelson
+🌐 [devbybrice.com](https://www.devbybrice.com)
 💼 [LinkedIn](https://www.linkedin.com/in/brice-a-nelson-p-e-mba-36b28b15/)
 
 ---

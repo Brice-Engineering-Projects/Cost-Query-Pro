@@ -1,14 +1,14 @@
 # Recommended Admin Bootstrap Method (Future-proof for AWS + Snowflake)
 
-> TL;DR — Use a **one-time management CLI** (Typer) that creates the first admin **only if** a secret `ADMIN_BOOTSTRAP_TOKEN` is present and no admin exists. It hashes the password using your app’s hasher, is idempotent, and works the same on local, Docker, or AWS.  
+> TL;DR — Use a **one-time management CLI** (Typer) that creates the first admin **only if** a secret `ADMIN_BOOTSTRAP_TOKEN` is present and no admin exists. It hashes the password using your app’s hasher, is idempotent, and works the same on local, Docker, or AWS.
 > Note: Snowflake will remain OLAP; **auth should stay in Postgres/RDS**. This CLI talks to your SQLAlchemy OLTP DB, so nothing changes when you add Snowflake later.
 
 ---
 
 ## Why this over other options
-- **Safe by default:** The HTTP surface stays minimal (no public “make admin” endpoint).  
-- **Idempotent:** Refuses to run if an admin already exists.  
-- **Proper hashing:** Reuses your `get_password_hash`, avoiding plaintext.  
+- **Safe by default:** The HTTP surface stays minimal (no public “make admin” endpoint).
+- **Idempotent:** Refuses to run if an admin already exists.
+- **Proper hashing:** Reuses your `get_password_hash`, avoiding plaintext.
 - **Deployable anywhere:** Run as a one-off job in CI/CD or AWS (ECS task / EB SSH / App Runner exec).
 
 ---
@@ -135,7 +135,7 @@ Authorization: Bearer <token>
 { "username": "admin", "is_admin": true, ... }
 ```
 
-### 2. Hit an admin-only route (e.g., `/api/v1/admin/purge`) and confirm 200 (admin) vs 403 (non-admin). 
+### 2. Hit an admin-only route (e.g., `/api/v1/admin/purge`) and confirm 200 (admin) vs 403 (non-admin).
 
 #### Cleanup / Guardrails
 

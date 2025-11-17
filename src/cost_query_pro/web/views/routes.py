@@ -4,13 +4,13 @@ import httpx
 from fastapi import APIRouter, Depends, Request
 from fastapi.responses import HTMLResponse
 from fastapi.templating import Jinja2Templates
-from starlette.status import HTTP_401_UNAUTHORIZED
 
-from cost_query_pro.core.security import get_current_user
 from cost_query_pro.config.settings import settings
+from cost_query_pro.core.security import get_current_user
 
 router = APIRouter()
 templates = Jinja2Templates(directory="src/cost_query_pro/templates")
+
 
 @router.get("/dashboard", response_class=HTMLResponse)
 async def dashboard(request: Request, user=Depends(get_current_user)):

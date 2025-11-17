@@ -2,7 +2,7 @@
 
 # 🛠️ Alembic Debugging & Migration Recovery Guide
 
-**Project:** Cost Query Pro  
+**Project:** Cost Query Pro
 **Use Case:** Fixing Alembic issues when the database has been wiped, migrations are broken, or connection strings contain special characters.
 
 ---
@@ -22,13 +22,13 @@ Complicating the recovery:
 ## ✅ What Was Fixed
 
 ### ✅ 1. Alembic Interpolation Bug
-**Issue:**  
+**Issue:**
 Using `config.set_main_option("sqlalchemy.url", url)` with a password that included `%` caused:
 ```
 AttributeError: 'NoneType' object has no attribute 'before_set'
 ```
 
-**Fix:**  
+**Fix:**
 Avoid interpolation entirely by setting:
 ```python
 config.attributes["sqlalchemy.url"] = url
@@ -92,7 +92,7 @@ This recreated the `users`, `projects`, and `items` tables from the SQLAlchemy m
 
 ### ✅ 5. Isolated Testing Database
 
-**Old behavior:**  
+**Old behavior:**
 Tests were running against the same database as development, leading to data loss.
 
 **Fix:**
@@ -144,6 +144,6 @@ Tests were running against the same database as development, leading to data los
 - Scale your app with proper testing isolation
 
 ---
-``` 
+```
 
 Let me know if you'd like me to save this into your `docs/` directory as a file or prep a `README.md` variant.

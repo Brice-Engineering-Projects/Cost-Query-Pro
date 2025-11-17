@@ -10,7 +10,7 @@
 
 ## Purpose
 
-This document defines the relational database schema for the Unit Cost Query App. It covers tables, fields, data types, constraints, and relationships between tables.  
+This document defines the relational database schema for the Unit Cost Query App. It covers tables, fields, data types, constraints, and relationships between tables.
 
 This ensures consistency across development, future migrations, and data integrations.
 
@@ -76,12 +76,12 @@ Stores app users for authentication and authorization.
 
 ## Relationships
 
-- **projects → items:**  
+- **projects → items:**
   - One-to-many relationship
   - One project can have multiple items
   - Enforced by `project_id` foreign key in `items`
 
-- **users:**  
+- **users:**
   - Currently independent of other tables
   - Used for authentication and authorization only
 

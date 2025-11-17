@@ -2,10 +2,12 @@
 
 from pydantic import BaseModel, ConfigDict
 
+
 class UserCreate(BaseModel):
     username: str
     password: str
     is_admin: bool = False
+
 
 class UserRead(BaseModel):
     id: int

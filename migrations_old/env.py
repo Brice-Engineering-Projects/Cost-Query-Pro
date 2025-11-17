@@ -1,9 +1,10 @@
-from logging.config import fileConfig
-import sys
+# ruff: noqa: E402
 import os
+import sys
+from logging.config import fileConfig
 
-from sqlalchemy import create_engine, pool
 from alembic import context
+from sqlalchemy import create_engine, pool
 
 # this is the Alembic Config object
 config = context.config
@@ -13,17 +14,19 @@ if config.config_file_name is not None:
     fileConfig(config.config_file_name)
 
 # Import cost_query_pro models and Base metadata
-sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
+sys.path.append(os.path.join(os.path.dirname(__file__), ".."))
 
 from src.cost_query_pro import Base
 from src.cost_query_pro.config.settings import settings
 
 target_metadata = Base.metadata
 
+
 def run_migrations_offline() -> None:
     """Run migrations in 'offline' mode."""
 
     from src.cost_query_pro.config.settings import settings
+
     url = str(settings.database_url)
 
     context.configure(
@@ -35,7 +38,6 @@ def run_migrations_offline() -> None:
 
     with context.begin_transaction():
         context.run_migrations()
-
 
 
 def run_migrations_online() -> None:

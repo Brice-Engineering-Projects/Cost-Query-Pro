@@ -11,6 +11,7 @@ from sqlalchemy.orm import relationship
 
 from cost_query_pro.db import Base
 
+
 class Project(Base):
     __tablename__ = "projects"
 
@@ -21,11 +22,10 @@ class Project(Base):
     year = Column(Integer, nullable=False, index=True)
 
     # Relationship to Items
-    items = relationship(
-        "Item",
-        back_populates="project",
-        cascade="all, delete-orphan"
-    )
+    items = relationship("Item", back_populates="project", cascade="all, delete-orphan")
 
     def __repr__(self):
-        return f"Project(id={self.id}, project_name='{self.project_name}', project_number='{self.project_number}', state='{self.state}', year={self.year})"
+        return (
+            f"Project(id={self.id}, project_name='{self.project_name}', project_number='{self.project_number}', \n"
+            f"state='{self.state}', year={self.year})"
+        )

@@ -6,9 +6,11 @@ Item Model
 Stores user details for authentication.
 """
 
-from sqlalchemy import Column, Integer, String, Boolean
+from sqlalchemy import Boolean, Column, Integer, String
 from sqlalchemy.orm import relationship
+
 from cost_query_pro.db import Base
+
 
 class User(Base):
     __tablename__ = "users"
@@ -19,7 +21,9 @@ class User(Base):
     is_admin = Column(Boolean, default=False)
 
     # Relationship
-    audit_logs = relationship("AuditLog", back_populates="user", cascade="all, delete-orphan")
+    audit_logs = relationship(
+        "AuditLog", back_populates="user", cascade="all, delete-orphan"
+    )
 
     def __repr__(self):
         return f"<User(username='{self.username}', is_admin={self.is_admin})>"
