@@ -2,6 +2,7 @@
 
 # ruff: noqa: E402
 # flake8: noqa: E402
+import os
 import sys
 from logging.config import fileConfig
 from pathlib import Path
@@ -9,6 +10,13 @@ from pathlib import Path
 from alembic import context
 from alembic.config import Config
 from sqlalchemy import create_engine, pool
+
+# ------------------------------------------------------------
+# CI FIX: Force Alembic to use TEST_DATABASE_URL when provided
+# ------------------------------------------------------------
+test_db_url = os.getenv("TEST_DATABASE_URL")
+if test_db_url:
+    context.config.set_main_option("sqlalchemy.url", test_db_url)
 
 # Ensure Alembic can find `src/cost_query_pro`
 BASE_DIR = Path(__file__).resolve().parents[1]
