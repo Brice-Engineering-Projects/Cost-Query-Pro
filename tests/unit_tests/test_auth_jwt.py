@@ -74,7 +74,9 @@ def test_jwt_token_created_on_login(create_test_user):
     assert "access_token" in data
     token = data["access_token"]
 
-    _decoded = jwt.decode(token, settings.secret_key, algorithms=[settings.algorithm]) # noqa: F841
+    _decoded = jwt.decode(
+        token, settings.secret_key, algorithms=[settings.algorithm]
+    )  # noqa: F841
     assert _decoded.get("sub") == create_test_user["username"]
     assert "exp" in _decoded
 
