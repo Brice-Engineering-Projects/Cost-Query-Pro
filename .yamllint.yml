@@ -1,0 +1,23 @@
+# .yamllint.yml
+
+extends: default
+
+rules:
+  line-length:
+    max: 180
+    level: warning
+
+  document-start:
+    present: false
+
+  truthy:
+    allowed-values: ['true', 'false', 'on', 'off']
+    ignore:
+      - .github/workflows/*
+
+  brackets:
+    max-spaces-inside: 1
+    level: warning
+
+  comments:
+    min-spaces-from-content: 1
