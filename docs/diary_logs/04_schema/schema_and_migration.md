@@ -9,9 +9,9 @@ author_link: https://github.com/Brice-Engineering-Projects/Cost-Query-Pro
 status: completed
 ---
 
-# ✅ Cost Query Pro – Session Summary
+## ✅ Cost Query Pro – Session Summary
 
-## 📦 Status
+### 📦 Status
 
 - ✅ Alembic working
 - ✅ DB schema rebuilt
@@ -28,25 +28,31 @@ status: completed
 ## 🔧 What Was Fixed Today
 
 ### 1. **Database Was Empty Due to Testing Side Effects**
+
 - All tables were wiped because tests were using the **real dev DB**.
 - No Alembic migrations existed to rebuild the schema.
 
 ### 2. **Repaired Alembic `env.py`**
+
 - Problem: Alembic failed due to `%40` in password + broken interpolation.
 - Fixed by:
   - Removing `config.set_main_option(...)` which triggered interpolation bugs.
   - Switching to:
+
     ```python
     config.attributes["sqlalchemy.url"] = url
     connectable = create_engine(url, poolclass=pool.NullPool)
     ```
 
 ### 3. **Validated SQLAlchemy Connection**
+
 - Created an independent test script to confirm the database URL and credentials were valid.
 - Verified the connection string worked directly with SQLAlchemy’s `create_engine`.
 
 ### 4. **Confirmed Environment Switching**
+
 - Rewrote the logic in `env.py` to respect `ENVIRONMENT` from `.env`:
+
   ```python
   if settings.environment == "testing":
       raw_url = settings.test_database_url
@@ -59,6 +65,7 @@ status: completed
   ```
 
 ### 5. **Successfully Ran `alembic upgrade head`**
+
 - After fixing `env.py` and validating the DB URL, Alembic successfully recreated the schema.
 - You are now back to a clean and working state.
 
@@ -77,11 +84,14 @@ status: completed
 ## ✅ Next Steps
 
 ### Immediate
+
 - [ ] Run:
+
   ```bash
   alembic revision --autogenerate -m "initial schema"
   alembic upgrade head
   ```
+
   (if not already done after confirming tables exist)
 
 - [ ] Review `conftest.py` to:
@@ -90,21 +100,25 @@ status: completed
   - Isolate tests from real development data
 
 ### Diagnostic
+
 - [ ] Add logging to `conftest.py` to trace setup/teardown
 - [ ] Run:
+
   ```bash
   pytest tests/ --maxfail=1 -v --capture=no
   ```
+
   to inspect where the hang occurs
 
 ### Strategic
+
 - [ ] Add test DB isolation
 - [ ] Add `docs/debugging_alembic.md` to preserve recovery process
 - [ ] Begin validating API endpoints again (e.g. `/auth/login`, `/items/search`)
 
 ---
 
-## 📦 Status
+## 📦 Status (Jul 2025)
 
 - ✅ Alembic working
 - ✅ DB schema rebuilt
@@ -116,7 +130,7 @@ status: completed
 
 Let’s pick back up next session with test teardown diagnostics.
 
-
+---
 
 ==============================================
 
@@ -124,26 +138,33 @@ Date:  July 12, 2025
 
 ==============================================
 
-# ✅ Cost Query Pro – Session Summary
+## ✅ Cost Query Pro – Session Summary (Jul 2025)
 
-## ✅ What We Worked On
+### ✅ What We Worked On
 
 ### 1. Pytest Failing on Auth Settings
+
 - Initial failures:
-  ```
+
+  ```bash
   AttributeError: 'Settings' object has no attribute 'ACCESS_TOKEN_EXPIRE_MINUTES'
   ```
+
 - Root cause:
   - Code was incorrectly using uppercase attribute names:
+
     ```python
     settings.ACCESS_TOKEN_EXPIRE_MINUTES
     ```
+
   - Fixed to:
+
     ```python
     settings.access_token_expire_minutes
     ```
 
 - Similar corrections for:
+
   ```python
   settings.SECRET_KEY → settings.secret_key
   settings.ALGORITHM → settings.algorithm
@@ -152,22 +173,28 @@ Date:  July 12, 2025
 ---
 
 ### 2. Purge Endpoint Hanging
+
 - Auth dependency `current_admin` was causing test hangs due to token validation waiting for DB queries.
 - Tested commenting out:
+
   ```python
   current_admin = Depends(get_current_admin)
   ```
+
 - Purge still hung even without auth → problem shifted to DB side.
 
 ---
 
 ### 3. DB-Level Investigation
+
 - Confirmed tables exist:
-  ```
+
+  ```text
   projects
   items
   users
   ```
+
 - Discovered:
   - Hanging likely caused by:
     - leftover locks
@@ -180,32 +207,42 @@ Date:  July 12, 2025
 ---
 
 ### 4. Alembic Migration Problems
+
 - Ran:
+
   ```bash
   alembic upgrade head
   ```
+
 - Got crash:
-  ```
+
+  ```bash
   AttributeError: 'NoneType' object has no attribute 'before_set'
   ```
+
 - Root cause:
   - Code was forcibly setting:
+
     ```python
     config.file_config._interpolation = None
     ```
+
     which broke configparser interpolation.
 
 - Confirmed:
   Alembic needs `_interpolation` for:
-  ```
+
+  ```text
   script_location = %(here)s/migrations
   ```
 
 - Proposed fix:
   - Remove:
+
     ```python
     config.file_config._interpolation = None
     ```
+
   - Leave interpolation intact so Alembic can resolve `%(here)s`.
 
 ---
@@ -215,10 +252,13 @@ Date:  July 12, 2025
 - You **still need to re-run Alembic migrations** to recreate the tables.
 - `env.py` needs editing:
   - **Remove**:
+
     ```python
     config.file_config._interpolation = None
     ```
+
 - Once fixed, run:
+
   ```bash
   alembic upgrade head
   ```
@@ -235,7 +275,7 @@ Date:  July 9, 2025
 
 1. Migrations
    - Move database URL configuration to settings-based approach
-   - Consolidate Base model definition in db/__init__.py
+   - Consolidate Base model definition in `db/__init__.py`
    - Restructure migrations for better separation of concerns
    - Update model imports to use consolidated base
    - Split schema migrations into users and other tables

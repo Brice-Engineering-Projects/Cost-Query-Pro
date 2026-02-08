@@ -1,7 +1,7 @@
 # Developer Diary Index
 
 | Date | Focus Area | File | Summary |
-|------|-----------|------|----------|
+| ------ | ----------- | ------ | ---------- |
 | 2025-07-09 | 00 Overview | [dev_environment_setup.md](./00_overview/dev_environment_setup.md) | Initial environment setup, test creation, and migrations restructuring. |
 | 2025-07-20 | 00 Overview | [alembic_migration_recovery.md](./00_overview/alembic_migration_recovery.md) | Repaired Alembic env.py and database rebuild. |
 | 2025-07-12 | 00 Overview | [testing_notes.md](./00_overview/testing_notes.md) | Pytest issues and Alembic migration fixes. |

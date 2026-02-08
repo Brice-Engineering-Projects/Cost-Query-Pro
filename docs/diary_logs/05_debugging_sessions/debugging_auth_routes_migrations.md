@@ -15,8 +15,7 @@ Date:  July 11, 2025
 
 ==============================================
 
-
-# ✅ Cost Query Pro — Debugging & Refactor Session Summary
+## ✅ Cost Query Pro — Debugging & Refactor Session Summary
 
 ## 🎯 Work Completed
 
@@ -24,12 +23,14 @@ Date:  July 11, 2025
 
 - Identified missing route inclusion in `main.py`.
 - Added proper router registrations:
+
   ```python
   app.include_router(auth.router)
   app.include_router(admin.router)
   app.include_router(projects.router)
   app.include_router(items.router)
   ```
+
 - Confirmed presence of API paths in Swagger UI.
 - Fixed duplicate prefix issues in router inclusion.
 
@@ -39,12 +40,14 @@ Date:  July 11, 2025
 
 - Discovered 404 errors caused by missing prefixes.
 - Updated `auth.py` router:
+
   ```python
   router = APIRouter(
       prefix="/api/v1/auth",
       tags=["auth"]
   )
   ```
+
 - Ensured routes like `/api/v1/auth/register` and `/api/v1/auth/login` exist.
 
 ---
@@ -52,15 +55,19 @@ Date:  July 11, 2025
 ### ⚙️ Security Module
 
 - Removed placeholder code:
+
   ```python
   expire = datetime.now(UTC) + timedelta(...)
   ```
+
 - Implemented proper token expiry:
+
   ```python
   expire = datetime.now(UTC) + (
       expires_delta or timedelta(minutes=settings.access_token_expire_minutes)
   )
   ```
+
 - Switched from `datetime.utcnow()` to `datetime.now(UTC)` to resolve deprecation warnings.
 
 ---
@@ -72,6 +79,7 @@ Date:  July 11, 2025
   - Moved all auth config into `Settings` class.
   - Deleted redundant top-level constants.
 - Final settings example:
+
   ```python
   access_token_expire_minutes: int = Field(30, env="ACCESS_TOKEN_EXPIRE_MINUTES")
   algorithm: str = Field("HS256", env="ALGORITHM")
@@ -93,15 +101,20 @@ Date:  July 11, 2025
 ### 1. AttributeError in Tests
 
 - Tests currently fail with:
-  ```
+
+  ```bash
   AttributeError: 'Settings' object has no attribute 'ACCESS_TOKEN_EXPIRE_MINUTES'
   ```
+
 - **Action needed:**
   - Update `settings.py` with:
+
     ```python
     access_token_expire_minutes: int = Field(30, env="ACCESS_TOKEN_EXPIRE_MINUTES")
     ```
+
   - Update all references to use:
+
     ```python
     settings.access_token_expire_minutes
     ```
@@ -112,13 +125,17 @@ Date:  July 11, 2025
 
 - Still pending:
   - Replace:
+
     ```python
     Field(..., example="...")
     ```
+
     → with:
+
     ```python
     Field(..., json_schema_extra={"example": "..."})
     ```
+
   - Migrate class `Config` to `ConfigDict` for v3 compatibility.
 
 ---
@@ -126,6 +143,7 @@ Date:  July 11, 2025
 ## ✅ Next Steps
 
 ✅ Immediate:
+
 - Run test:
   - pytest tests/test_auth.py
 - Complete the settings refactor:
@@ -133,19 +151,23 @@ Date:  July 11, 2025
   - Replace all legacy constant references.
 
 ✅ Then:
+
 - Rerun tests:
-  ```
+
+  ```bash
   pytest tests/test_auth.py
   ```
+
 - Resolve any final failures.
 
 ✅ Future:
+
 - Address Pydantic v2 deprecations.
 - Regenerate `requirements.txt` from uv for consistent environments.
 
 ---
 
-# ⏸️ Pausing Here
+_**⏸️ Pausing Here**_
 
 ✅ All critical architecture fixes are in place.
 🔧 Remaining task is to fix the missing settings attribute and re-run tests.

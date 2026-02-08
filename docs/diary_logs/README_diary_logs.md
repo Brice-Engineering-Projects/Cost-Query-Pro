@@ -1,5 +1,6 @@
 
 # Cost Query Pro — Developer Diary Logs
+
 **Last Updated:** 2025-10-12
 **Maintainer:** Brice Nelson, P.E., MBA
 **Project:** Cost Query Pro (FastAPI + PostgreSQL + Alembic)
@@ -19,7 +20,7 @@ exactly as recorded.
 ## 🗂️ Folder Overview
 
 | Folder | Description |
-|--------|-------------|
+| -------- | ------------- |
 | 00_overview | Early setup, Alembic fixes, environment and test setup. |
 | 01_auth | Authentication and schema refactor work. |
 | 03_ci_cd | CI/CD pipeline and GitHub Actions integration. |
@@ -32,6 +33,7 @@ exactly as recorded.
 ## 🧩 Metadata Format
 
 Each diary file begins with a YAML header for filtering and indexing:
+
 ```yaml
 ---
 title: Cost Query Pro — Example Entry
@@ -43,9 +45,10 @@ tags: [ci_cd, fastapi, postgres]
 ---
 
 ## 🕒 Changelog
-| Date | Description |
-|------|--------------|
-| 2025-10-12 | Automated diary parsing and export completed. |
+
+| Date       | Description                                      |
+|------------|--------------------------------------------------|
+| 2025-10-12 | Automated diary parsing and export completed.    |
 
 ---
 

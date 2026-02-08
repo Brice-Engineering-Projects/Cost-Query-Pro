@@ -16,9 +16,9 @@ Date:  September 1, 2025 -> Updated checks on the checklist
 
 ========================================================
 
-# ✅ Cost Query Pro — Auth Flow Stabilization (FastAPI + Pydantic v2)
+## ✅ Cost Query Pro — Auth Flow Stabilization (FastAPI + Pydantic v2)
 
-## 🧩 Problem Summary
+### 🧩 Problem Summary
 
 While wiring up the auth flow with Insomnia, a few issues surfaced:
 
@@ -104,10 +104,12 @@ def read_me(current_user: DBUser = Depends(get_current_user)) -> UserRead:
     return UserRead.model_validate(current_user, from_attributes=True)
 ```
 
-# security.py (import + oauth2)
+## security.py (import + oauth2)
+
 from fastapi import Depends, HTTPException, status
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/api/v1/auth/login")
 
-# Optional: register returns 201
+## register returns 201
+
 @router.post("/register", response_model=UserRead, status_code=status.HTTP_201_CREATED)
 def register(...): ...

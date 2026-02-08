@@ -22,6 +22,7 @@ Users / Frontend → HTTPS (JWT) → FastAPI (uv)
 * High volume of short operations (millisecond-level response).
 * Focused on data integrity and ACID compliance.
 * Example:
+
 ```sql
 INSERT INTO project_costs (id, amount) VALUES (...)
 ```
@@ -37,6 +38,7 @@ INSERT INTO project_costs (id, amount) VALUES (...)
 * Handles read-heavy workloads.
 * Prioritizes query speed and scalability over row-level transaction updates.
 * Example:
+
 ```sql
 SELECT region, SUM(amount) FROM project_costs GROUP BY region
 ```
@@ -52,6 +54,7 @@ SELECT region, SUM(amount) FROM project_costs GROUP BY region
 ---
 
 ### **Data pipeline:**
+
 * RDS Postgres → export to S3 → Snowflake STAGE → COPY INTO RAW → MERGE into CORE → exposed via SECURE VIEWS.
 
 **Why this split:**
@@ -76,6 +79,7 @@ SELECT region, SUM(amount) FROM project_costs GROUP BY region
 * Warehouse = WH_CQP_XS (XSMALL, auto-suspend 60s, auto-resume)
 
 ### **Tables:**
+
 * Projects(id, project_name, project_number, state, year)
 * Items(id, project_id, item_description, unit, unit_price)
 * Users(id, username, password_hash, is_admin)
@@ -86,12 +90,12 @@ SELECT region, SUM(amount) FROM project_costs GROUP BY region
 
 ## Ingestion Strategy (RDS → S3 → Snowflake)
 
-### Option A – Batch:
+### Option A – Batch
 
 * Nightly/hourly export from Postgres to S3 (Parquet).
 * COPY INTO RAW then MERGE into CORE.
 
-### Option B – Near-Real-Time:
+### Option B – Near-Real-Time
 
 * Use Snowpipe to auto-ingest on file arrival.
 
@@ -101,7 +105,7 @@ Merge pattern: MERGE RAW → CORE with upsert logic.
 
 ## Security & Governance
 
-### Roles:
+### Roles
 
 * CQP_APP (API): USAGE + SELECT on views only.
 * CQP_ETL (loader): privileges on RAW and CORE.

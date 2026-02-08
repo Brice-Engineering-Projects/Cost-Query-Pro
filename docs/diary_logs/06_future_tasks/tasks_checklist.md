@@ -9,7 +9,7 @@ author_link: https://github.com/Brice-Engineering-Projects/Cost-Query-Pro
 status: On-going
 ---
 
-# Cost Query Pro
+## Cost Query Pro
 
 ## Tasks Checklist
 
@@ -18,7 +18,7 @@ status: On-going
 ### 📋 Task Summary Overview
 
 | Category | Description | Progress | Priority |
-|-----------|--------------|-----------|-----------|
+| ----------- | -------------- | ----------- | ----------- |
 | **Documentation** | API reference, OpenAPI schema, deployment, and developer documentation. | ☐ 0 / 9 | 🟠 Medium |
 | **CI/CD Enhancements** | Coverage reports, linting, security scans, and staging deployment pipeline. | ☐ 0 / 4 | 🔴 High |
 | **Code Quality** | Pydantic v2 migration, integration tests, contract tests, and benchmarks. | ☐ 0 / 4 | 🟡 Medium |
@@ -35,7 +35,8 @@ status: On-going
 
 ## CI/CD Pipeline
 
-### Documentation
+### CI/CD Documentation
+
 - [ ] Add API reference documentation
 - [ ] Add OpenAPI schema documentation
 - [ ] Add API contract testing documentation
@@ -47,18 +48,21 @@ status: On-going
 - [ ] Add deployment documentation
 
 ### CI/CD Enhancements
+
 - [ ] Add code coverage reporting with pytest-cov
 - [x] Implement linting checks (black, flake8, mypy)
 - [ ] Add security scanning with bandit or safety
 - [ ] Set up deployment pipeline for staging/production
 
 ### Code Quality
+
 - [ ] Continue Pydantic v2 migration across remaining schemas
 - [ ] Add more comprehensive integration tests
 - [ ] Implement API contract testing
 - [ ] Add performance benchmarking to CI
 
 ### Security & Dependencies
+
 - [ ] Set up Dependabot for automated dependency updates
 - [ ] Add vulnerability scanning to CI pipeline
 - [ ] Implement secrets scanning for sensitive data
@@ -67,16 +71,19 @@ status: On-going
 
 ### Next Steps Carryover From Previous Entry
 
-## Auth & Routes
+## API Auth & Routes
+
 - [X] Verify `/api/v1/auth/me` end-to-end in Insomnia (expect 200 with `{id, username, is_admin}`) after adding `from fastapi import status`.
 
-*The below checklist items were done on 9-1-2025*
+_*The below checklist items were done on 9-1-2025*_
+
 - [X] Standardize login contract and update code/docs accordingly:
   - [X] **Choose one:** JSON payload (`LoginRequest` schema) **or** form (`OAuth2PasswordRequestForm`).
   - [X] Update API docs and Insomnia collections to match the choice.
 - [ ] Return **201 Created** for `POST /api/v1/auth/register` (optional, but recommended).
 
 ### Testing
+
 - [ ] Add unit tests for JWT:
   - [ ] Expiration handling.
   - [ ] Invalid signature / malformed token.
@@ -86,7 +93,8 @@ status: On-going
 - [ ] Create **snapshot DB fixtures** for deterministic auth tests.
 - [ ] Add `/admin/purge` tests with `get_current_admin` override.
 
-### Security & Dependencies (Dependabot)
+### CI/CD Security & Dependencies (Dependabot)
+
 - [ ] Remediate alerts:
   - [ ] Upgrade/remove `ecdsa` (python-ecdsa) to a patched version or drop if unused.
   - [ ] Bump `starlette` to a patched release for multipart DoS.
@@ -96,6 +104,7 @@ status: On-going
 - [ ] (Optional) Pin to quiet bcrypt warning: `passlib[bcrypt]==1.7.4` and `bcrypt>=4.1.2`.
 
 ### DevEx & Observability
+
 - [ ] Confirm router prefixes produce exactly `/api/v1/auth/*` (no double `/auth`); assert via route listing in startup logs or `for r in app.routes`.
 - [ ] Document `/auth/me` in API reference and include request/response examples.
 
@@ -111,20 +120,23 @@ status: On-going
 
 ## Auth Flow
 
-### Documentation
+### Auth Flow Documentation
 
 ### Next Steps
 
 ### Auth & Routes
+
 - [X] Verify `/api/v1/auth/me` end-to-end in Insomnia (expect 200 with `{id, username, is_admin}`) after adding `from fastapi import status`.
 
-*The below checklist items were done on 9-1-2025*
+_*The below checklist items were done on 9-1-2025*_
+
 - [X] Standardize login contract and update code/docs accordingly:
   - [X] **Choose one:** JSON payload (`LoginRequest` schema) **or** form (`OAuth2PasswordRequestForm`).
   - [X] Update API docs and Insomnia collections to match the choice.
 - [X] Return **201 Created** for `POST /api/v1/auth/register` (optional, but recommended).
 
-### Testing
+### Auth Flow Testing
+
 - [ ] Add unit tests for JWT:
   - [ ] Expiration handling.
   - [ ] Invalid signature / malformed token.
@@ -135,6 +147,7 @@ status: On-going
 - [ ] Add `/admin/purge` tests with `get_current_admin` override.
 
 ### Security & Dependencies (Dependabot)
+
 - [ ] Remediate alerts:
   - [ ] Upgrade/remove `ecdsa` (python-ecdsa) to a patched version or drop if unused.
   - [ ] Bump `starlette` to a patched release for multipart DoS.
@@ -143,7 +156,8 @@ status: On-going
   - [ ] Add `pip-audit` or `safety` to CI; fail on critical vulns.
 - [ ] (Optional) Pin to quiet bcrypt warning: `passlib[bcrypt]==1.7.4` and `bcrypt>=4.1.2`.
 
-### DevEx & Observability
+### Security DevEx & Observability
+
 - [ ] Confirm router prefixes produce exactly `/api/v1/auth/*` (no double `/auth`); assert via route listing in startup logs or `for r in app.routes`.
 - [ ] Document `/auth/me` in API reference and include request/response examples.
 
@@ -165,17 +179,19 @@ status: On-going
 
 ## Schema
 
-### Documentation
-
+### Schema Documentation
 
 ### ✅ Next Steps
 
 ### Immediate
+
 - [ ] Run:
+
   ```bash
   alembic revision --autogenerate -m "initial schema"
   alembic upgrade head
   ```
+
   (if not already done after confirming tables exist)
 
 - [ ] Review `conftest.py` to:
@@ -184,14 +200,18 @@ status: On-going
   - Isolate tests from real development data
 
 ### Diagnostic
+
 - [ ] Add logging to `conftest.py` to trace setup/teardown
 - [ ] Run:
+
   ```bash
   pytest tests/ --maxfail=1 -v --capture=no
   ```
+
   to inspect where the hang occurs
 
 ### Strategic
+
 - [ ] Add test DB isolation
 - [ ] Add `docs/debugging_alembic.md` to preserve recovery process
 - [ ] Begin validating API endpoints again (e.g. `/auth/login`, `/items/search`)
@@ -201,28 +221,37 @@ status: On-going
 ### ✅ Next Steps For Our Next Session
 
 ✅ Immediately:
+
 - Edit `migrations/env.py`:
   - Delete:
+
     ```python
     config.file_config._interpolation = None
     ```
 
 ✅ Then:
+
 - From project root, run:
+
   ```bash
-  alembic upgrade head
-  ```
+  alembic
+
 - Check:
+
   ```bash
   \dt
   ```
+
   → confirm tables `projects`, `items`, `users` exist.
 
 ✅ After DB is rebuilt:
+
 - Re-run tests:
+
   ```bash
   pytest tests/test_auth.py -v
   ```
+
 - Confirm purge route no longer hangs.
 
 ---
@@ -230,9 +259,11 @@ status: On-going
 ### ✅ Notes
 
 - No need to change alembic.ini beyond keeping:
-  ```
+
+  ```text
   script_location = %(here)s/migrations
   ```
+
 - Leaving `sqlalchemy.url` blank in alembic.ini is fine since env.py overrides it dynamically.
 - Current admin security dependency can remain commented out until DB is healthy and tests are passing.
 
@@ -240,22 +271,27 @@ status: On-going
 
 ## Debugging: Auth, Routes, and Migration
 
-### Documentation
+### Debugging Documentation
 
 ### ❌ Outstanding Issues
 
 ### 1. AttributeError in Tests
 
 - Tests currently fail with:
-  ```
+
+  ```bash
   AttributeError: 'Settings' object has no attribute 'ACCESS_TOKEN_EXPIRE_MINUTES'
   ```
+
 - **Action needed:**
   - Update `settings.py` with:
+
     ```python
     access_token_expire_minutes: int = Field(30, env="ACCESS_TOKEN_EXPIRE_MINUTES")
     ```
+
   - Update all references to use:
+
     ```python
     settings.access_token_expire_minutes
     ```
@@ -266,20 +302,25 @@ status: On-going
 
 - Still pending:
   - Replace:
+
     ```python
     Field(..., example="...")
     ```
+
     → with:
+
     ```python
     Field(..., json_schema_extra={"example": "..."})
     ```
+
   - Migrate class `Config` to `ConfigDict` for v3 compatibility.
 
 ---
 
-### ✅ Next Steps
+_**✅ Next Steps**_
 
 ✅ Immediate:
+
 - Run test:
   - pytest tests/test_auth.py
 - Complete the settings refactor:
@@ -287,13 +328,17 @@ status: On-going
   - Replace all legacy constant references.
 
 ✅ Then:
+
 - Rerun tests:
-  ```
+
+  ```bash
   pytest tests/test_auth.py
   ```
+
 - Resolve any final failures.
 
 ✅ Future:
+
 - Address Pydantic v2 deprecations.
 - Regenerate `requirements.txt` from uv for consistent environments.
 

@@ -4,7 +4,7 @@
 
 ## Project Name
 
-**Cost Query Pro**
+_**Cost Query Pro**_
 
 ---
 
@@ -16,11 +16,11 @@ This document describes the REST API endpoints provided by the Cost Query Pro ba
 
 ## Base URL
 
-```
+```bash
 /api/v1/
 ```
 
-*(Adjust if deploying behind a reverse proxy or custom domain.)*
+_*(Adjust if deploying behind a reverse proxy or custom domain.)*_
 
 ---
 
@@ -34,8 +34,10 @@ All endpoints require authentication unless explicitly marked as public.
 
 Example header:
 
-```
-Authorization: Bearer <your-token-here>
+```json
+{
+  "Authorization": "Bearer <your-token-here>"
+}
 ```
 
 ---
@@ -82,7 +84,7 @@ Authorization: Bearer <your-token-here>
 
 ### POST `/auth/register`
 
-*(Optional, depending on how user creation is managed. Could be admin-only.)*
+_*(Optional, depending on how user creation is managed. Could be admin-only.)*_
 
 **Purpose:** Create a new user account.
 
@@ -116,8 +118,10 @@ Authorization: Bearer <your-token-here>
 
 **Headers:**
 
-```
-Content-Type: multipart/form-data
+```json
+{
+  "Content-Type": "multipart/form-data"
+}
 ```
 
 **Form fields:**
@@ -162,7 +166,7 @@ Content-Type: multipart/form-data
 
 **Example Request:**
 
-```
+```bash
 /api/v1/items/search?q=PVC+Pipe&state=FL&year_start=2022&year_end=2024
 ```
 
@@ -186,7 +190,7 @@ Content-Type: multipart/form-data
 
 ## 4. Admin: Purge Old Data
 
-*(Admin-only route.)*
+_*(Admin-only route.)*_
 
 ---
 
@@ -216,7 +220,7 @@ Content-Type: multipart/form-data
 
 ## 5. Admin: User Management
 
-*(Admin-only routes.)*
+_*(Admin-only routes.)*_
 
 ---
 

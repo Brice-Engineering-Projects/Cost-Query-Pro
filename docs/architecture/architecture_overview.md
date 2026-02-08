@@ -4,7 +4,7 @@
 
 ## Project Name
 
-**Unit Cost Query App for Infrastructure Projects**
+_**Unit Cost Query App for Infrastructure Projects**_
 
 ---
 
@@ -58,7 +58,6 @@ Here’s an ASCII-style diagram for clarity (replace with a visual diagram later
 ┌──────▼────────┐
 │ PostgreSQL DB │
 └───────────────┘
-
 
 ---
 

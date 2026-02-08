@@ -15,18 +15,19 @@ Date:  August 2, 2025
 
 ========================================================
 
-# ✅ Cost Query Pro: Auth Refactor & Test Fix Recap (FastAPI + SQLAlchemy)
+## ✅ Cost Query Pro: Auth Refactor & Test Fix Recap (FastAPI + SQLAlchemy)
 
-## 🧩 Problem Summary
+### 🧩 Problem Summary
 
 After restructuring the project into an `src/` layout, tests were failing with:
 
-```
+```bash
 fastapi.exceptions.FastAPIError: Invalid args for response field!
 Hint: check that <class 'src.app.models.user.User'> is a valid Pydantic field type
 ```
 
 Despite:
+
 - `response_model=UserRead` correctly declared
 - `UserRead` being a valid Pydantic model with `orm_mode=True`
 - `.pyc` and `__pycache__` cleared

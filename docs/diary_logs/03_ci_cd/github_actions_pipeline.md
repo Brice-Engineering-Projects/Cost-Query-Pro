@@ -15,9 +15,9 @@ Date: September 8, 2025
 
 ========================================================
 
-# ✅ Cost Query Pro — GitHub Actions CI/CD Pipeline Setup & Green Tests
+## ✅ Cost Query Pro — GitHub Actions CI/CD Pipeline Setup & Green Tests
 
-## 🧩 Problem Summary
+### 🧩 Problem Summary
 
 Setting up a robust CI/CD pipeline for the FastAPI project with proper test isolation and dependency management. Initial challenges included:
 
@@ -32,6 +32,7 @@ Setting up a robust CI/CD pipeline for the FastAPI project with proper test isol
 ## 🧪 CI/CD Pipeline Implementation
 
 ### 1. **GitHub Actions Workflow Setup**
+
 - Created `.github/workflows/ci.yml` with:
   - **Python 3.12** environment matching local development
   - **PostgreSQL 13** service container for database tests
@@ -39,7 +40,9 @@ Setting up a robust CI/CD pipeline for the FastAPI project with proper test isol
   - **Multi-step process:** install dependencies → run migrations → execute tests
 
 ### 2. **Database Service Configuration**
+
 - Configured PostgreSQL service in GitHub Actions:
+
   ```yaml
   services:
     postgres:
@@ -56,13 +59,16 @@ Setting up a robust CI/CD pipeline for the FastAPI project with proper test isol
   ```
 
 ### 3. **Environment Variable Management**
+
 - Set up CI-specific environment variables:
   - `TEST_DATABASE_URL` for isolated test database
   - `SECRET_KEY` for JWT token generation
   - `ENVIRONMENT=testing` to ensure proper config loading
 
 ### 4. **Migration Integration**
+
 - Added Alembic migration step to CI pipeline:
+
   ```yaml
   - name: Run database migrations
     run: |
@@ -76,6 +82,7 @@ Setting up a robust CI/CD pipeline for the FastAPI project with proper test isol
 ## 🛠️ Code Quality Improvements
 
 ### 1. **Schema Refactoring - ItemWithProject**
+
 - **Problem:** Complex field validators duplicating project data
 - **Solution:** Replaced with Pydantic `@computed_field` properties
 - **Benefits:**
@@ -85,11 +92,13 @@ Setting up a robust CI/CD pipeline for the FastAPI project with proper test isol
   - Preserved API compatibility
 
 ### 2. **Test Environment Isolation**
+
 - Enhanced `conftest.py` with proper test database setup
 - Ensured tests use isolated test database, not development DB
 - Added proper cleanup and teardown mechanisms
 
 ### 3. **Dependency Consistency**
+
 - Verified `pyproject.toml` and `requirements.txt` alignment
 - Ensured all test dependencies are properly declared
 - Confirmed Python version consistency (3.12.2)
@@ -109,11 +118,13 @@ Setting up a robust CI/CD pipeline for the FastAPI project with proper test isol
 ## 📎 Key Achievements
 
 **GitHub Actions Workflow Setup:**
+
 - Install dependencies with pip requirements
 - Run database migrations with alembic upgrade head
 - Execute tests with pytest -v --tb=short
 
 **Schema Refactoring Example:**
+
 - Replaced complex validators with @computed_field properties
 - Added proper null checking for optional relationships
 - Maintained backward API compatibility
@@ -123,16 +134,19 @@ Setting up a robust CI/CD pipeline for the FastAPI project with proper test isol
 ## 🔧 Technical Lessons Learned
 
 ### 1. **CI Database Services**
+
 - PostgreSQL health checks are crucial for reliable test execution
 - Service containers need proper environment variable configuration
 - Database initialization must complete before migration steps
 
 ### 2. **Pydantic Best Practices**
+
 - @computed_field is preferred over complex validators for derived data
 - Properties provide cleaner API while maintaining backward compatibility
 - Null checking is essential when dealing with optional relationships
 
 ### 3. **Environment Management**
+
 - Separate test database URLs prevent CI/local environment conflicts
 - Environment-specific settings enable proper test isolation
 - Consistent Python versions across environments reduce debugging time
