@@ -183,7 +183,7 @@ Options:
 **Example Result:**
 
 | Item Description     | Unit | Unit Price | Project Name         | Project # | State | Year |
-|----------------------|------|------------|----------------------|-----------|-------|------|
+| -------------------- | ---- | ---------- | -------------------- | --------- | ----- | ---- |
 | 8" PVC Gravity Sewer | LF   | $45.32     | Main St. Sewer Rehab | 202301    | FL    | 2023 |
 
 ---

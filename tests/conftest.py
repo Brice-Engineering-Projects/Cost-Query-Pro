@@ -1,12 +1,18 @@
 """tests/conftest.py"""
 
 # flake8: noqa: E402
+import logging
 import os
 import sys
+
+from dotenv import load_dotenv
 
 # -----------------------------------------------------------
 # SET ENVIRONMENT VARIABLES FIRST, before any imports!
 # -----------------------------------------------------------
+# Load .env first so local TEST_DATABASE_URL takes precedence.
+load_dotenv()
+
 # Guarantee correct DB inside GitHub Actions AND local CLI
 os.environ.setdefault(
     "TEST_DATABASE_URL", "postgresql+psycopg2://postgres:postgres@postgres:5432/test_db"
@@ -26,7 +32,7 @@ from alembic.config import Config as AlembicConfig
 from fastapi.testclient import TestClient
 
 # SQLAlchemy
-from sqlalchemy import create_engine, event
+from sqlalchemy import create_engine, event, text
 from sqlalchemy.orm import sessionmaker
 
 from cost_query_pro.config.settings import settings
@@ -38,13 +44,15 @@ from cost_query_pro.main import app
 # ------------------------------------------------------------
 # Loading banner
 # ------------------------------------------------------------
+logger = logging.getLogger(__name__)
 print("✅ LOADING conftest.py from:", __file__)
 
 # ------------------------------------------------------------
 # Validate test DB URL exists
 # ------------------------------------------------------------
 TEST_DATABASE_URL = str(settings.test_database_url)
-assert TEST_DATABASE_URL, "TEST_DATABASE_URL must be set for tests!"
+if not TEST_DATABASE_URL:
+    raise RuntimeError("TEST_DATABASE_URL must be set for tests!")
 
 
 # ------------------------------------------------------------
@@ -70,6 +78,12 @@ def _run_alembic_upgrades():
     Run Alembic migrations to 'head' against the TEST_DATABASE_URL.
     NOTE: If your alembic.ini is NOT at repo root, adjust the path below.
     """
+    # Ensure a clean schema for repeatable test runs.
+    with engine.connect() as conn:
+        conn.execute(text("DROP SCHEMA IF EXISTS public CASCADE"))
+        conn.execute(text("CREATE SCHEMA public"))
+        conn.commit()
+
     alembic_cfg = AlembicConfig("alembic.ini")
     # Force Alembic to use the TEST DB url instead of whatever is in alembic.ini
     # Escape % as %% for ConfigParser (which interprets % as interpolation syntax)
@@ -126,9 +140,8 @@ def db_session():
         if sess.is_active and not sess.in_transaction():
             try:
                 sess.begin_nested()
-            except Exception:
-                # Ignore errors during teardown or invalidation
-                pass
+            except Exception as exc:
+                logger.debug("Savepoint restart skipped: %s", exc)
 
     # Start a nested transaction (SAVEPOINT) so app-level commits are safe
     session.begin_nested()

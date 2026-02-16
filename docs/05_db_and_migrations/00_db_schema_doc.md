@@ -33,13 +33,13 @@ This ensures consistency across development, future migrations, and data integra
 
 Stores high-level details for infrastructure projects.
 
-| Column Name     | Data Type | Constraints           | Description                          |
-|-----------------|-----------|-----------------------|--------------------------------------|
-| id              | SERIAL    | PRIMARY KEY           | Unique identifier for each project   |
-| project_name    | TEXT      | NOT NULL              | Name of the project                  |
-| project_number  | TEXT      | UNIQUE, NOT NULL      | Official project reference number    |
-| state           | VARCHAR(2)| NOT NULL              | U.S. state abbreviation (e.g. FL)    |
-| year            | INTEGER   | CHECK (> 1900)        | Year the project was bid or built    |
+| Column Name    | Data Type  | Constraints      | Description                        |
+| -------------- | ---------- | ---------------- | ---------------------------------- |
+| id             | SERIAL     | PRIMARY KEY      | Unique identifier for each project |
+| project_name   | TEXT       | NOT NULL         | Name of the project                |
+| project_number | TEXT       | UNIQUE, NOT NULL | Official project reference number  |
+| state          | VARCHAR(2) | NOT NULL         | U.S. state abbreviation (e.g. FL)  |
+| year           | INTEGER    | CHECK (> 1900)   | Year the project was bid or built  |
 
 ---
 
@@ -49,13 +49,13 @@ Stores high-level details for infrastructure projects.
 
 Stores details of each bid item tied to a specific project.
 
-| Column Name       | Data Type      | Constraints                         | Description                       |
-|-------------------|----------------|-------------------------------------|-----------------------------------|
-| id                | SERIAL         | PRIMARY KEY                         | Unique identifier for each item   |
-| project_id        | INTEGER        | FOREIGN KEY → projects.id, NOT NULL | Links item to its project         |
-| item_description  | TEXT           | NOT NULL                            | Description of the bid item       |
-| unit              | TEXT           | NOT NULL                            | Unit of measurement (e.g. LF, EA) |
-| unit_price        | NUMERIC(12, 2) | NOT NULL                            | Unit cost (e.g. 45.32)            |
+| Column Name      | Data Type      | Constraints                         | Description                       |
+| ---------------- | -------------- | ----------------------------------- | --------------------------------- |
+| id               | SERIAL         | PRIMARY KEY                         | Unique identifier for each item   |
+| project_id       | INTEGER        | FOREIGN KEY → projects.id, NOT NULL | Links item to its project         |
+| item_description | TEXT           | NOT NULL                            | Description of the bid item       |
+| unit             | TEXT           | NOT NULL                            | Unit of measurement (e.g. LF, EA) |
+| unit_price       | NUMERIC(12, 2) | NOT NULL                            | Unit cost (e.g. 45.32)            |
 
 ---
 
@@ -65,12 +65,12 @@ Stores details of each bid item tied to a specific project.
 
 Stores app users for authentication and authorization.
 
-| Column Name   | Data Type | Constraints          | Description                       |
-|---------------|-----------|----------------------|-----------------------------------|
-| id            | SERIAL    | PRIMARY KEY          | Unique user identifier            |
-| username      | TEXT      | UNIQUE, NOT NULL     | User login name                   |
-| password_hash | TEXT      | NOT NULL             | Secure hash of user’s password    |
-| is_admin      | BOOLEAN   | DEFAULT FALSE        | True if user has admin privileges |
+| Column Name   | Data Type | Constraints      | Description                       |
+| ------------- | --------- | ---------------- | --------------------------------- |
+| id            | SERIAL    | PRIMARY KEY      | Unique user identifier            |
+| username      | TEXT      | UNIQUE, NOT NULL | User login name                   |
+| password_hash | TEXT      | NOT NULL         | Secure hash of user’s password    |
+| is_admin      | BOOLEAN   | DEFAULT FALSE    | True if user has admin privileges |
 
 ---
 

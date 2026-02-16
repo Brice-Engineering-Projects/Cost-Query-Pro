@@ -17,19 +17,19 @@ status: On-going
 
 ### 📋 Task Summary Overview
 
-| Category | Description | Progress | Priority |
-| ----------- | -------------- | ----------- | ----------- |
-| **Documentation** | API reference, OpenAPI schema, deployment, and developer documentation. | ☐ 0 / 9 | 🟠 Medium |
-| **CI/CD Enhancements** | Coverage reports, linting, security scans, and staging deployment pipeline. | ☐ 0 / 4 | 🔴 High |
-| **Code Quality** | Pydantic v2 migration, integration tests, contract tests, and benchmarks. | ☐ 0 / 4 | 🟡 Medium |
-| **Security & Dependencies** | Dependabot, vulnerability and secrets scanning. | ☐ 0 / 3 | 🔴 High |
-| **Auth & Routes** | `/auth/me` verification, contract standardization, status code updates. | ✅ 3 / 4 | 🟢 Complete (minor follow-up) |
-| **Testing** | JWT unit tests, integration flow, snapshot fixtures, admin tests. | ☐ 0 / 5 | 🔴 High |
-| **Dependabot Remediation** | Package upgrades (`ecdsa`, `starlette`, bcrypt pinning) and upload limits. | ☐ 0 / 3 | 🟠 Medium |
-| **DevEx & Observability** | Route prefix validation, add `/auth/me` docs, improve logs. | ☐ 0 / 2 | 🟡 Medium |
-| **Schema & Alembic** | Migration validation, test isolation, and debugging logs. | ☐ 0 / 3 | 🟠 Medium |
-| **Debugging & Refactor** | Settings attribute fixes, Pydantic deprecation cleanup. | ✅ 1 / 2 | 🟡 Medium |
-| **Overall Status** | CI pipeline passing, environment parity confirmed. Ready for advanced automation. | ✅ Stable | 🟢 Ready |
+| Category                    | Description                                                                       | Progress | Priority                     |
+| --------------------------- | --------------------------------------------------------------------------------- | -------- | ---------------------------- |
+| **Documentation**           | API reference, OpenAPI schema, deployment, and developer documentation.           | ☐ 0 / 9  | 🟠 Medium                     |
+| **CI/CD Enhancements**      | Coverage reports, linting, security scans, and staging deployment pipeline.       | ☐ 0 / 4  | 🔴 High                       |
+| **Code Quality**            | Pydantic v2 migration, integration tests, contract tests, and benchmarks.         | ☐ 0 / 4  | 🟡 Medium                     |
+| **Security & Dependencies** | Dependabot, vulnerability and secrets scanning.                                   | ☐ 0 / 3  | 🔴 High                       |
+| **Auth & Routes**           | `/auth/me` verification, contract standardization, status code updates.           | ✅ 3 / 4  | 🟢 Complete (minor follow-up) |
+| **Testing**                 | JWT unit tests, integration flow, snapshot fixtures, admin tests.                 | ☐ 0 / 5  | 🔴 High                       |
+| **Dependabot Remediation**  | Package upgrades (`ecdsa`, `starlette`, bcrypt pinning) and upload limits.        | ☐ 0 / 3  | 🟠 Medium                     |
+| **DevEx & Observability**   | Route prefix validation, add `/auth/me` docs, improve logs.                       | ☐ 0 / 2  | 🟡 Medium                     |
+| **Schema & Alembic**        | Migration validation, test isolation, and debugging logs.                         | ☐ 0 / 3  | 🟠 Medium                     |
+| **Debugging & Refactor**    | Settings attribute fixes, Pydantic deprecation cleanup.                           | ✅ 1 / 2  | 🟡 Medium                     |
+| **Overall Status**          | CI pipeline passing, environment parity confirmed. Ready for advanced automation. | ✅ Stable | 🟢 Ready                      |
 
 ---
 

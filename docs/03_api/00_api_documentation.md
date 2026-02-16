@@ -157,12 +157,12 @@ _*(Optional, depending on how user creation is managed. Could be admin-only.)*_
 
 **Query Parameters:**
 
-| Parameter       | Type     | Required | Description                        |
-|-----------------|----------|----------|------------------------------------|
-| q               | string   | Yes      | Search term (e.g. "PVC Pipe")      |
-| state           | string   | No       | Two-letter state code (e.g. FL)    |
-| year_start      | integer  | No       | Starting year of search range      |
-| year_end        | integer  | No       | Ending year of search range        |
+| Parameter  | Type    | Required | Description                     |
+| ---------- | ------- | -------- | ------------------------------- |
+| q          | string  | Yes      | Search term (e.g. "PVC Pipe")   |
+| state      | string  | No       | Two-letter state code (e.g. FL) |
+| year_start | integer | No       | Starting year of search range   |
+| year_end   | integer | No       | Ending year of search range     |
 
 **Example Request:**
 
@@ -263,16 +263,16 @@ _*(Admin-only routes.)*_
 
 ## Standard Response Codes
 
-| Status Code | Meaning                      |
-|-------------|------------------------------|
-| 200         | OK                           |
-| 201         | Created                      |
-| 400         | Bad Request                  |
-| 401         | Unauthorized                 |
-| 403         | Forbidden                    |
-| 404         | Not Found                    |
-| 409         | Conflict (e.g. duplicate)    |
-| 500         | Internal Server Error        |
+| Status Code | Meaning                   |
+| ----------- | ------------------------- |
+| 200         | OK                        |
+| 201         | Created                   |
+| 400         | Bad Request               |
+| 401         | Unauthorized              |
+| 403         | Forbidden                 |
+| 404         | Not Found                 |
+| 409         | Conflict (e.g. duplicate) |
+| 500         | Internal Server Error     |
 
 ---
 

@@ -10,10 +10,10 @@ Authentication uses **JSON Web Tokens (JWT)** signed with HS256. Tokens are retu
 
 ## Endpoint Patterns
 
-| Endpoint                  | Method | Request Body                                        | Auth Header                      | Response (200)                                                |
-|---------------------------|--------|-----------------------------------------------------|----------------------------------|---------------------------------------------------------------|
-| `/api/v1/auth/login`      | POST   | JSON: `{ "username": "str", "password": "str" }`    | _None_                           | `{ "access_token": "jwt", "token_type": "bearer" }`           |
-| `/api/v1/auth/me`         | GET    | _None_                                              | `Authorization: Bearer <jwt>`    | `{ "id": int, "username": "str", "is_admin": bool }`          |
+| Endpoint             | Method | Request Body                                     | Auth Header                   | Response (200)                                       |
+| -------------------- | ------ | ------------------------------------------------ | ----------------------------- | ---------------------------------------------------- |
+| `/api/v1/auth/login` | POST   | JSON: `{ "username": "str", "password": "str" }` | _None_                        | `{ "access_token": "jwt", "token_type": "bearer" }`  |
+| `/api/v1/auth/me`    | GET    | _None_                                           | `Authorization: Bearer <jwt>` | `{ "id": int, "username": "str", "is_admin": bool }` |
 
 _**Notes**_
 
@@ -98,11 +98,11 @@ _**Common mistakes**_
 
 ## 401 Unauthorized — Diagnostic Guide
 
-| Detail message             | Likely cause                                  | Action                                                           |
-|----------------------------|-----------------------------------------------|------------------------------------------------------------------|
-| `Invalid credentials`      | Username not found or password mismatch       | Validate inputs; confirm hashing method on server.               |
-| `Invalid token`            | Signature mismatch or corrupted token         | Ensure same secret/algorithm for encode/decode; resend token.    |
-| `Token expired`            | Token beyond configured expiry                | Re-authenticate (login) to obtain a new token.                   |
-| `Invalid token payload`    | Missing `sub` or malformed claims             | Verify token creation sets `sub` and standard claims.            |
+| Detail message          | Likely cause                            | Action                                                        |
+| ----------------------- | --------------------------------------- | ------------------------------------------------------------- |
+| `Invalid credentials`   | Username not found or password mismatch | Validate inputs; confirm hashing method on server.            |
+| `Invalid token`         | Signature mismatch or corrupted token   | Ensure same secret/algorithm for encode/decode; resend token. |
+| `Token expired`         | Token beyond configured expiry          | Re-authenticate (login) to obtain a new token.                |
+| `Invalid token payload` | Missing `sub` or malformed claims       | Verify token creation sets `sub` and standard claims.         |
 
 ---

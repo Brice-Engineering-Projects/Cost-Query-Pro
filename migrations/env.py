@@ -11,12 +11,7 @@ from alembic import context
 from alembic.config import Config
 from sqlalchemy import create_engine, pool
 
-# ------------------------------------------------------------
-# CI FIX: Force Alembic to use TEST_DATABASE_URL when provided
-# ------------------------------------------------------------
 test_db_url = os.getenv("TEST_DATABASE_URL")
-if test_db_url:
-    context.config.set_main_option("sqlalchemy.url", test_db_url)
 
 # Ensure Alembic can find `src/cost_query_pro`
 BASE_DIR = Path(__file__).resolve().parents[1]
@@ -29,6 +24,10 @@ from cost_query_pro.db import Base
 
 # Load alembic.ini explicitly
 config = Config("alembic.ini")
+
+if test_db_url:
+    # Escape % for ConfigParser interpolation safety.
+    config.set_main_option("sqlalchemy.url", test_db_url.replace("%", "%%"))
 
 # ✅ DO NOT modify _interpolation — this will break Alembic
 # config.file_config._interpolation = None  ← REMOVE THIS LINE
