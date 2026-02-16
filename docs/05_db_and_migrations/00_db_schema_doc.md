@@ -4,7 +4,7 @@
 
 ## Project Name
 
-**Unit Cost Query App for Infrastructure Projects**
+_**Unit Cost Query App for Infrastructure Projects**_
 
 ---
 
@@ -49,13 +49,13 @@ Stores high-level details for infrastructure projects.
 
 Stores details of each bid item tied to a specific project.
 
-| Column Name       | Data Type | Constraints           | Description                       |
-|-------------------|-----------|-----------------------|-----------------------------------|
-| id                | SERIAL    | PRIMARY KEY           | Unique identifier for each item   |
-| project_id        | INTEGER   | FOREIGN KEY → projects.id, NOT NULL | Links item to its project |
-| item_description  | TEXT      | NOT NULL              | Description of the bid item       |
-| unit              | TEXT      | NOT NULL              | Unit of measurement (e.g. LF, EA) |
-| unit_price        | NUMERIC(12, 2) | NOT NULL        | Unit cost (e.g. 45.32)            |
+| Column Name       | Data Type      | Constraints                         | Description                       |
+|-------------------|----------------|-------------------------------------|-----------------------------------|
+| id                | SERIAL         | PRIMARY KEY                         | Unique identifier for each item   |
+| project_id        | INTEGER        | FOREIGN KEY → projects.id, NOT NULL | Links item to its project         |
+| item_description  | TEXT           | NOT NULL                            | Description of the bid item       |
+| unit              | TEXT           | NOT NULL                            | Unit of measurement (e.g. LF, EA) |
+| unit_price        | NUMERIC(12, 2) | NOT NULL                            | Unit cost (e.g. 45.32)            |
 
 ---
 

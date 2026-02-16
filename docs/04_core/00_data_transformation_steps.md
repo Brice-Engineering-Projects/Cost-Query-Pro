@@ -140,11 +140,13 @@ async def upload_file(
     return {"message": "File processed successfully", **result}
 ```
 
-**Headers**
+_**Headers**_
 
-```
+```json
+{
 Authorization: Bearer <JWT>
 Content-Type: multipart/form-data
+}
 ```
 
 ---

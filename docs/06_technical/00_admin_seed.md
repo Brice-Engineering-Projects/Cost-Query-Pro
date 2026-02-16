@@ -6,6 +6,7 @@
 ---
 
 ## Why this over other options
+
 - **Safe by default:** The HTTP surface stays minimal (no public “make admin” endpoint).
 - **Idempotent:** Refuses to run if an admin already exists.
 - **Proper hashing:** Reuses your `get_password_hash`, avoiding plaintext.
@@ -123,19 +124,20 @@ python -m src.cost_query_pro.cli bootstrap-admin --token "$ADMIN_BOOTSTRAP_TOKEN
 
 ## Verification
 
-### 1. Login as 'admin' and call:
+### 1. Login as 'admin' and call
+
 ```vbnet
 GET /api/v1/auth/me
 Authorization: Bearer <token>
 ```
 
-#### Expect:
+#### Expect
 
 ```json
 { "username": "admin", "is_admin": true, ... }
 ```
 
-### 2. Hit an admin-only route (e.g., `/api/v1/admin/purge`) and confirm 200 (admin) vs 403 (non-admin).
+### 2. Hit an admin-only route (e.g., `/api/v1/admin/purge`) and confirm 200 (admin) vs 403 (non-admin)
 
 #### Cleanup / Guardrails
 

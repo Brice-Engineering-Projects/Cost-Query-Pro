@@ -12,6 +12,7 @@
 During testing, the project database was accidentally **wiped** due to destructive table logic in the test suite. Since no Alembic migrations had been generated, the `alembic upgrade head` command had **nothing to rebuild**, and the app was left without any tables.
 
 Complicating the recovery:
+
 - The database password included special characters (e.g., `@` encoded as `%40`)
 - Alembic interpolation failed on the DSN string
 - `PostgresDsn` type from Pydantic caused conflicts with SQLAlchemy when passed directly
@@ -22,14 +23,19 @@ Complicating the recovery:
 ## ✅ What Was Fixed
 
 ### ✅ 1. Alembic Interpolation Bug
+
 **Issue:**
 Using `config.set_main_option("sqlalchemy.url", url)` with a password that included `%` caused:
-```
+
+```json
+{
 AttributeError: 'NoneType' object has no attribute 'before_set'
+}
 ```
 
 **Fix:**
 Avoid interpolation entirely by setting:
+
 ```python
 config.attributes["sqlalchemy.url"] = url
 ```
@@ -39,12 +45,14 @@ config.attributes["sqlalchemy.url"] = url
 ### ✅ 2. Alembic `env.py` Refactor
 
 **Old (fragile):**
+
 ```python
 config.set_main_option("sqlalchemy.url", url)
 connectable = engine_from_config(...)
 ```
 
 **New (stable):**
+
 ```python
 from sqlalchemy import create_engine
 
@@ -63,6 +71,7 @@ This bypasses Alembic’s config parser and uses SQLAlchemy directly.
 **Problem:** `PostgresDsn` from Pydantic passed a structured object, not a plain string.
 
 **Fix:**
+
 ```python
 if settings.environment == "testing":
     raw_url = settings.test_database_url
@@ -96,13 +105,16 @@ This recreated the `users`, `projects`, and `items` tables from the SQLAlchemy m
 Tests were running against the same database as development, leading to data loss.
 
 **Fix:**
+
 - `.env` now includes:
+
   ```env
   ENVIRONMENT=testing
   TEST_DATABASE_URL=postgresql+psycopg2://brice-nelson:your_encoded_pass@localhost:5432/cost_query_pro_test_db
   ```
 
 - `env.py` respects environment selection:
+
   ```python
   if settings.environment == "testing":
       url = settings.test_database_url
@@ -114,15 +126,18 @@ Tests were running against the same database as development, leading to data los
 
 1. Ensure `.env` is valid and passwords are URL-encoded.
 2. Run:
+
    ```bash
    alembic revision --autogenerate -m "initial schema"
    alembic upgrade head
    ```
+
 3. To verify:
-   ```bash
+
+```bash
    psql cost_query_pro_dev_db
    \dt
-   ```
+```
 
 ---
 
@@ -136,14 +151,9 @@ Tests were running against the same database as development, leading to data los
 
 ---
 
-## 🏁 You’re Now Set Up To:
+## 🏁 Next Steps
 
 - Safely run migrations across dev, test, and production
 - Avoid Alembic edge cases
 - Rebuild your database structure cleanly using only migrations
 - Scale your app with proper testing isolation
-
----
-```
-
-Let me know if you'd like me to save this into your `docs/` directory as a file or prep a `README.md` variant.

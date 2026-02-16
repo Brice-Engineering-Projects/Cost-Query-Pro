@@ -4,7 +4,7 @@
 
 ## Project Title
 
-**Unit Cost Query App for Infrastructure Projects**
+_**Unit Cost Query App for Infrastructure Projects**_
 
 ---
 
@@ -101,7 +101,7 @@ Develop an application to **search unit costs by item, state, and year**, return
 - Real-time public data scraping
 - Detailed GIS mapping visualizations
 
-*(But hey, we’ll get there one day!)*
+_*(But hey, we’ll get there one day!)*_
 
 ---
 

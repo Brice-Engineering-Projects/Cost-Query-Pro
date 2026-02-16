@@ -79,3 +79,7 @@ follow_imports = "silent"
 allow_subclassing_any = true
 allow_untyped_globals = true
 allow_redefinition = true
+
+[tool.bandit]
+exclude_dirs = ["tests", "migrations_old", "migrations"]
+skips = ["B101", "B105", "B106", "B110"]

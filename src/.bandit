@@ -1,8 +1,0 @@
-# .bandit
-[bandit]
-
-# Ignore test folders and old migrations
-exclude: tests,migrations_old,migrations
-
-# Disable rules that produce false positives for normal FastAPI patterns
-skips: B101,B105,B106,B110
