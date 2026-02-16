@@ -51,7 +51,8 @@ repos:
     hooks:
       - id: bandit
         name: Run Bandit Security Scan
-        args: ["-r", "src"]
+        args: ["-r", "src", "-c", "pyproject.toml"]
+        pass_filenames: false
 
   # 6️⃣ Type checking with Mypy
 #  - repo: https://github.com/pre-commit/mirrors-mypy

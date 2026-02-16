@@ -82,5 +82,5 @@ allow_untyped_globals = true
 allow_redefinition = true
 
 [tool.bandit]
-exclude_dirs = ["tests", "migrations_old", "migrations"]
+exclude_dirs = [".venv", "tests", "migrations_old", "migrations"]
 skips = ["B101", "B105", "B106", "B110"]
