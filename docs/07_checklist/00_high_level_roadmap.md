@@ -113,11 +113,16 @@ Acceptance criteria:
 - [ ] Review migration naming and ordering conventions.
 - [ ] Add migration smoke test in CI.
 - [ ] Validate downgrade strategy for latest migration set.
+- [ ] Add uniqueness constraints for `users.username`, `users.email`, `roles.role_name`, and `permissions.permission_name`.
+- [ ] Add schema-level check constraints for non-negative numeric fields (for example, `quantity`, `unit_price`, `construction_cost`).
+- [ ] Resolve FK naming consistency between `bid_items.source_id` and `data_sources.data_source_id`.
+- [ ] Define delete/update referential actions for all FKs (`RESTRICT`, `CASCADE`, or `SET NULL`) and document rationale.
 
 Acceptance criteria:
 
 - [ ] Fresh database can be created from migrations without manual edits.
 - [ ] Schema supports item + project metadata retrieval in one query pattern.
+- [ ] Naming and FK references are internally consistent across all tables.
 
 ### 4.1.3 Authentication and Authorization
 
@@ -126,11 +131,14 @@ Acceptance criteria:
 - [ ] Enforce protected route access with shared dependency layer.
 - [ ] Add role checks for admin-only routes.
 - [ ] Add lockout/throttling strategy for repeated failed logins.
+- [ ] Add `role_permissions` bridge table to support true role-based permission assignment.
+- [ ] Seed baseline roles/permissions and verify permission matrix for admin/user flows.
 
 Acceptance criteria:
 
 - [ ] Auth tests cover success, failure, expired token, invalid role.
 - [ ] Unauthorized access is blocked consistently across endpoints.
+- [ ] Every protected endpoint is mapped to explicit permissions, not only role names.
 
 ### 4.1.4 Core APIs
 
@@ -153,11 +161,15 @@ Acceptance criteria:
 - [ ] Normalize units and text fields before persistence.
 - [ ] Capture ingest report: inserted, skipped, failed, warnings.
 - [ ] Add basic PDF table extraction fallback strategy.
+- [ ] Implement canonical mapping from raw `item_description` to `cost_items.canonical_description`.
+- [ ] Add deterministic lookup/creation rules for dimensions: `units`, `agencies`, `regions`, `project_types`, `project_size`, `pipe_use`.
+- [ ] Store ingestion lineage from `bid_items` to `data_sources` and processing actor/timestamp.
 
 Acceptance criteria:
 
 - [ ] Ingest run generates structured summary and error details.
 - [ ] Invalid rows are isolated without failing entire batch unless configured.
+- [ ] Re-ingesting equivalent source rows resolves to the same canonical dimensions.
 
 ### 4.1.6 Query and Search
 
@@ -166,11 +178,15 @@ Acceptance criteria:
 - [ ] Add year and date-range filters.
 - [ ] Return project context in search response.
 - [ ] Add optional min/max unit-price filters.
+- [ ] Add combined filters for `project_type`, `pipe_use`, `material_type`, and `delivery_method`.
+- [ ] Define and test search query path joining `bid_items -> projects -> agencies/regions -> cost_items`.
+- [ ] Add explicit index plan for high-cardinality filters and join columns.
 
 Acceptance criteria:
 
 - [ ] Query response includes item, unit, unit price, project, location, year.
 - [ ] Search behavior is stable across pagination boundaries.
+- [ ] Query plan for top 5 search patterns uses intended indexes.
 
 ### 4.1.7 Testing and Quality (MVP)
 
@@ -188,11 +204,14 @@ Acceptance criteria:
 - [ ] Expose audit log retrieval for admin actions.
 - [ ] Add user management flows (create, disable, role update).
 - [ ] Define retention policy by data type and environment.
+- [ ] Define audit logging pattern for polymorphic `audit_logs.record_id` references.
+- [ ] Add immutable audit event schema for auth, ingest, data-modify, purge, and role-change actions.
 
 Acceptance criteria:
 
 - [ ] All destructive actions require explicit authorization and are auditable.
 - [ ] Admin operations have endpoint-level integration tests.
+- [ ] Audit trail can reconstruct who changed what, when, and from which source file.
 
 ### 4.2.2 Ingestion Reliability and Operations
 
@@ -214,10 +233,13 @@ Acceptance criteria:
 - [ ] Enforce pagination limits and response size controls.
 - [ ] Add query timeout and defensive safeguards.
 - [ ] Evaluate caching for frequent lookups.
+- [ ] Add targeted indexes for `bid_items(project_id)`, `bid_items(cost_item_id)`, `bid_items(contractor_id)`, `projects(bid_date)`, and `projects(region_id, project_type_id)`.
+- [ ] Evaluate text search strategy for `item_description` and `canonical_description` (trigram or full-text).
 
 Acceptance criteria:
 
 - [ ] P95 search response time target documented and met in internal load test.
+- [ ] Full join search remains within target under expected data volume.
 
 ### 4.2.4 Operational Documentation
 
@@ -334,6 +356,14 @@ Acceptance criteria:
 - [ ] Maintain migration troubleshooting guide.
 - [ ] Maintain release notes per version.
 
+## 5.4 Schema Governance Program
+
+- [ ] Publish canonical ERD (tables, PK/FK, cardinality, delete behavior).
+- [ ] Document table naming convention and enforce singular/plural consistency.
+- [ ] Keep schema doc synchronized with Alembic migrations on every release.
+- [ ] Add schema drift check between models, migrations, and live database.
+- [ ] Maintain seed-data catalog for reference tables (roles, permissions, units, project types, pipe use).
+
 ## 6. Milestones and Suggested Timeline
 
 Use this as a planning baseline and adjust based on team capacity.
@@ -357,6 +387,9 @@ Mitigation: authorization test matrix + periodic permission audits.
 
 - [ ] Risk: migration drift across environments.
 Mitigation: CI migration checks + environment parity + rollback drills.
+
+- [ ] Risk: schema inconsistency (FK names, missing RBAC bridge, ambiguous audit reference) causes delivery rework.
+Mitigation: early schema normalization milestone + migration freeze window + ERD signoff.
 
 - [ ] Risk: low trust in analytics/predictions.
 Mitigation: traceable metrics + explainability + stakeholder validation loop.
