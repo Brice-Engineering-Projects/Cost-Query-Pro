@@ -33,6 +33,7 @@ dependencies = [
     "bcrypt>=4.1.2",
     "pdfminer-six==20250506",  # until fixed upstream
     "pypdfium2!=4.30.1",
+    "pyasn1>=0.6.2",
 ]
 
 [project.optional-dependencies]

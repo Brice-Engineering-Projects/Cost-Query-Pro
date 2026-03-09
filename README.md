@@ -185,6 +185,7 @@ cost_query_pro/
 - CI/CD pipeline fully configured (GitHub Actions)
 - Local development environment configured
 - Early testing with internal datasets
+- Security remediation: pinned `pyasn1>=0.6.2` to address Dependabot-reported DoS risk in `v0.6.1` BER decoding
 
 ---
 
