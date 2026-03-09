@@ -9,6 +9,7 @@ __pycache__/
 *.pyo
 *.so
 *.egg-info/
+src/*.egg-info/
 *.egg
 build/
 develop-eggs/

@@ -18,6 +18,7 @@ from cost_query_pro.schemas.token import Token
 from cost_query_pro.schemas.user import UserRead
 
 router = APIRouter(prefix="/auth", tags=["auth"])
+TOKEN_TYPE_BEARER = "bearer"  # nosec B105
 
 
 # OAuth2 standard login (for forms/browser)
@@ -35,7 +36,7 @@ def login_form(
     access_token = create_access_token(
         data={"sub": user.username, "is_admin": user.is_admin}
     )
-    return TokenResponse(access_token=access_token, token_type="bearer")
+    return TokenResponse(access_token=access_token, token_type=TOKEN_TYPE_BEARER)
 
 
 # JSON login (for API clients/tests) - can be removed later
@@ -51,7 +52,7 @@ def login_json(payload: LoginRequest, db: Session = Depends(get_db)) -> TokenRes
     access_token = create_access_token(
         data={"sub": user.username, "is_admin": user.is_admin}
     )
-    return TokenResponse(access_token=access_token, token_type="bearer")
+    return TokenResponse(access_token=access_token, token_type=TOKEN_TYPE_BEARER)
 
 
 # REGISTER (optionally admin-only)

@@ -22,9 +22,10 @@ def _safety_check(url: str) -> None:
     """If we're running tests, refuse to touch a non-test DB."""
     if os.getenv("TESTING") == "1":
         u = make_url(url)
-        assert str(u.host) in {"localhost", "127.0.0.1"} and str(u.database).endswith(
-            "_test"
-        ), f"Refusing to run tests against non-test DB: {u!s}"
+        is_local = str(u.host) in {"localhost", "127.0.0.1"}
+        is_test_db = str(u.database).endswith("_test")
+        if not (is_local and is_test_db):
+            raise RuntimeError(f"Refusing to run tests against non-test DB: {u!s}")
 
 
 DB_URL = _resolve_db_url()

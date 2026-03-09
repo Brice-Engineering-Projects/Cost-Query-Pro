@@ -1,127 +1,59 @@
-# .github/workflows/ci-cd.yml
-
-name: CI/CD
-
-# --------------------------
-# Commented out until more established
-# --------------------------
+name: CI-CD
 
 on:
   push:
-    branches: [ main, dev ]
+    branches: [main, dev]
   pull_request:
-    branches: [ main, dev ]
+    branches: [main, dev]
 
-# on:
-#  workflow_dispatch: {}
+permissions:
+  contents: read
 
 concurrency:
-  group: ci-cd-${{ github.ref }}
+  group: ci-${{ github.ref }}
   cancel-in-progress: true
 
-# ------------------------------
-# LINT JOB: Black (check) + Flake8
-# ------------------------------
 jobs:
-  lint:
-    name: Lint (Black + Flake8)
+  quality-security:
+    name: Quality & Security
     runs-on: ubuntu-latest
+    timeout-minutes: 20
+
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Set up Python
+      - name: Set up Python 3.12
         uses: actions/setup-python@v5
         with:
           python-version: "3.12"
 
-      - name: Cache pip
-        uses: actions/cache@v4
+      - name: Install uv
+        uses: astral-sh/setup-uv@v6
         with:
-          path: ~/.cache/pip
-          key: ${{ runner.os }}-pip-lint-${{ hashFiles('requirements*.txt', 'pyproject.toml') }}
-          restore-keys: |
-            ${{ runner.os }}-pip-lint-
+          enable-cache: true
 
-      - name: Install linters
-        run: |
-          python -m pip install --upgrade pip
-          pip install black flake8
+      - name: Sync dependencies (locked)
+        run: uv sync --dev --frozen
 
-      - name: Black (check mode)
-        run: black --check .
+      - name: Run pre-commit checks
+        run: uv run pre-commit run --all-files
 
-      - name: Flake8
-        run: flake8 .
+      - name: Run Bandit (production code)
+        run: uv run bandit -r src -c pyproject.toml
 
-  # ------------------------------
-  # SECURITY JOB: Bandit + pip-audit
-  # ------------------------------
-  security:
-    name: Security (Bandit + pip-audit)
+      - name: Run pip-audit
+        run: uv run pip-audit
+
+  tests:
+    name: Tests
     runs-on: ubuntu-latest
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
+    timeout-minutes: 20
+    needs: quality-security
 
-      - name: Set up Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: "3.12"
+    env:
+      TEST_DATABASE_URL: postgresql+psycopg2://postgres:postgres@localhost:5432/test_db
 
-      - name: Cache pip
-        uses: actions/cache@v4
-        with:
-          path: ~/.cache/pip
-          key: ${{ runner.os }}-pip-sec-${{ hashFiles('requirements*.txt', 'pyproject.toml') }}
-          restore-keys: |
-            ${{ runner.os }}-pip-sec-
-
-      - name: Install security tools
-        run: |
-          python -m pip install --upgrade pip
-          pip install bandit pip-audit
-
-      - name: Bandit (SAST on Python code)
-        run: bandit -r . -q -x tests
-
-      - name: Dependency audit (pip-audit)
-        # Fails build on known vulnerable deps unless explicitly ignored
-        run: |
-          if [ -f "requirements.txt" ]; then
-            pip-audit -r requirements.txt \
-              --ignore-vuln GHSA-wj6h-64fc-37mp \
-              --ignore-vuln GHSA-wf5f-4jwr-ppcp \
-              --ignore-vuln GHSA-f83h-ghpp-7wcc \
-              --ignore-vuln GHSA-2c2j-9gv5-cj73 \
-              --ignore-vuln GHSA-7f5h-v6xp-fcq8
-          elif [ -f "pyproject.toml" ]; then
-            pip-audit \
-              --ignore-vuln GHSA-wj6h-64fc-37mp \
-              --ignore-vuln GHSA-wf5f-4jwr-ppcp \
-              --ignore-vuln GHSA-f83h-ghpp-7wcc \
-              --ignore-vuln GHSA-2c2j-9gv5-cj73 \
-              --ignore-vuln GHSA-7f5h-v6xp-fcq8
-          else
-            echo "No dependency manifest found; skipping pip-audit."
-          fi
-
-  # ------------------------------
-  # CI JOB: Env-aware install + tests
-  # ------------------------------
-  ci:
-    name: Build & Test
-    runs-on: ubuntu-latest
-    needs: [ lint, security ]
-
-    # -----------------------------------
-    # TEST DATABASE SERVICE (PostgreSQL)
-    # -----------------------------------
-    # Senior Dev Notes:
-    # - This containerized Postgres instance is used only for pytest.
-    # - TEST_DATABASE_URL below points to this service.
-    # - Alembic migrations run via conftest before tests execute.
-    # - Health checks ensure DB is ready before pytest begins.
     services:
       postgres:
         image: postgres:14
@@ -141,133 +73,32 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Detect package manager files
-        id: detect
-        run: |
-          echo "has_env_yml=${{ hashFiles('environment.yml') != '' }}" >> "$GITHUB_OUTPUT"
-          echo "has_pyproject=${{ hashFiles('pyproject.toml') != '' }}" >> "$GITHUB_OUTPUT"
-          echo "has_requirements=${{ hashFiles('requirements.txt') != '' }}" >> "$GITHUB_OUTPUT"
-          if [[ -n "${{ hashFiles('pytest.ini', 'pyproject.toml') }}" || -n "${{ hashFiles('**/test_*.py') }}" ]]; then
-            echo "has_tests=true" >> "$GITHUB_OUTPUT"
-          else
-            echo "has_tests=false" >> "$GITHUB_OUTPUT"
-          fi
-
-      - name: Set up Python
-        if: ${{ steps.detect.outputs.has_env_yml == 'true' || steps.detect.outputs.has_pyproject == 'true' || steps.detect.outputs.has_requirements == 'true' }}
+      - name: Set up Python 3.12
         uses: actions/setup-python@v5
         with:
           python-version: "3.12"
 
-      # Conda path
-      - name: Set up Conda (environment.yml)
-        if: ${{ steps.detect.outputs.has_env_yml == 'true' }}
-        uses: conda-incubator/setup-miniconda@v3
+      - name: Install uv
+        uses: astral-sh/setup-uv@v6
         with:
-          environment-file: environment.yml
-          activate-environment: ci-env
-          auto-activate-base: false
-          miniforge-version: latest
+          enable-cache: true
 
-      # uv path
-      - name: Install with uv (pyproject.toml)
-        if: ${{ steps.detect.outputs.has_env_yml != 'true' && steps.detect.outputs.has_pyproject == 'true' }}
-        run: |
-          python -m pip install --upgrade pip
-          pip install uv
-          if [ -f "pyproject.toml" ]; then
-            uv sync
-          fi
-          if [ -f "requirements.txt" ]; then
-            uv pip install -r requirements.txt
-          fi
-
-      # pip path
-      - name: Install with pip (requirements.txt)
-        if: ${{ steps.detect.outputs.has_env_yml != 'true' && steps.detect.outputs.has_pyproject != 'true' && steps.detect.outputs.has_requirements == 'true' }}
-        run: |
-          python -m pip install --upgrade pip
-          pip install -r requirements.txt
+      - name: Sync dependencies (locked)
+        run: uv sync --dev --frozen
 
       - name: Wait for Postgres
         run: |
           for i in {1..10}; do
-            pg_isready -h postgres -p 5432 -U postgres && break
-            echo "Postgres not ready yet..."
+            pg_isready -h localhost -p 5432 -U postgres && break
+            echo "Waiting for Postgres..."
             sleep 2
           done
 
-      - name: Run Pre-Commit Checks
-        run: uv run pre-commit run --all-files
+      - name: Set PYTHONPATH
+        run: echo "PYTHONPATH=src" >> $GITHUB_ENV
 
-      - name: Run tests (pytest if present)
-        if: ${{ steps.detect.outputs.has_tests == 'true' }}
-        env:
-          TEST_DATABASE_URL: postgresql+psycopg2://postgres:postgres@localhost:5432/test_db
-        run: |
-          echo "Using TEST_DATABASE_URL=$TEST_DATABASE_URL"
-          uv run pytest -q
+      - name: Run migrations
+        run: uv run alembic upgrade head
 
-# ------------------------------
-# DEPLOY JOB: Vercel (Preview on PR, Prod on main)
-# ------------------------------
-#  deploy:
-#    name: Deploy to Vercel (Preview PR / Prod main)
-#    runs-on: ubuntu-latest
-#    needs: [lint, security, ci]
-#    if: ${{ github.event_name == 'pull_request' || github.ref == 'refs/heads/main' }}
-#
-#    steps:
-#      - name: Checkout repository
-#        uses: actions/checkout@v4
-#
-#      - name: Set deployment environment
-#        id: env
-#        run: |
-#          if [ "${GITHUB_REF}" = "refs/heads/main" ]; then
-#            echo "vercel_env=production" >> "$GITHUB_OUTPUT"
-#            echo "is_prod=true" >> "$GITHUB_OUTPUT"
-#          else
-#            echo "vercel_env=preview" >> "$GITHUB_OUTPUT"
-#            echo "is_prod=false" >> "$GITHUB_OUTPUT"
-#          fi
-#
-#      - name: Set up Node.js (for Vercel CLI)
-#        uses: actions/setup-node@v4
-#        with:
-#          node-version: "20"
-#
-#      - name: Install Vercel CLI
-#        run: npm i -g vercel@latest
-#
-#      - name: Configure Vercel project
-#        env:
-#          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
-#          VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
-#          VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
-#        run: vercel pull --yes --environment=${{ steps.env.outputs.vercel_env }} --token="$VERCEL_TOKEN"
-#
-#      - name: Build with Vercel
-#        env:
-#          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
-#        run: |
-#          if [ "${{ steps.env.outputs.is_prod }}" = "true" ]; then
-#            vercel build --prod --token="$VERCEL_TOKEN"
-#          else
-#            vercel build --token="$VERCEL_TOKEN"
-#          fi
-#
-#      - name: Deploy (prebuilt output)
-#        id: deploy
-#        env:
-#          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
-#        run: |
-#          if [ "${{ steps.env.outputs.is_prod }}" = "true" ]; then
-#            URL=$(vercel deploy --prebuilt --prod --token="$VERCEL_TOKEN")
-#          else
-#            URL=$(vercel deploy --prebuilt --token="$VERCEL_TOKEN")
-#          fi
-#          echo "url=$URL" >> "$GITHUB_OUTPUT"
-#
-#      - name: Output Deployment URL
-#        run: echo "Deployed to ${{ steps.deploy.outputs.url }}"
+      - name: Run test suite
+        run: uv run pytest -q
