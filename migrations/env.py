@@ -12,6 +12,7 @@ from alembic.config import Config
 from sqlalchemy import create_engine, pool
 
 test_db_url = os.getenv("TEST_DATABASE_URL")
+db_url = os.getenv("DATABASE_URL")
 
 # Ensure Alembic can find `src/cost_query_pro`
 BASE_DIR = Path(__file__).resolve().parents[1]
@@ -32,20 +33,25 @@ if test_db_url:
 # ✅ DO NOT modify _interpolation — this will break Alembic
 # config.file_config._interpolation = None  ← REMOVE THIS LINE
 
-# Determine DB URL based on current environment
-if settings.environment == "testing":
+# Determine DB URL with explicit env vars taking precedence.
+# This keeps CI deterministic even when ENVIRONMENT is not set to "testing".
+if test_db_url:
+    raw_url = test_db_url
+elif db_url:
+    raw_url = db_url
+elif settings.environment == "testing":
     raw_url = settings.test_database_url
 elif settings.environment == "development":
     raw_url = settings.dev_database_url
 else:
     raw_url = settings.database_url
 
-# Convert PostgresDsn to plain string for Alembic
-url = str(raw_url)
-
-
-# ✅ Use config.attributes to safely inject raw DB URL
-config.attributes["sqlalchemy.url"] = url
+# Convert PostgresDsn / URL object to plain string for Alembic.
+url = str(raw_url or "").strip()
+if not url:
+    raise RuntimeError(
+        "Alembic DB URL is empty. Set TEST_DATABASE_URL or DATABASE_URL."
+    )
 
 if config.config_file_name is not None:
     fileConfig(config.config_file_name)
