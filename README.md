@@ -135,10 +135,10 @@ cost_query_pro/
 │
 ├── .env                      # Environment variables (never commit secrets!)
 ├── .gitignore
-├── requirements.txt          # Python package dependencies
+├── uv.lock                   # Locked dependencies managed by uv
 ├── README.md
 ├── LICENSE
-└── pyproject.toml            # Optional: modern Python packaging config
+└── pyproject.toml            # Project metadata and dependency declarations
 ```
 
 ---

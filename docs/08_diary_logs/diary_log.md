@@ -90,7 +90,7 @@ Setting up a robust CI/CD pipeline for the FastAPI project with proper test isol
 
 ### 3. **Dependency Consistency**
 
-- Verified `pyproject.toml` and `requirements.txt` alignment
+- Verified `pyproject.toml` and `uv.lock` alignment
 - Ensured all test dependencies are properly declared
 - Confirmed Python version consistency (3.12.2)
 
@@ -918,7 +918,7 @@ Date:  July 11, 2025
 ✅ Future:
 
 - Address Pydantic v2 deprecations.
-- Regenerate `requirements.txt` from uv for consistent environments.
+- Regenerate `uv.lock` from uv for consistent environments.
 
 ---
 

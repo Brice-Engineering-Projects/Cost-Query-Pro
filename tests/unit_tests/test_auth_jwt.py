@@ -2,8 +2,9 @@
 
 from datetime import datetime, timedelta, timezone
 
+import jwt
 import pytest
-from jose import ExpiredSignatureError, JWTError, jwt
+from jwt import ExpiredSignatureError, InvalidTokenError
 from passlib.context import CryptContext
 
 from src.cost_query_pro.config.settings import settings
@@ -90,9 +91,9 @@ def test_token_expiration_handling():
 
 
 def test_invalid_signature_detection():
-    """Token signed with wrong secret should raise JWTError."""
+    """Token signed with wrong secret should raise InvalidTokenError."""
     tampered_token = _make_token(key="wrong_secret_key")
-    with pytest.raises(JWTError):
+    with pytest.raises(InvalidTokenError):
         jwt.decode(tampered_token, settings.secret_key, algorithms=[settings.algorithm])
 
 

@@ -340,6 +340,6 @@ _**✅ Next Steps**_
 ✅ Future:
 
 - Address Pydantic v2 deprecations.
-- Regenerate `requirements.txt` from uv for consistent environments.
+- Refresh `uv.lock` with uv for consistent environments.
 
 ---

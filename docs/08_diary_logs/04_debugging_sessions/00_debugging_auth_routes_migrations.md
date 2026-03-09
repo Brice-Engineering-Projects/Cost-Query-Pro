@@ -163,7 +163,7 @@ Date:  July 11, 2025
 ✅ Future:
 
 - Address Pydantic v2 deprecations.
-- Regenerate `requirements.txt` from uv for consistent environments.
+- Regenerate `uv.lock` with uv for consistent environments.
 
 ---
 

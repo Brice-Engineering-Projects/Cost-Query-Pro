@@ -90,7 +90,7 @@ cost_query_pro/
 │
 ├── .env                                       # Environment variables (do not commit)
 ├── .gitignore
-├── requirements.txt                           # Fallback for legacy installs
+├── uv.lock                                    # Locked dependencies managed by uv
 ├── pyproject.toml                             # uv + modern Python packaging config
 ├── README.md
 └── LICENSE

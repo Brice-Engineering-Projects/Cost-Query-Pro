@@ -1,57 +1,58 @@
-# .github/workflows/ci-cd.yml
-
-# ==========================================================
-# CI/CD Pipeline — Cost Query Pro
-# ==========================================================
-# Purpose:
-#   - Enforce code quality standards
-#   - Perform static security analysis
-#   - Audit dependencies for known vulnerabilities
-#   - Execute full integration test suite
-#
-# Design Principles:
-#   - Single Python toolchain (uv + pyproject)
-#   - Security scans target production code only (src/)
-#   - All tests executed against isolated Postgres service
-#   - Fail fast on lint, security, or test regressions
-# ==========================================================
-
 name: CI-CD
-
-# ==========================================================
-# Trigger Strategy
-# ==========================================================
-# Run on pushes and PRs to main or dev.
-# Prevent duplicate runs on the same branch.
-# ==========================================================
 
 on:
   push:
-    branches: [ main, dev ]
+    branches: [main, dev]
   pull_request:
-    branches: [ main, dev ]
+    branches: [main, dev]
+
+permissions:
+  contents: read
 
 concurrency:
   group: ci-${{ github.ref }}
   cancel-in-progress: true
 
-
-# ==========================================================
-# Job: Build, Lint, Secure, and Test
-# ==========================================================
-
 jobs:
-  build-test:
-    name: Build & Quality Gate
+  quality-security:
+    name: Quality & Security
     runs-on: ubuntu-latest
+    timeout-minutes: 20
 
-    # --------------------------------------------------------
-    # Service: PostgreSQL (Test Database Only)
-    # --------------------------------------------------------
-    # Used exclusively for pytest integration tests.
-    # No production data.
-    # Health checks ensure readiness before test execution.
-    # --------------------------------------------------------
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python 3.12
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v6
+        with:
+          enable-cache: true
+
+      - name: Sync dependencies (locked)
+        run: uv sync --dev --frozen
+
+      - name: Run pre-commit checks
+        run: uv run pre-commit run --all-files
+
+      - name: Run Bandit (production code)
+        run: uv run bandit -r src -c pyproject.toml
+
+      - name: Run pip-audit
+        run: uv run pip-audit
+
+  tests:
+    name: Tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    needs: quality-security
+
+    env:
+      TEST_DATABASE_URL: postgresql+psycopg2://postgres:postgres@localhost:5432/test_db
 
     services:
       postgres:
@@ -69,40 +70,21 @@ jobs:
           --health-retries=5
 
     steps:
-
-      # ------------------------------------------------------
-      # Step 1 — Source Checkout
-      # ------------------------------------------------------
-
       - name: Checkout repository
         uses: actions/checkout@v4
-
-      # ------------------------------------------------------
-      # Step 2 — Python Setup
-      # ------------------------------------------------------
 
       - name: Set up Python 3.12
         uses: actions/setup-python@v5
         with:
           python-version: "3.12"
 
-      # ------------------------------------------------------
-      # Step 3 — Dependency Installation (uv)
-      # ------------------------------------------------------
-      # uv ensures deterministic installs from pyproject.toml.
-      # ------------------------------------------------------
-
       - name: Install uv
-        run: |
-          python -m pip install --upgrade pip
-          pip install uv
+        uses: astral-sh/setup-uv@v6
+        with:
+          enable-cache: true
 
-      - name: Sync dependencies
-        run: uv sync
-
-      # ------------------------------------------------------
-      # Step 4 — Wait for Postgres Service
-      # ------------------------------------------------------
+      - name: Sync dependencies (locked)
+        run: uv sync --dev --frozen
 
       - name: Wait for Postgres
         run: |
@@ -112,40 +94,11 @@ jobs:
             sleep 2
           done
 
-      # ------------------------------------------------------
-      # Step 5 — Code Quality Enforcement
-      # ------------------------------------------------------
-      # All formatting + lint rules centralized in pre-commit.
-      # Single source of truth for style enforcement.
-      # ------------------------------------------------------
+      - name: Set PYTHONPATH
+        run: echo "PYTHONPATH=src" >> $GITHUB_ENV
 
-      - name: Run pre-commit checks
-        run: uv run pre-commit run --all-files
-
-      # ------------------------------------------------------
-      # Step 6 — Static Application Security Testing (SAST)
-      # ------------------------------------------------------
-      # Scan production code only.
-      # Excludes tests to reduce false positives.
-      # ------------------------------------------------------
-
-      - name: Run Bandit (production code)
-        run: uv run bandit -r src/
-
-      # ------------------------------------------------------
-      # Step 7 — Dependency Vulnerability Audit
-      # ------------------------------------------------------
-
-      - name: Run pip-audit
-        run: uv run pip-audit
-
-      # ------------------------------------------------------
-      # Step 8 — Test Suite Execution
-      # ------------------------------------------------------
-      # Executes full pytest suite against ephemeral DB.
-      # ------------------------------------------------------
+      - name: Run migrations
+        run: uv run alembic upgrade head
 
       - name: Run test suite
-        env:
-          TEST_DATABASE_URL: postgresql+psycopg2://postgres:postgres@localhost:5432/test_db
         run: uv run pytest -q

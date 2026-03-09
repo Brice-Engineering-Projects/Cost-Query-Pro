@@ -52,6 +52,7 @@ repos:
       - id: bandit
         name: Run Bandit Security Scan
         args: ["-r", "src", "-c", "pyproject.toml"]
+        additional_dependencies: ["bandit[toml]"]
         pass_filenames: false
 
   # 6️⃣ Type checking with Mypy
