@@ -6,10 +6,17 @@ Item Model
 Stores item details for projects.
 """
 
+from __future__ import annotations
+
+from typing import TYPE_CHECKING, Optional
+
 from sqlalchemy import CheckConstraint, Float, ForeignKey, Integer, String
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from cost_query_pro.db import Base
+
+if TYPE_CHECKING:
+    from cost_query_pro.models.upload_history import UploadHistory
 
 
 class Item(Base):
@@ -27,9 +34,17 @@ class Item(Base):
     unit: Mapped[str] = mapped_column(String, nullable=False)
     unit_price: Mapped[float] = mapped_column(Float, nullable=False)
     quantity: Mapped[int] = mapped_column(Integer, nullable=False)
+    upload_id: Mapped[Optional[int]] = mapped_column(
+        Integer,
+        ForeignKey("upload_history.id", ondelete="SET NULL"),
+        nullable=True,
+    )
 
-    # Relationship to Project
+    # Relationships
     project = relationship("Project", back_populates="items")
+    upload: Mapped[Optional[UploadHistory]] = relationship(
+        "UploadHistory", back_populates="items"
+    )
 
     def __repr__(self):
         return (

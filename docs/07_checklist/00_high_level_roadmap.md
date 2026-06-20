@@ -58,8 +58,9 @@ A work item is complete (`[x]`) only when:
 ### Schema and Migrations
 
 - [x] Core entities migrated: `users`, `projects`, `items`, `audit_logs`
-- [!] Model files exist for `upload_history`, `data_quality_issues`, `archived_projects`, `archived_items`, `system_settings` but have no migrations and contain bugs (wrong `__tablename__` values, broken FK references) — blocked until Phase 2 ingestion/archive features are designed
-- [x] Four ordered migrations: initial schema → quantity column → audit logs → check constraints
+- [x] `upload_history` and `data_quality_issues` models fixed (Mapped[T], corrected FK refs) and migrated — migration 68ed7ede6930
+- [!] `archived_projects`, `archived_items`, `system_settings` model bugs remain — deferred to Phase 2
+- [x] Five ordered migrations: initial schema → quantity column → audit logs → check constraints → ingest models + upload lineage
 - [x] `alembic upgrade head` runs in CI as a smoke test
 - [x] Fresh database reproducible from migrations with no manual steps
 - [x] Downgrade functions present in all migrations (drop column / drop table / drop constraint)
@@ -85,18 +86,18 @@ A work item is complete (`[x]`) only when:
 
 ### Ingestion Pipeline (CSV / Excel / PDF)
 
-*Dependencies installed (pandas, pdfplumber, pdfminer-six). Supporting models (`UploadHistory`, `DataQualityIssue`) in place. Endpoints and service not yet implemented.*
+*CSV and Excel supported. PDF deferred. Models fixed, migrated, and fully tested.*
 
-- [ ] File upload endpoint: `POST /api/v1/ingest/upload`
-- [ ] Canonical import schema defined (required/optional columns, expected headers)
-- [ ] File-level validation: type, size, required header presence
-- [ ] Row-level validation: numeric fields, unit values, date ranges
-- [ ] Unit and text field normalization before persistence
-- [ ] Structured ingest report per run: inserted · skipped · failed · warnings
-- [ ] PDF table extraction via pdfplumber with fallback for non-tabular layouts
-- [ ] Idempotency: re-ingesting equivalent rows does not create duplicates
-- [ ] Ingestion lineage stored: `UploadHistory` linked to inserted records with actor and timestamp
-- [ ] Ingestion service implemented at `src/cost_query_pro/services/ingestion.py`
+- [x] File upload endpoint: `POST /api/v1/ingest/upload`
+- [x] Canonical import schema defined (required columns: `project_number`, `item_description`, `unit`, `unit_price`, `quantity`)
+- [x] File-level validation: type check (csv/xlsx), required header presence → `INGEST_MISSING_COLUMNS`
+- [x] Row-level validation: numeric fields, non-negative values; per-row error isolation
+- [x] Column header normalization: case-insensitive match (strip + lowercase)
+- [x] Structured ingest report per run: inserted · skipped · failed + per-row issue list
+- [>] PDF table extraction via pdfplumber — deferred to Phase 2
+- [x] Idempotency: composite key `(project_number, item_description, unit)` — duplicates skipped
+- [x] Ingestion lineage stored: `UploadHistory` linked to inserted records with actor and timestamp; `items.upload_id` FK
+- [x] Ingestion service implemented at `src/cost_query_pro/services/ingestion.py`
 
 **Phase 1 exit criteria:**
 
@@ -192,7 +193,8 @@ Example interaction:
 - [ ] `users.email` column added; unique constraint migrated
 - [ ] `roles`, `permissions`, `role_permissions` tables migrated (see Authentication Enhancements above)
 - [ ] FK naming convention applied consistently across all tables; referential actions (`RESTRICT`/`CASCADE`/`SET NULL`) documented per table
-- [ ] Fix model bugs and write migrations for `upload_history`, `data_quality_issues`, `system_settings` (correct FK references, verify column types)
+- [x] Fix model bugs and write migrations for `upload_history`, `data_quality_issues` (done in Phase 1)
+- [ ] Fix model bugs and write migrations for `system_settings` (correct FK references, verify column types)
 - [ ] Fix model bugs and write migrations for `archived_projects`, `archived_items` (correct `__tablename__` values, verify relationships)
 - [ ] Updated ERD published after all Phase 2 schema changes land
 

@@ -18,6 +18,7 @@ db_url = os.getenv("DATABASE_URL")
 BASE_DIR = Path(__file__).resolve().parents[1]
 sys.path.append(str(BASE_DIR / "src"))
 
+import cost_query_pro.models  # noqa: F401 — registers all models with Base.metadata
 from cost_query_pro.config.settings import settings
 
 # --- import app modules ---

@@ -12,7 +12,7 @@ from sqlalchemy import text
 from sqlalchemy.orm import Session
 
 # Import routers
-from cost_query_pro.api import admin, admin_users, auth, items, projects, purge
+from cost_query_pro.api import admin, admin_users, auth, ingest, items, projects, purge
 from cost_query_pro.config.settings import settings
 from cost_query_pro.core.errors import AppError
 from cost_query_pro.db.session import get_db
@@ -95,6 +95,7 @@ app.include_router(auth.router, prefix="/api/v1", tags=["auth"])
 app.include_router(admin.router, prefix="/api/v1", tags=["admin"])
 app.include_router(projects.router, prefix="/api/v1", tags=["projects"])
 app.include_router(items.router, prefix="/api/v1", tags=["items"])
+app.include_router(ingest.router, prefix="/api/v1/ingest", tags=["ingest"])
 app.include_router(purge.router)
 app.include_router(admin_users.router)
 app.include_router(web_router)
