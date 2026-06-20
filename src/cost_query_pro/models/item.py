@@ -6,8 +6,8 @@ Item Model
 Stores item details for projects.
 """
 
-from sqlalchemy import CheckConstraint, Column, Float, ForeignKey, Integer, String
-from sqlalchemy.orm import relationship
+from sqlalchemy import CheckConstraint, Float, ForeignKey, Integer, String
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from cost_query_pro.db import Base
 
@@ -19,14 +19,14 @@ class Item(Base):
         CheckConstraint("quantity >= 0", name="ck_items_quantity_non_negative"),
     )
 
-    id = Column(Integer, primary_key=True, index=True)
-    project_id = Column(
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, index=True)
+    project_id: Mapped[int] = mapped_column(
         Integer, ForeignKey("projects.id", ondelete="CASCADE"), nullable=False
     )
-    item_description = Column(String, nullable=False, index=True)
-    unit = Column(String, nullable=False)
-    unit_price = Column(Float, nullable=False)
-    quantity = Column(Integer, nullable=False)
+    item_description: Mapped[str] = mapped_column(String, nullable=False, index=True)
+    unit: Mapped[str] = mapped_column(String, nullable=False)
+    unit_price: Mapped[float] = mapped_column(Float, nullable=False)
+    quantity: Mapped[int] = mapped_column(Integer, nullable=False)
 
     # Relationship to Project
     project = relationship("Project", back_populates="items")

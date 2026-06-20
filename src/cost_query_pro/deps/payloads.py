@@ -20,6 +20,6 @@ async def parse_user_create(request: Request) -> UserCreate:
                 k: (v if not isinstance(v, list) else v[0])
                 for k, v in form.multi_items()
             }
-        return UserCreate(**data)
+        return UserCreate.model_validate(data)
     except Exception:
         raise HTTPException(status_code=400, detail="Invalid register payload")

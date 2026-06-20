@@ -189,6 +189,6 @@ def get_price_range(
     max_price_item = query.order_by(Item.unit_price.desc()).first()
 
     return PriceRangeOut(
-        min_price=min_price_item.unit_price if min_price_item else None,
-        max_price=max_price_item.unit_price if max_price_item else None,
+        min_price=Decimal(str(min_price_item.unit_price)) if min_price_item else None,
+        max_price=Decimal(str(max_price_item.unit_price)) if max_price_item else None,
     )

@@ -73,7 +73,7 @@ def get_current_user(
         payload = jwt.decode(
             token, settings.secret_key, algorithms=[settings.algorithm]
         )
-        username: str = payload.get("sub")
+        username: str | None = payload.get("sub")
         if username is None:
             raise AppError(
                 "INVALID_CREDENTIALS", "Could not validate credentials.", 401
