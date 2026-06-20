@@ -70,11 +70,11 @@ def test_admin_can_purge(client):
     """Admin user can purge data."""
     client.post(
         "/api/v1/auth/register",
-        json={"username": "admin", "password": "secret", "is_admin": True},
+        json={"username": "admin", "password": "secretpass", "is_admin": True},
     )
     login_resp = client.post(
         "/api/v1/auth/login",
-        data={"username": "admin", "password": "secret"},
+        data={"username": "admin", "password": "secretpass"},
     )
     assert login_resp.status_code == 200, login_resp.text
     token = login_resp.json()["access_token"]
@@ -90,11 +90,11 @@ def test_non_admin_cannot_purge(client):
     """Regular user cannot purge data (403)."""
     client.post(
         "/api/v1/auth/register",
-        json={"username": "user", "password": "secret", "is_admin": False},
+        json={"username": "user", "password": "secretpass", "is_admin": False},
     )
     login_resp = client.post(
         "/api/v1/auth/login",
-        data={"username": "user", "password": "secret"},
+        data={"username": "user", "password": "secretpass"},
     )
     assert login_resp.status_code == 200, login_resp.text
     token = login_resp.json()["access_token"]
@@ -111,7 +111,7 @@ def test_non_admin_cannot_purge(client):
 
 def test_register_duplicate_username_rejected(client):
     """Registering the same username twice returns 400."""
-    payload = {"username": "dupuser", "password": "pass", "is_admin": False}
+    payload = {"username": "dupuser", "password": "passw0rd!", "is_admin": False}
     client.post("/api/v1/auth/register", json=payload)
     resp = client.post("/api/v1/auth/register", json=payload)
     assert resp.status_code == 400, resp.text
@@ -121,11 +121,11 @@ def test_me_returns_current_user(client):
     """GET /auth/me returns the authenticated user's own profile."""
     client.post(
         "/api/v1/auth/register",
-        json={"username": "meuser", "password": "mepass", "is_admin": False},
+        json={"username": "meuser", "password": "mepassword", "is_admin": False},
     )
     login_resp = client.post(
         "/api/v1/auth/login",
-        data={"username": "meuser", "password": "mepass"},
+        data={"username": "meuser", "password": "mepassword"},
     )
     token = login_resp.json()["access_token"]
 
@@ -140,3 +140,13 @@ def test_me_requires_auth(client):
     """GET /auth/me without a token returns 401."""
     resp = client.get("/api/v1/auth/me")
     assert resp.status_code == 401, resp.text
+
+
+def test_register_short_password_rejected(client):
+    """Passwords shorter than the minimum length are rejected with 422."""
+    resp = client.post(
+        "/api/v1/auth/register",
+        json={"username": "shortpwuser", "password": "abc", "is_admin": False},
+    )
+    assert resp.status_code == 422, resp.text
+    assert "characters" in resp.json()["detail"].lower()

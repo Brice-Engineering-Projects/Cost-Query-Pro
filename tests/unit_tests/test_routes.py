@@ -97,8 +97,8 @@ def test_items_search_with_data(client, db_session, create_user, login_user):
 
 def test_admin_purge(client, create_user, login_user):
     """Admin-only route works for admins."""
-    create_user("admin", "secret", is_admin=True)
-    headers = login_user("admin", "secret")
+    create_user("admin", "secretpass", is_admin=True)
+    headers = login_user("admin", "secretpass")
 
     response = client.delete(
         "/api/v1/admin/purge",
@@ -111,8 +111,8 @@ def test_admin_purge(client, create_user, login_user):
 
 def test_non_admin_forbidden(client, create_user, login_user):
     """Non-admins are forbidden."""
-    create_user("user", "secret", is_admin=False)
-    headers = login_user("user", "secret")
+    create_user("user", "secretpass", is_admin=False)
+    headers = login_user("user", "secretpass")
 
     response = client.delete(
         "/api/v1/admin/purge",

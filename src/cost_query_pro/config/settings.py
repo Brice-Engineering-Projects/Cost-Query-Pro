@@ -104,6 +104,7 @@ class Settings(BaseSettings):
     access_token_expire_minutes: int = Field(60, env="ACCESS_TOKEN_EXPIRE_MINUTES")
     algorithm: str = Field("HS256", env="ALGORITHM")
     allow_admin_signup: bool = Field(default=False, alias="ALLOW_ADMIN_SIGNUP")
+    password_min_length: int = Field(8, env="PASSWORD_MIN_LENGTH")
 
     model_config = ConfigDict(
         env_file=".env",

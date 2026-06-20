@@ -44,7 +44,7 @@ def test_admin_can_delete_user(client, admin_headers):
     # Register a user to be deleted
     client.post(
         "/api/v1/auth/register",
-        json={"username": "todelete", "password": "pass", "is_admin": False},
+        json={"username": "todelete", "password": "passw0rd!", "is_admin": False},
     )
 
     users = client.get("/api/v1/admin/users/", headers=admin_headers).json()
@@ -95,7 +95,7 @@ def test_admin_can_promote_user(client, admin_headers):
     """Admin promotes a regular user; response shows is_admin=True."""
     client.post(
         "/api/v1/auth/register",
-        json={"username": "topromote", "password": "pass", "is_admin": False},
+        json={"username": "topromote", "password": "passw0rd!", "is_admin": False},
     )
 
     users = client.get("/api/v1/admin/users/", headers=admin_headers).json()

@@ -91,9 +91,14 @@ async def register(
         # If it's a form submission, the Form(...) defaults above already populated
         pass
 
-    # Basic validation (mirrors your previous implicit Form(...) required fields)
+    # Basic validation
     if not username or not password:
         raise HTTPException(status_code=400, detail="Invalid register payload")
+    if len(password) < settings.password_min_length:
+        raise HTTPException(
+            status_code=422,
+            detail=f"Password must be at least {settings.password_min_length} characters.",
+        )
 
     # Uniqueness check
     existing = db.query(DBUser).filter(DBUser.username == username).first()

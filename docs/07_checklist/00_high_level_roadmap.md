@@ -8,7 +8,20 @@ Cost Query Pro centralizes historical bid tabulation data (CSV, Excel, PDF) from
 
 ## Global Standards
 
-A work item is complete only when:
+### Checklist Legend
+
+| Symbol | Meaning |
+|--------|---------|
+| `[x]` | **Done** — implemented, tested, and documented |
+| `[ ]` | **Pending** — not yet started |
+| `[~]` | **In progress** — actively being worked |
+| `[>]` | **Deferred** — intentionally postponed to a later phase |
+| `[!]` | **Blocked** — cannot proceed; dependency or decision required |
+| `[-]` | **Dropped** — removed from scope; not planned |
+
+### Completion Criteria
+
+A work item is complete (`[x]`) only when:
 
 - [ ] Code implemented and peer reviewed
 - [ ] Unit and/or integration tests added or updated
@@ -30,17 +43,17 @@ A work item is complete only when:
 
 ### Authentication
 
-- [x] Password hashing with bcrypt via Passlib
+- [x] Password hashing with bcrypt (direct — passlib removed)
 - [x] JWT access tokens (HS256, configurable expiration)
 - [x] `get_current_user` and `get_current_admin` shared dependencies
 - [x] Login (form + JSON), register, and `/me` endpoints
 - [x] Admin-only routes blocked for non-admin users
-- [ ] Password policy documented and enforced (min length, complexity)
-- [ ] Refresh token flow (currently no refresh endpoint)
-- [ ] Login throttling / lockout after repeated failures
-- [ ] `role_permissions` bridge table for true RBAC (currently a binary `is_admin` flag)
-- [ ] Seed baseline roles and permissions; verify admin/user permission matrix
-- [ ] Auth test coverage: success · failure · expired token · invalid role · locked account
+- [x] Password minimum length enforced at registration (configurable via `PASSWORD_MIN_LENGTH`, default 8)
+- [x] Auth test coverage: register · login (form + JSON) · wrong password · duplicate username · /me · expired token · invalid signature · missing claim · revoked user · admin/non-admin enforcement · short password rejected
+- [>] Refresh token flow — deferred to Phase 3
+- [>] Login throttling / lockout after repeated failures — deferred to Phase 3
+- [>] `role_permissions` bridge table for true RBAC — deferred to Phase 2 (binary `is_admin` covers Phase 1)
+- [>] Seed baseline roles and permissions — deferred to Phase 2
 
 ### Schema and Migrations
 
@@ -152,6 +165,13 @@ Example interaction:
 - [ ] Integration test: end-to-end natural language query → tool calls → cited records (OpenAI fallback)
 - [ ] Agent prompt, tool schema, provider config, and response format documented in `docs/`
 
+### Authentication Enhancements
+
+- [ ] `roles` and `permissions` tables migrated; `role_permissions` bridge table added (carried from Phase 1)
+- [ ] Seed baseline roles (`admin`, `user`) and permission matrix defined and applied
+- [ ] All `is_admin` boolean checks replaced with role-based permission lookup
+- [ ] Role assignment and revocation endpoints implemented and admin-authorized
+
 ### Admin Operations and Data Governance
 
 - [x] Data purge by year cutoff with cascade (admin authorized)
@@ -211,10 +231,11 @@ Example interaction:
 - [x] Dependency vulnerability scanning (pip-audit in CI)
 - [x] Static security analysis (bandit in CI)
 - [ ] TLS enforced on all external-facing traffic
+- [ ] Login throttling and lockout after repeated failures (carried from Phase 1)
 - [ ] API rate limiting on auth and agent endpoints
 - [ ] Input sanitization hardened at parser and API boundaries
 - [ ] Secrets moved to managed secret storage (not `.env` in production)
-- [ ] JWT refresh token flow and token revocation implemented
+- [ ] JWT refresh token flow and token revocation implemented (carried from Phase 1)
 - [ ] Least-privilege role/permission review completed and signed off
 
 ### Observability and Reliability
