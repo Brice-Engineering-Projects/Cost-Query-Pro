@@ -107,3 +107,36 @@ def test_non_admin_cannot_purge(client):
         "Forbidden",
         "Admin privileges required",
     }
+
+
+def test_register_duplicate_username_rejected(client):
+    """Registering the same username twice returns 400."""
+    payload = {"username": "dupuser", "password": "pass", "is_admin": False}
+    client.post("/api/v1/auth/register", json=payload)
+    resp = client.post("/api/v1/auth/register", json=payload)
+    assert resp.status_code == 400, resp.text
+
+
+def test_me_returns_current_user(client):
+    """GET /auth/me returns the authenticated user's own profile."""
+    client.post(
+        "/api/v1/auth/register",
+        json={"username": "meuser", "password": "mepass", "is_admin": False},
+    )
+    login_resp = client.post(
+        "/api/v1/auth/login",
+        data={"username": "meuser", "password": "mepass"},
+    )
+    token = login_resp.json()["access_token"]
+
+    resp = client.get("/api/v1/auth/me", headers={"Authorization": f"Bearer {token}"})
+    assert resp.status_code == 200, resp.text
+    data = resp.json()
+    assert data["username"] == "meuser"
+    assert data["is_admin"] is False
+
+
+def test_me_requires_auth(client):
+    """GET /auth/me without a token returns 401."""
+    resp = client.get("/api/v1/auth/me")
+    assert resp.status_code == 401, resp.text

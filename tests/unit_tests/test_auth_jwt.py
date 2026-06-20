@@ -2,15 +2,19 @@
 
 from datetime import datetime, timedelta, timezone
 
+import bcrypt as _bcrypt_lib
 import jwt
 import pytest
 from jwt import ExpiredSignatureError, InvalidTokenError
-from passlib.context import CryptContext
 
 from src.cost_query_pro.config.settings import settings
 from src.cost_query_pro.models import User
 
-pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+
+def _hash_pw(password: str) -> str:
+    return _bcrypt_lib.hashpw(password.encode("utf-8"), _bcrypt_lib.gensalt()).decode(
+        "utf-8"
+    )
 
 
 # ---------------------------------------------------------------------
@@ -21,7 +25,7 @@ def create_test_user(db_session):
     """Creates a test user in the test database before the JWT test runs."""
     username = "test_user"
     password = "secure_password"
-    hashed_pw = pwd_context.hash(password)
+    hashed_pw = _hash_pw(password)
 
     user = db_session.query(User).filter(User.username == username).first()
     if not user:
@@ -116,9 +120,7 @@ def test_revoked_user_rejected(db_session):
     """
     user = db_session.query(User).filter(User.username == "test_user").first()
     if not user:
-        user = User(
-            username="test_user", password_hash=pwd_context.hash("x"), is_admin=False
-        )
+        user = User(username="test_user", password_hash=_hash_pw("x"), is_admin=False)
         db_session.add(user)
         db_session.commit()
         db_session.refresh(user)

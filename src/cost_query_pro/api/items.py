@@ -107,6 +107,7 @@ def create_item(
         item_description=item.item_description,
         unit=item.unit,
         unit_price=item.unit_price,
+        quantity=item.quantity,
     )
     db.add(db_item)
     db.commit()

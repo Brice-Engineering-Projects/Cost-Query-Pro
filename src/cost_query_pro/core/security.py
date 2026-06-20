@@ -3,11 +3,11 @@
 from datetime import UTC, datetime, timedelta
 from typing import Optional
 
+import bcrypt as _bcrypt
 import jwt
 from fastapi import Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer
 from jwt import InvalidTokenError
-from passlib.context import CryptContext
 from sqlalchemy.orm.session import Session
 
 from cost_query_pro.config.settings import settings
@@ -20,8 +20,6 @@ from cost_query_pro.models.user import User as DBUser
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/api/v1/auth/login")
 
-pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
-
 
 # ------------------------------------------------------------
 # Password helpers
@@ -30,12 +28,14 @@ pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 def verify_password(plain_password: str, hashed_password: str) -> bool:
     """Verify a plain-text password against a hashed password."""
-    return pwd_context.verify(plain_password, hashed_password)
+    return _bcrypt.checkpw(
+        plain_password.encode("utf-8"), hashed_password.encode("utf-8")
+    )
 
 
 def get_password_hash(password: str) -> str:
     """Hash a plain-text password for secure storage."""
-    return pwd_context.hash(password)
+    return _bcrypt.hashpw(password.encode("utf-8"), _bcrypt.gensalt()).decode("utf-8")
 
 
 # ------------------------------------------------------------

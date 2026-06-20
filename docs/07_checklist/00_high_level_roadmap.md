@@ -2,7 +2,7 @@
 
 Cost Query Pro centralizes historical bid tabulation data (CSV, Excel, PDF) from infrastructure projects and makes it queryable through a structured API and a natural language AI agent. Engineers and estimators ask plain-English cost questions and get answers backed by cited project records.
 
-**Stack:** FastAPI · PostgreSQL · SQLAlchemy · Alembic · Claude API (AI agent)
+**Stack:** FastAPI · PostgreSQL · SQLAlchemy · Alembic · Claude API (AI agent, primary) · OpenAI API (AI agent, fallback)
 
 ---
 
@@ -102,18 +102,55 @@ Example interaction:
 
 ### AI Agent Search
 
-- [ ] Agent architecture defined: Claude API tool-use model calling internal search endpoints
-- [ ] Tool definitions implemented: keyword search · filter-based search · price stats · project lookup
-- [ ] Domain context system prompt: infrastructure vocabulary, pipe types, installation methods, size conventions
-- [ ] `POST /api/v1/agent/query` endpoint accepting natural language input
+**Provider strategy:** Claude (Anthropic) is the primary LLM. OpenAI is the backup provider. A provider abstraction layer allows transparent failover without changing the agent's tool definitions or response format.
+
+#### Provider and Infrastructure
+
+- [ ] LLM provider abstraction layer implemented (`src/cost_query_pro/services/llm_provider.py`)
+  - [ ] Claude (claude-sonnet-4-6 or latest) as primary provider via `anthropic` SDK
+  - [ ] OpenAI (gpt-4o or latest) as backup provider via `openai` SDK
+  - [ ] Configurable provider selection via `settings.LLM_PROVIDER` (default: `claude`)
+  - [ ] Automatic fallback to OpenAI when Claude returns a non-retryable error
+  - [ ] Fallback events logged with provider, error type, and request ID
+- [ ] API keys for both providers stored in environment/secrets; missing key raises a clear startup warning, not a runtime crash
+- [ ] Provider selection and fallback behavior documented in `docs/`
+
+#### Agent Architecture and Tools
+
+- [ ] Agent architecture defined: tool-use model calling internal search endpoints
+- [ ] Tool definitions implemented and versioned:
+  - [ ] `keyword_search` — search items by description keyword with optional filters
+  - [ ] `filter_search` — search by state, year range, unit type, and price range
+  - [ ] `price_stats` — retrieve min/max/average price for a given item description
+  - [ ] `project_lookup` — retrieve project metadata by name, number, or state
+- [ ] Tool schemas validated against the `anthropic` and `openai` function-calling specifications
+- [ ] Domain context system prompt covers: infrastructure vocabulary, pipe types, installation methods, size conventions (diameter ranges for "large", "small", etc.), unit abbreviations
+- [ ] Prompt version tracked and stored alongside model version in config or DB
+
+#### Endpoint and Response Contract
+
+- [ ] `POST /api/v1/agent/query` endpoint implemented
+  - Request: `{ "query": "<natural language question>" }`
+  - Response: `{ "answer": "...", "citations": [...], "provider": "claude|openai", "model": "..." }`
 - [ ] Citation format enforced: every answer includes project name, number, source file, year, and unit cost
-- [ ] Streaming response support for the agent endpoint
+- [ ] Agent gracefully handles queries with no matching data (returns "no records found" message, not an error)
+- [ ] Agent gracefully handles ambiguous queries by asking a clarifying question rather than guessing
+- [ ] Streaming response support for the agent endpoint (Server-Sent Events or chunked transfer)
 - [ ] Agent endpoint requires JWT authentication
-- [ ] Rate limiting on agent endpoint to control LLM API costs
-- [ ] Agent gracefully handles queries with no matching data
-- [ ] Unit tests: agent tool dispatch, citation format
-- [ ] Integration test: end-to-end natural language query → cited records
-- [ ] Agent prompt, tool schema, and response format documented in `docs/`
+
+#### Cost Control and Rate Limiting
+
+- [ ] Rate limiting on agent endpoint to control LLM API costs (per-user and global limits)
+- [ ] Token usage logged per request: provider, model, input tokens, output tokens, cost estimate
+- [ ] Monthly LLM spend cap configurable via `settings.LLM_MONTHLY_BUDGET_USD`; requests rejected gracefully when cap is reached
+- [ ] Query result caching for identical or near-identical questions (configurable TTL)
+
+#### Testing and Documentation
+
+- [ ] Unit tests: provider abstraction (mock Claude, mock OpenAI), tool dispatch, citation format, fallback logic
+- [ ] Integration test: end-to-end natural language query → tool calls → cited records (Claude)
+- [ ] Integration test: end-to-end natural language query → tool calls → cited records (OpenAI fallback)
+- [ ] Agent prompt, tool schema, provider config, and response format documented in `docs/`
 
 ### Admin Operations and Data Governance
 
@@ -148,7 +185,7 @@ Example interaction:
 
 **Phase 2 exit criteria:**
 
-- [ ] AI agent answers natural language cost questions with cited source records
+- [ ] AI agent answers natural language cost questions with cited source records using Claude; OpenAI fallback verified
 - [ ] Admin workflows complete: user lifecycle · purge · audit log retrieval
 - [ ] Ingestion failures are diagnosable by operators without reading server internals
 - [ ] P95 search latency target met
@@ -183,7 +220,7 @@ Example interaction:
 ### Observability and Reliability
 
 - [ ] Structured logging standardized across all modules
-- [ ] Metrics captured: auth events · ingestion runs · query latency · agent calls · error rates
+- [ ] Metrics captured: auth events · ingestion runs · query latency · agent calls · LLM token usage · error rates
 - [ ] Error tracking and alert routing configured
 - [ ] SLOs and SLIs defined for availability and performance
 - [ ] Backup policy implemented and restoration drill completed
@@ -259,7 +296,8 @@ Example interaction:
 |------|-----------|
 | Heterogeneous source formats break ingestion | Strict templates + per-row error isolation + parser fallbacks |
 | AI agent returns uncited or hallucinated cost figures | Agent always queries live DB; every answer cites specific record IDs and source files |
-| LLM API costs exceed budget at scale | Rate limiting on agent endpoint + query caching + usage monitoring |
+| Claude API unavailable or degraded | Automatic fallback to OpenAI; fallback events logged and alerted |
+| LLM API costs exceed budget at scale | Rate limiting on agent endpoint + query caching + token usage monitoring + monthly spend cap |
 | Query latency grows with data volume | Index strategy + query profiling + hot-path caching |
 | Auth/role regression exposes sensitive data | Authorization test matrix + periodic permission audits |
 | Migration drift across environments | CI migration checks + environment parity + rollback drills |
@@ -271,7 +309,8 @@ Example interaction:
 |--------|--------|
 | Ingestion success rate (file-level) | >= 95% after template compliance |
 | P95 structured search latency | < 700 ms |
-| AI agent response time | < 5 s for typical cost queries |
+| AI agent response time | < 5 s for typical cost queries (Claude primary) |
+| AI agent fallback activation rate | < 5% of requests trigger OpenAI fallback |
 | AI agent citation accuracy | 100% of answers include traceable project record references |
 | Time-to-answer for common estimation questions | 50% reduction vs manual lookup |
 | Sensitive action audit coverage | 100% logged with actor + timestamp |

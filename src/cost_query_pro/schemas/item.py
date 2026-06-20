@@ -18,6 +18,7 @@ class ItemBase(BaseModel):
     )
     unit: str = Field(..., min_length=1, max_length=50, example="LF")
     unit_price: Decimal = Field(..., example=45.32)
+    quantity: int = Field(..., ge=0, example=100)
 
     model_config = ConfigDict(from_attributes=True)
 
@@ -46,6 +47,7 @@ class ItemUpdate(BaseModel):
     )
     unit: Optional[str] = Field(None, min_length=1, max_length=50, example="LF")
     unit_price: float = Field(None, example=45.32)
+    quantity: Optional[int] = Field(None, ge=0, example=100)
     project_id: Optional[int] = Field(None, example=1)
 
     model_config = ConfigDict(from_attributes=True)
