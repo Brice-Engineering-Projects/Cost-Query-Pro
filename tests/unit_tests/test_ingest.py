@@ -38,6 +38,7 @@ def _xlsx_bytes(rows: list[dict]) -> bytes:
     """Build minimal XLSX bytes from a list of row dicts."""
     wb = openpyxl.Workbook()
     ws = wb.active
+    assert ws is not None
     if not rows:
         wb_bytes = io.BytesIO()
         wb.save(wb_bytes)
