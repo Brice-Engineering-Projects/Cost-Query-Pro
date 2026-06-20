@@ -57,16 +57,18 @@ A work item is complete (`[x]`) only when:
 
 ### Schema and Migrations
 
-- [x] Core entities in place: `users`, `projects`, `items`, `audit_logs`, `upload_history`, `data_quality_issues`, `archived_projects`, `archived_items`, `system_settings`
-- [x] Three ordered migrations: initial schema → quantity column → audit logs
+- [x] Core entities migrated: `users`, `projects`, `items`, `audit_logs`
+- [!] Model files exist for `upload_history`, `data_quality_issues`, `archived_projects`, `archived_items`, `system_settings` but have no migrations and contain bugs (wrong `__tablename__` values, broken FK references) — blocked until Phase 2 ingestion/archive features are designed
+- [x] Four ordered migrations: initial schema → quantity column → audit logs → check constraints
 - [x] `alembic upgrade head` runs in CI as a smoke test
 - [x] Fresh database reproducible from migrations with no manual steps
-- [ ] `users.email` column and unique constraint (username unique exists; email not yet added)
-- [ ] `roles` and `permissions` tables with unique name constraints
-- [ ] Check constraints for non-negative numeric fields (`unit_price`, `quantity`)
-- [ ] FK naming consistent across all tables; referential actions (`RESTRICT`/`CASCADE`/`SET NULL`) documented
-- [ ] Downgrade path validated for all migrations
-- [ ] Canonical ERD published in `docs/` (tables, PK/FK, cardinality, delete behavior)
+- [x] Downgrade functions present in all migrations (drop column / drop table / drop constraint)
+- [x] Check constraints enforced in DB and model: `unit_price >= 0`, `quantity >= 0` on `items`
+- [x] Canonical ERD and schema documentation in `docs/05_db_and_migrations/00_schema/` (PDF + markdown)
+- [>] `users.email` column and unique constraint — deferred to Phase 2
+- [>] `roles` and `permissions` tables — deferred to Phase 2 (part of RBAC)
+- [>] FK naming consistency review and referential action documentation — deferred to Phase 2
+- [>] Fix model bugs in `UploadHistory`, `DataQualityIssue`, `ArchivedProject`, `ArchivedItem` and write their migrations — deferred to Phase 2
 
 ### Core API
 
@@ -184,6 +186,15 @@ Example interaction:
 - [ ] Admin how-to guide for user and data lifecycle tasks
 - [ ] All destructive actions require explicit authorization and are fully auditable
 - [ ] Admin operations have endpoint-level integration tests
+
+### Schema Continuations (carried from Phase 1)
+
+- [ ] `users.email` column added; unique constraint migrated
+- [ ] `roles`, `permissions`, `role_permissions` tables migrated (see Authentication Enhancements above)
+- [ ] FK naming convention applied consistently across all tables; referential actions (`RESTRICT`/`CASCADE`/`SET NULL`) documented per table
+- [ ] Fix model bugs and write migrations for `upload_history`, `data_quality_issues`, `system_settings` (correct FK references, verify column types)
+- [ ] Fix model bugs and write migrations for `archived_projects`, `archived_items` (correct `__tablename__` values, verify relationships)
+- [ ] Updated ERD published after all Phase 2 schema changes land
 
 ### Ingestion Reliability
 

@@ -6,7 +6,7 @@ Item Model
 Stores item details for projects.
 """
 
-from sqlalchemy import Column, Float, ForeignKey, Integer, String
+from sqlalchemy import CheckConstraint, Column, Float, ForeignKey, Integer, String
 from sqlalchemy.orm import relationship
 
 from cost_query_pro.db import Base
@@ -14,6 +14,10 @@ from cost_query_pro.db import Base
 
 class Item(Base):
     __tablename__ = "items"
+    __table_args__ = (
+        CheckConstraint("unit_price >= 0", name="ck_items_unit_price_non_negative"),
+        CheckConstraint("quantity >= 0", name="ck_items_quantity_non_negative"),
+    )
 
     id = Column(Integer, primary_key=True, index=True)
     project_id = Column(
