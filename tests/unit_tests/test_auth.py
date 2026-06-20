@@ -62,8 +62,7 @@ def test_login_fails_with_wrong_password(client):
     )
     assert response.status_code == 401, response.text
     body = response.json()
-    # If your API returns a different message, adjust this string:
-    assert body.get("detail") in {"Invalid username or password", "Invalid credentials"}
+    assert body.get("code") == "INVALID_CREDENTIALS"
 
 
 def test_admin_can_purge(client):
@@ -102,11 +101,7 @@ def test_non_admin_cannot_purge(client):
 
     response = client.delete("/api/v1/admin/purge?year_cutoff=2020", headers=headers)
     assert response.status_code == 403, response.text
-    assert response.json().get("detail") in {
-        "Not enough permissions",
-        "Forbidden",
-        "Admin privileges required",
-    }
+    assert response.json().get("code") == "ADMIN_REQUIRED"
 
 
 def test_register_duplicate_username_rejected(client):
@@ -149,4 +144,4 @@ def test_register_short_password_rejected(client):
         json={"username": "shortpwuser", "password": "abc", "is_admin": False},
     )
     assert resp.status_code == 422, resp.text
-    assert "characters" in resp.json()["detail"].lower()
+    assert "characters" in resp.json()["message"].lower()

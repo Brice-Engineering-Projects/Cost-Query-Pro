@@ -4,8 +4,9 @@ import logging
 from contextlib import asynccontextmanager
 from decimal import Decimal
 
-from fastapi import Depends, FastAPI
+from fastapi import Depends, FastAPI, HTTPException, Request
 from fastapi.encoders import jsonable_encoder
+from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse
 from sqlalchemy import text
 from sqlalchemy.orm import Session
@@ -13,6 +14,7 @@ from sqlalchemy.orm import Session
 # Import routers
 from cost_query_pro.api import admin, admin_users, auth, items, projects, purge
 from cost_query_pro.config.settings import settings
+from cost_query_pro.core.errors import AppError
 from cost_query_pro.db.session import get_db
 from cost_query_pro.web.views.routes import router as web_router
 
@@ -54,6 +56,39 @@ app = FastAPI(
     lifespan=lifespan,
     default_response_class=CustomJSONResponse,
 )
+
+
+@app.exception_handler(AppError)
+async def app_error_handler(request: Request, exc: AppError) -> JSONResponse:
+    return JSONResponse(
+        status_code=exc.status_code,
+        content={"code": exc.code, "message": exc.message},
+    )
+
+
+@app.exception_handler(HTTPException)
+async def http_exception_handler(request: Request, exc: HTTPException) -> JSONResponse:
+    headers = getattr(exc, "headers", None) or {}
+    return JSONResponse(
+        status_code=exc.status_code,
+        content={"code": "HTTP_ERROR", "message": str(exc.detail)},
+        headers=headers,
+    )
+
+
+@app.exception_handler(RequestValidationError)
+async def validation_error_handler(
+    request: Request, exc: RequestValidationError
+) -> JSONResponse:
+    return JSONResponse(
+        status_code=422,
+        content={
+            "code": "VALIDATION_ERROR",
+            "message": "Request validation failed.",
+            "errors": exc.errors(),
+        },
+    )
+
 
 # Include routers (no duplicate prefixes)
 app.include_router(auth.router, prefix="/api/v1", tags=["auth"])

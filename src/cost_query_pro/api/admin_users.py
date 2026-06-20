@@ -2,9 +2,10 @@
 
 import logging
 
-from fastapi import APIRouter, Depends, HTTPException, Path, status
+from fastapi import APIRouter, Depends, Path, status
 from sqlalchemy.orm import Session
 
+from cost_query_pro.core.errors import AppError
 from cost_query_pro.core.security import get_current_admin
 from cost_query_pro.db.session import get_db
 from cost_query_pro.models.user import User as DBUser
@@ -43,16 +44,10 @@ def delete_user(
     user = db.query(DBUser).filter(DBUser.id == user_id).first()
 
     if not user:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail=f"User with id {user_id} not found.",
-        )
+        raise AppError("USER_NOT_FOUND", f"User with id {user_id} not found.", 404)
 
     if user.id == current_admin.id:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Admins cannot delete themselves.",
-        )
+        raise AppError("SELF_DELETE_FORBIDDEN", "Admins cannot delete themselves.", 400)
 
     db.delete(user)
     db.commit()
@@ -82,15 +77,13 @@ def promote_user(
     user = db.query(DBUser).filter(DBUser.id == user_id).first()
 
     if not user:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail=f"User with id {user_id} not found.",
-        )
+        raise AppError("USER_NOT_FOUND", f"User with id {user_id} not found.", 404)
 
     if user.is_admin:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail=f"User '{user.username}' is already an admin.",
+        raise AppError(
+            "USER_ALREADY_ADMIN",
+            f"User '{user.username}' is already an admin.",
+            400,
         )
 
     user.is_admin = True

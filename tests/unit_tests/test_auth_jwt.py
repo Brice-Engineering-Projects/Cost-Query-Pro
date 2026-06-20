@@ -81,7 +81,7 @@ def test_invalid_login_returns_401(client):
         headers={"Content-Type": "application/x-www-form-urlencoded"},
     )
     assert response.status_code == 401
-    assert "detail" in response.json()
+    assert response.json().get("code") == "INVALID_CREDENTIALS"
 
 
 # ---------------------------------------------------------------------

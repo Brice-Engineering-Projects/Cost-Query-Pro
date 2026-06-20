@@ -78,10 +78,10 @@ A work item is complete (`[x]`) only when:
 - [x] Pydantic request/response validation on all public endpoints
 - [x] Pagination on all list/search routes (skip/limit, max 500)
 - [x] Health check at `/` (returns DB connectivity status)
-- [ ] Deterministic sort order on all paginated responses
-- [ ] Structured API-level error codes for client troubleshooting
-- [ ] Duplicate `/search` route definition in `items.py` removed/consolidated
-- [ ] OpenAPI docs verified accurate for all implemented behavior
+- [x] Deterministic sort order on all paginated responses
+- [x] Structured API-level error codes for client troubleshooting (`AppError` + global handler, Option B)
+- [x] Duplicate `/search` route definition in `items.py` removed/consolidated
+- [>] OpenAPI docs verified accurate for all implemented behavior — deferred; requires live app review
 
 ### Ingestion Pipeline (CSV / Excel / PDF)
 
