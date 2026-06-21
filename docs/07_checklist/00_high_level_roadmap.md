@@ -131,16 +131,40 @@ Example interaction:
 - [ ] API keys for both providers stored in environment/secrets; missing key raises a clear startup warning, not a runtime crash
 - [ ] Provider selection and fallback behavior documented in `docs/`
 
+#### Secure Query Pipeline
+
+*The AI interprets user intent and narrates results. The backend performs all database access, query generation, and analytics. No raw project data is transmitted to external AI providers. See `docs/03_api/01_secure_ai_query_architecture.md` for the full specification.*
+
+- [ ] **Step 1 — Intent parsing call:** user question is sent to the LLM with no database access and no project data exposed
+- [ ] Structured search parameter payload schema defined and validated:
+  - Required fields: `intent`, `item` (description keyword), `state`, `year_start`, `year_end`
+  - Optional fields: `unit`, `price_min`, `price_max`
+  - LLM does NOT generate SQL — it only extracts search criteria from the user's question
+- [ ] **Step 2 — Backend search:** FastAPI validates the structured payload and constructs all queries internally; LLM has no direct database access and never communicates with PostgreSQL
+- [ ] **Step 3 — Analytics layer:** backend computes summary statistics before any data leaves the infrastructure:
+  - Core: `record_count`, `median_price`, `average_price`, `minimum_price`, `maximum_price`
+  - Extended (as needed): percentiles, trend analysis, inflation adjustments, regional comparisons, outlier detection
+- [ ] **Step 4 — Data sanitization:** only aggregated summary statistics are transmitted to the LLM for response generation; the following are never included in LLM payloads:
+  - Project names and project numbers
+  - Contractor names
+  - Bid tabulations
+  - Uploaded source file contents
+  - Internal notes
+  - Raw database records
+- [ ] **Step 5 — Response generation call:** LLM receives only the sanitized aggregate summary and generates a natural-language answer
+- [ ] Security boundary verified by test: confirmed absence of raw project data (names, numbers, contractors) in all outbound LLM payloads
+- [ ] [>] Enterprise mode (template-based response) — eliminates the second LLM call for deployments where no project-derived data may leave the environment — deferred to Phase 3
+
 #### Agent Architecture and Tools
 
-- [ ] Agent architecture defined: tool-use model calling internal search endpoints
-- [ ] Tool definitions implemented and versioned:
-  - [ ] `keyword_search` — search items by description keyword with optional filters
-  - [ ] `filter_search` — search by state, year range, unit type, and price range
-  - [ ] `price_stats` — retrieve min/max/average price for a given item description
-  - [ ] `project_lookup` — retrieve project metadata by name, number, or state
+- [ ] Agent architecture defined: two-call pipeline (intent parsing → response generation) with backend-controlled search and analytics between calls
+- [ ] Tool definitions implemented and versioned (tools return aggregated statistics, not raw project records):
+  - [ ] `keyword_search` — search items by description keyword; returns aggregate price stats and record count
+  - [ ] `filter_search` — filter by state, year range, unit type, and price range; returns aggregate stats
+  - [ ] `price_stats` — retrieve `record_count`, min/median/mean/max price for a given item description
+  - [ ] `project_lookup` — retrieve project-level summary metadata (count, year range, states covered); not individual project records
 - [ ] Tool schemas validated against the `anthropic` and `openai` function-calling specifications
-- [ ] Domain context system prompt covers: infrastructure vocabulary, pipe types, installation methods, size conventions (diameter ranges for "large", "small", etc.), unit abbreviations
+- [ ] Domain context system prompt covers: infrastructure vocabulary, pipe types, installation methods, size conventions (diameter ranges for "large", "small", etc.), unit abbreviations; AI role defined as translator and narrator — not a database operator
 - [ ] Prompt version tracked and stored alongside model version in config or DB
 
 #### Endpoint and Response Contract
@@ -164,9 +188,11 @@ Example interaction:
 #### Testing and Documentation
 
 - [ ] Unit tests: provider abstraction (mock Claude, mock OpenAI), tool dispatch, citation format, fallback logic
-- [ ] Integration test: end-to-end natural language query → tool calls → cited records (Claude)
-- [ ] Integration test: end-to-end natural language query → tool calls → cited records (OpenAI fallback)
-- [ ] Agent prompt, tool schema, provider config, and response format documented in `docs/`
+- [ ] Unit tests: data sanitization layer — assert raw project records are excluded from all LLM payloads
+- [ ] Unit tests: analytics layer — verify aggregate stats computed correctly before LLM response call
+- [ ] Integration test: end-to-end natural language query → intent parsing → backend search → aggregated response (Claude)
+- [ ] Integration test: end-to-end natural language query → intent parsing → backend search → aggregated response (OpenAI fallback)
+- [ ] Security model documented in `docs/`: LLM responsibilities vs. backend responsibilities; enumerated list of data excluded from LLM payloads
 
 ### Authentication Enhancements
 
@@ -250,6 +276,7 @@ Example interaction:
 - [ ] Secrets moved to managed secret storage (not `.env` in production)
 - [ ] JWT refresh token flow and token revocation implemented (carried from Phase 1)
 - [ ] Least-privilege role/permission review completed and signed off
+- [ ] [>] Enterprise AI mode: template-based response path that eliminates the second LLM call — only the user's question leaves the environment; no database-derived data transmitted to external providers (carried from Phase 2)
 
 ### Observability and Reliability
 
