@@ -82,6 +82,7 @@ A work item is complete (`[x]`) only when:
 - [x] Deterministic sort order on all paginated responses
 - [x] Structured API-level error codes for client troubleshooting (`AppError` + global handler, Option B)
 - [x] Duplicate `/search` route definition in `items.py` removed/consolidated
+- [ ] **[C-1]** Consolidate duplicate purge endpoint: retain `api/purge.py` implementation (structured `AppError`, admin username audit logging); remove the purge handler from `api/admin.py` and its duplicate router registration from `main.py`
 - [>] OpenAPI docs verified accurate for all implemented behavior — deferred; requires live app review
 
 ### Ingestion Pipeline (CSV / Excel / PDF)
@@ -221,7 +222,13 @@ Example interaction:
 - [ ] FK naming convention applied consistently across all tables; referential actions (`RESTRICT`/`CASCADE`/`SET NULL`) documented per table
 - [x] Fix model bugs and write migrations for `upload_history`, `data_quality_issues` (done in Phase 1)
 - [ ] Fix model bugs and write migrations for `system_settings` (correct FK references, verify column types)
-- [ ] Fix model bugs and write migrations for `archived_projects`, `archived_items` (correct `__tablename__` values, verify relationships)
+- [ ] **[C-2]** Fix model bugs and write migrations for `archived_projects`, `archived_items`:
+  - Rename `ArchivedProject.__tablename__` from `"projects"` → `"archived_projects"`
+  - Rename `ArchivedItem.__tablename__` from `"items"` → `"archived_items"`
+  - Fix `ArchivedProject.archived_at` column type: `Boolean` → `DateTime` (with `nullable=False`)
+  - Add missing `upload_id` FK column to `ArchivedItem` (mirrors `Item.upload_id`)
+  - Correct `ArchivedItem.project_id` FK reference from `projects.id` → `archived_projects.id`
+  - Write and test migration; verify both `upgrade` and `downgrade` paths
 - [ ] Updated ERD published after all Phase 2 schema changes land
 
 ### Ingestion Reliability
