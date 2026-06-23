@@ -7,6 +7,7 @@ from decimal import Decimal
 from fastapi import Depends, FastAPI, HTTPException, Request
 from fastapi.encoders import jsonable_encoder
 from fastapi.exceptions import RequestValidationError
+from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from sqlalchemy import text
 from sqlalchemy.orm import Session
@@ -55,6 +56,16 @@ app = FastAPI(
     debug=settings.fastapi_debug,
     lifespan=lifespan,
     default_response_class=CustomJSONResponse,
+)
+
+# Allow Swagger UI and local dev clients to reach the API.
+# Tighten allow_origins before any external deployment.
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["http://localhost:8000", "http://127.0.0.1:8000"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
 )
 
 
