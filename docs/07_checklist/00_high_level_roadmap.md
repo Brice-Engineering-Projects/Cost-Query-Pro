@@ -104,8 +104,8 @@ A work item is complete (`[x]`) only when:
 
 - [x] Users can authenticate and query cost records via API *(done)*
 - [x] At least one full ingest flow (CSV or Excel) runs end-to-end
-- [ ] Core schema stable and migration process repeatable *(done)*
-- [ ] CI passes: lint · security scan · migrations · unit tests
+- [x] Core schema stable and migration process repeatable *(done)*
+- [x] CI passes: lint · security scan · migrations · unit tests
 
 ---
 
