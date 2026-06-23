@@ -32,6 +32,9 @@ _PARAMS = SearchParameters(
     state="FL",
     year_start=2021,
     year_end=2026,
+    unit=None,
+    price_min=None,
+    price_max=None,
 )
 
 _SUMMARY = CostSummary(
