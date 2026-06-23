@@ -1,0 +1,79 @@
+"""src/cost_query_pro/schemas/agent.py"""
+
+from typing import Literal, Optional
+
+from pydantic import BaseModel, ConfigDict, Field
+
+
+class SearchParameters(BaseModel):
+    """Structured search criteria extracted from a user's natural language question.
+
+    Returned by the LLM in Step 1 of the secure query pipeline.
+    The backend uses these to build and execute database queries — the LLM
+    never accesses the database directly.
+    """
+
+    model_config = ConfigDict(extra="ignore")
+
+    intent: Literal["cost_search"] = Field(
+        ..., description="Query intent — always 'cost_search' for this pipeline."
+    )
+    item: str = Field(
+        ...,
+        min_length=1,
+        max_length=500,
+        description="Item description keyword extracted from the question.",
+        examples=["24-inch ductile iron pipe"],
+    )
+    state: str = Field(
+        ...,
+        min_length=2,
+        max_length=2,
+        description="Two-letter US state code.",
+        examples=["FL"],
+    )
+    year_start: int = Field(
+        ...,
+        ge=1900,
+        le=2100,
+        description="Start of the year range (inclusive).",
+    )
+    year_end: int = Field(
+        ...,
+        ge=1900,
+        le=2100,
+        description="End of the year range (inclusive).",
+    )
+    unit: Optional[str] = Field(
+        None,
+        max_length=50,
+        description="Unit of measure, if specified (e.g., 'LF', 'EA').",
+    )
+    price_min: Optional[float] = Field(
+        None,
+        ge=0,
+        description="Minimum unit price filter, if specified.",
+    )
+    price_max: Optional[float] = Field(
+        None,
+        ge=0,
+        description="Maximum unit price filter, if specified.",
+    )
+
+
+class AgentQueryRequest(BaseModel):
+    """Incoming request body for the agent query endpoint."""
+
+    question: str = Field(
+        ...,
+        min_length=1,
+        max_length=2000,
+        description="Natural language question from the user.",
+        examples=[
+            "What have Florida utilities been paying for 24-inch ductile iron pipe over the last five years?"
+        ],
+    )
+    request_id: Optional[str] = Field(
+        None,
+        description="Optional caller-supplied ID for log correlation.",
+    )

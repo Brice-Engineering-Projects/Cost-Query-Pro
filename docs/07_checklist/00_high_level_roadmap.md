@@ -136,8 +136,8 @@ Example interaction:
 
 *The AI interprets user intent and narrates results. The backend performs all database access, query generation, and analytics. No raw project data is transmitted to external AI providers. See `docs/03_api/01_secure_ai_query_architecture.md` for the full specification.*
 
-- [ ] **Step 1 — Intent parsing call:** user question is sent to the LLM with no database access and no project data exposed
-- [ ] Structured search parameter payload schema defined and validated:
+- [x] **Step 1 — Intent parsing call:** user question is sent to the LLM with no database access and no project data exposed
+- [x] Structured search parameter payload schema defined and validated:
   - Required fields: `intent`, `item` (description keyword), `state`, `year_start`, `year_end`
   - Optional fields: `unit`, `price_min`, `price_max`
   - LLM does NOT generate SQL — it only extracts search criteria from the user's question
