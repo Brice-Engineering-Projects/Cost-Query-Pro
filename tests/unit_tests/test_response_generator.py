@@ -6,6 +6,7 @@ Includes a security boundary test verifying that raw project data
 is never included in outbound LLM payloads.
 """
 
+from typing import Literal, Optional
 from unittest.mock import MagicMock
 
 from cost_query_pro.schemas.agent import CostSummary, SearchParameters
@@ -27,28 +28,42 @@ def _make_provider(return_value: str = "Based on 147 records...") -> MagicMock:
     return p
 
 
-def _make_summary(**overrides) -> CostSummary:
-    defaults = dict(
-        record_count=147,
-        median_price=212.0,
-        average_price=219.0,
-        minimum_price=180.0,
-        maximum_price=287.0,
+def _make_summary(
+    record_count: int = 147,
+    median_price: float = 212.0,
+    average_price: float = 219.0,
+    minimum_price: float = 180.0,
+    maximum_price: float = 287.0,
+) -> CostSummary:
+    return CostSummary(
+        record_count=record_count,
+        median_price=median_price,
+        average_price=average_price,
+        minimum_price=minimum_price,
+        maximum_price=maximum_price,
     )
-    defaults.update(overrides)
-    return CostSummary(**defaults)
 
 
-def _make_params(**overrides) -> SearchParameters:
-    defaults = dict(
-        intent="cost_search",
-        item="24-inch ductile iron pipe",
-        state="FL",
-        year_start=2021,
-        year_end=2026,
+def _make_params(
+    intent: Literal["cost_search"] = "cost_search",
+    item: str = "24-inch ductile iron pipe",
+    state: str = "FL",
+    year_start: int = 2021,
+    year_end: int = 2026,
+    unit: Optional[str] = None,
+    price_min: Optional[float] = None,
+    price_max: Optional[float] = None,
+) -> SearchParameters:
+    return SearchParameters(
+        intent=intent,
+        item=item,
+        state=state,
+        year_start=year_start,
+        year_end=year_end,
+        unit=unit,
+        price_min=price_min,
+        price_max=price_max,
     )
-    defaults.update(overrides)
-    return SearchParameters(**defaults)
 
 
 # ---------------------------------------------------------------------------

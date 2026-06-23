@@ -4,6 +4,7 @@ Unit tests for the item_search service.
 SQLAlchemy session is mocked — no database required.
 """
 
+from typing import Literal, Optional
 from unittest.mock import MagicMock
 
 from cost_query_pro.schemas.agent import SearchParameters
@@ -14,17 +15,27 @@ from cost_query_pro.services.item_search import run_search
 # ---------------------------------------------------------------------------
 
 
-def _make_params(**overrides) -> SearchParameters:
+def _make_params(
+    intent: Literal["cost_search"] = "cost_search",
+    item: str = "ductile iron pipe",
+    state: str = "FL",
+    year_start: int = 2020,
+    year_end: int = 2025,
+    unit: Optional[str] = None,
+    price_min: Optional[float] = None,
+    price_max: Optional[float] = None,
+) -> SearchParameters:
     """Build a SearchParameters with sane defaults; override as needed."""
-    defaults = dict(
-        intent="cost_search",
-        item="ductile iron pipe",
-        state="FL",
-        year_start=2020,
-        year_end=2025,
+    return SearchParameters(
+        intent=intent,
+        item=item,
+        state=state,
+        year_start=year_start,
+        year_end=year_end,
+        unit=unit,
+        price_min=price_min,
+        price_max=price_max,
     )
-    defaults.update(overrides)
-    return SearchParameters(**defaults)
 
 
 def _make_db(return_items=None):
