@@ -32,6 +32,18 @@ async def lifespan(app: FastAPI):
         methods = sorted(list(getattr(r, "methods", []) or []))
         path = getattr(r, "path", "")
         logger.info(f"Route: {path} ({methods})")
+
+    # Warn if LLM API keys are absent — the server starts regardless;
+    # the agent endpoint will return an AppError at request time.
+    if settings.llm_provider == "claude" and not settings.anthropic_api_key:
+        logger.warning(
+            "ANTHROPIC_API_KEY is not set. Claude provider will error at request time."
+        )
+    if not settings.openai_api_key:
+        logger.warning(
+            "OPENAI_API_KEY is not set. OpenAI fallback provider is unavailable."
+        )
+
     yield
     """ --- shutdown --- """
     logger.info("Shutting down...")

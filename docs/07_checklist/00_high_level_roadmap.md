@@ -123,14 +123,14 @@ Example interaction:
 
 #### Provider and Infrastructure
 
-- [ ] LLM provider abstraction layer implemented (`src/cost_query_pro/services/llm_provider.py`)
-  - [ ] Claude (claude-sonnet-4-6 or latest) as primary provider via `anthropic` SDK
-  - [ ] OpenAI (gpt-4o or latest) as backup provider via `openai` SDK
-  - [ ] Configurable provider selection via `settings.LLM_PROVIDER` (default: `claude`)
-  - [ ] Automatic fallback to OpenAI when Claude returns a non-retryable error
-  - [ ] Fallback events logged with provider, error type, and request ID
-- [ ] API keys for both providers stored in environment/secrets; missing key raises a clear startup warning, not a runtime crash
-- [ ] Provider selection and fallback behavior documented in `docs/`
+- [x] LLM provider abstraction layer implemented (`src/cost_query_pro/services/llm_provider.py`)
+  - [x] Claude (claude-sonnet-4-6 or latest) as primary provider via `anthropic` SDK
+  - [x] OpenAI (gpt-4o or latest) as backup provider via `openai` SDK
+  - [x] Configurable provider selection via `settings.LLM_PROVIDER` (default: `claude`)
+  - [x] Automatic fallback to OpenAI when Claude returns a non-retryable error
+  - [x] Fallback events logged with provider, error type, and request ID
+- [x] API keys for both providers stored in environment/secrets; missing key raises a clear startup warning, not a runtime crash
+- [x] Provider selection and fallback behavior documented in `docs/`
 
 #### Secure Query Pipeline
 

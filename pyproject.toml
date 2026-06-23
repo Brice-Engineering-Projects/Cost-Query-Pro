@@ -38,6 +38,8 @@ dependencies = [
     "pyasn1>=0.6.2",
     "pyright>=1.1.410",
     "openpyxl>=3.1.5",
+    "anthropic>=0.111.0",
+    "openai>=2.43.0",
 ]
 
 [project.optional-dependencies]

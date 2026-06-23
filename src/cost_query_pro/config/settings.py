@@ -105,6 +105,13 @@ class Settings(BaseSettings):
     allow_admin_signup: bool = Field(False)
     password_min_length: int = Field(8)
 
+    # LLM provider settings
+    anthropic_api_key: Optional[str] = Field(None)
+    openai_api_key: Optional[str] = Field(None)
+    llm_provider: str = Field("claude")  # "claude" | "openai"
+    claude_model: str = Field("claude-sonnet-4-6")
+    openai_model: str = Field("gpt-4o")
+
     model_config = SettingsConfigDict(
         env_file=".env",
         env_ignore_empty=True,
