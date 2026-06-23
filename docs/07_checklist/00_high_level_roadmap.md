@@ -82,7 +82,7 @@ A work item is complete (`[x]`) only when:
 - [x] Deterministic sort order on all paginated responses
 - [x] Structured API-level error codes for client troubleshooting (`AppError` + global handler, Option B)
 - [x] Duplicate `/search` route definition in `items.py` removed/consolidated
-- [ ] **[C-1]** Consolidate duplicate purge endpoint: retain `api/purge.py` implementation (structured `AppError`, admin username audit logging); remove the purge handler from `api/admin.py` and its duplicate router registration from `main.py`
+- [x] **[C-1]** Consolidate duplicate purge endpoint: retain `api/purge.py` implementation (structured `AppError`, admin username audit logging); remove the purge handler from `api/admin.py` and its duplicate router registration from `main.py`
 - [>] OpenAPI docs verified accurate for all implemented behavior — deferred; requires live app review
 
 ### Ingestion Pipeline (CSV / Excel / PDF)
