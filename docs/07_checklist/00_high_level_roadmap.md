@@ -145,28 +145,28 @@ Example interaction:
 - [x] **Step 3 — Analytics layer:** backend computes summary statistics before any data leaves the infrastructure:
   - Core: `record_count`, `median_price`, `average_price`, `minimum_price`, `maximum_price`
   - Extended (as needed): percentiles, trend analysis, inflation adjustments, regional comparisons, outlier detection
-- [ ] **Step 4 — Data sanitization:** only aggregated summary statistics are transmitted to the LLM for response generation; the following are never included in LLM payloads:
+- [x] **Step 4 — Data sanitization:** only aggregated summary statistics are transmitted to the LLM for response generation; the following are never included in LLM payloads:
   - Project names and project numbers
   - Contractor names
   - Bid tabulations
   - Uploaded source file contents
   - Internal notes
   - Raw database records
-- [ ] **Step 5 — Response generation call:** LLM receives only the sanitized aggregate summary and generates a natural-language answer
-- [ ] Security boundary verified by test: confirmed absence of raw project data (names, numbers, contractors) in all outbound LLM payloads
+- [x] **Step 5 — Response generation call:** LLM receives only the sanitized aggregate summary and generates a natural-language answer
+- [x] Security boundary verified by test: confirmed absence of raw project data (names, numbers, contractors) in all outbound LLM payloads
 - [ ] [>] Enterprise mode (template-based response) — eliminates the second LLM call for deployments where no project-derived data may leave the environment — deferred to Phase 3
 
 #### Agent Architecture and Tools
 
-- [ ] Agent architecture defined: two-call pipeline (intent parsing → response generation) with backend-controlled search and analytics between calls
-- [ ] Tool definitions implemented and versioned (tools return aggregated statistics, not raw project records):
-  - [ ] `keyword_search` — search items by description keyword; returns aggregate price stats and record count
-  - [ ] `filter_search` — filter by state, year range, unit type, and price range; returns aggregate stats
-  - [ ] `price_stats` — retrieve `record_count`, min/median/mean/max price for a given item description
-  - [ ] `project_lookup` — retrieve project-level summary metadata (count, year range, states covered); not individual project records
-- [ ] Tool schemas validated against the `anthropic` and `openai` function-calling specifications
-- [ ] Domain context system prompt covers: infrastructure vocabulary, pipe types, installation methods, size conventions (diameter ranges for "large", "small", etc.), unit abbreviations; AI role defined as translator and narrator — not a database operator
-- [ ] Prompt version tracked and stored alongside model version in config or DB
+- [x] Agent architecture defined: two-call pipeline (intent parsing → response generation) with backend-controlled search and analytics between calls
+- [x] Tool definitions implemented and versioned (tools return aggregated statistics, not raw project records):
+  - [x] `keyword_search` — search items by description keyword; returns aggregate price stats and record count
+  - [x] `filter_search` — filter by state, year range, unit type, and price range; returns aggregate stats
+  - [x] `price_stats` — retrieve `record_count`, min/median/mean/max price for a given item description
+  - [x] `project_lookup` — retrieve project-level summary metadata (count, year range, states covered); not individual project records
+- [x] Tool schemas validated against the `anthropic` and `openai` function-calling specifications
+- [x] Domain context system prompt covers: infrastructure vocabulary, pipe types, installation methods, size conventions (diameter ranges for "large", "small", etc.), unit abbreviations; AI role defined as translator and narrator — not a database operator
+- [x] Prompt version tracked and stored alongside model version in config or DB
 
 #### Endpoint and Response Contract
 

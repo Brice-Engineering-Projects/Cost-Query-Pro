@@ -98,3 +98,19 @@ class CostSummary(BaseModel):
     maximum_price: float = Field(
         ..., description="Highest unit price in matching records."
     )
+
+
+class ProjectSummary(BaseModel):
+    """Project-level metadata returned by the project_lookup tool.
+
+    Covers scope of matching projects without exposing individual project records.
+    """
+
+    project_count: int = Field(
+        ..., description="Number of distinct projects matching the search."
+    )
+    year_min: int = Field(..., description="Earliest project year in matching results.")
+    year_max: int = Field(..., description="Latest project year in matching results.")
+    states: list[str] = Field(
+        ..., description="Distinct state codes covered by matching projects."
+    )

@@ -111,6 +111,7 @@ class Settings(BaseSettings):
     llm_provider: str = Field("claude")  # "claude" | "openai"
     claude_model: str = Field("claude-sonnet-4-6")
     openai_model: str = Field("gpt-4o")
+    agent_prompt_version: str = Field("1.0.0")
 
     model_config = SettingsConfigDict(
         env_file=".env",
