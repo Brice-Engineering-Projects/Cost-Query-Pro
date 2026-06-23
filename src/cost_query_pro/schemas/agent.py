@@ -114,3 +114,36 @@ class ProjectSummary(BaseModel):
     states: list[str] = Field(
         ..., description="Distinct state codes covered by matching projects."
     )
+
+
+class SearchScopeOut(BaseModel):
+    """Search parameters used to retrieve the data backing the answer.
+
+    Returned to the caller as the verifiable citation for the LLM's response.
+    Contains only search metadata — no individual project records.
+    """
+
+    item: str
+    state: str
+    year_start: int
+    year_end: int
+    unit: Optional[str] = None
+    price_min: Optional[float] = None
+    price_max: Optional[float] = None
+
+
+class AgentQueryResponse(BaseModel):
+    """Response from POST /api/v1/agent/query."""
+
+    answer: str = Field(..., description="Natural-language answer from the LLM.")
+    record_count: int = Field(
+        ..., description="Number of DB records used to generate the answer."
+    )
+    search_scope: SearchScopeOut = Field(
+        ..., description="Search parameters used — the verifiable data citation."
+    )
+    provider: str = Field(
+        ..., description="LLM provider used: 'claude', 'openai', or 'fallback'."
+    )
+    model: str = Field(..., description="Model identifier (e.g. 'claude-sonnet-4-6').")
+    request_id: str = Field(..., description="ID for log correlation.")

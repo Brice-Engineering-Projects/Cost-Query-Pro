@@ -170,14 +170,14 @@ Example interaction:
 
 #### Endpoint and Response Contract
 
-- [ ] `POST /api/v1/agent/query` endpoint implemented
-  - Request: `{ "query": "<natural language question>" }`
-  - Response: `{ "answer": "...", "citations": [...], "provider": "claude|openai", "model": "..." }`
-- [ ] Citation format enforced: every answer includes project name, number, source file, year, and unit cost
-- [ ] Agent gracefully handles queries with no matching data (returns "no records found" message, not an error)
-- [ ] Agent gracefully handles ambiguous queries by asking a clarifying question rather than guessing
+- [x] `POST /api/v1/agent/query` endpoint implemented
+  - Request: `{ "question": "<natural language question>", "request_id": "<optional>" }`
+  - Response: `{ "answer": "...", "record_count": N, "search_scope": {...}, "provider": "claude|openai", "model": "...", "request_id": "..." }`
+- [x] Citation format enforced: search scope (item, state, year range, record count) included in every response; individual project records are excluded per the security architecture
+- [x] Agent gracefully handles queries with no matching data (returns "no records found" message, not an error)
+- [x] Agent gracefully handles ambiguous queries by asking a clarifying question rather than guessing
 - [ ] Streaming response support for the agent endpoint (Server-Sent Events or chunked transfer)
-- [ ] Agent endpoint requires JWT authentication
+- [x] Agent endpoint requires JWT authentication
 
 #### Cost Control and Rate Limiting
 
