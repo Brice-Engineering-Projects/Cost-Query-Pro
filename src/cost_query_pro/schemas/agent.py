@@ -77,3 +77,24 @@ class AgentQueryRequest(BaseModel):
         None,
         description="Optional caller-supplied ID for log correlation.",
     )
+
+
+class CostSummary(BaseModel):
+    """Aggregated statistics returned by the analytics layer (Step 3).
+
+    Only this summary — never raw records — is passed to the LLM for response generation.
+    """
+
+    record_count: int = Field(..., description="Number of matching records.")
+    median_price: float = Field(
+        ..., description="Median unit price across matching records."
+    )
+    average_price: float = Field(
+        ..., description="Mean unit price across matching records."
+    )
+    minimum_price: float = Field(
+        ..., description="Lowest unit price in matching records."
+    )
+    maximum_price: float = Field(
+        ..., description="Highest unit price in matching records."
+    )

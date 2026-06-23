@@ -141,8 +141,8 @@ Example interaction:
   - Required fields: `intent`, `item` (description keyword), `state`, `year_start`, `year_end`
   - Optional fields: `unit`, `price_min`, `price_max`
   - LLM does NOT generate SQL — it only extracts search criteria from the user's question
-- [ ] **Step 2 — Backend search:** FastAPI validates the structured payload and constructs all queries internally; LLM has no direct database access and never communicates with PostgreSQL
-- [ ] **Step 3 — Analytics layer:** backend computes summary statistics before any data leaves the infrastructure:
+- [x] **Step 2 — Backend search:** FastAPI validates the structured payload and constructs all queries internally; LLM has no direct database access and never communicates with PostgreSQL
+- [x] **Step 3 — Analytics layer:** backend computes summary statistics before any data leaves the infrastructure:
   - Core: `record_count`, `median_price`, `average_price`, `minimum_price`, `maximum_price`
   - Extended (as needed): percentiles, trend analysis, inflation adjustments, regional comparisons, outlier detection
 - [ ] **Step 4 — Data sanitization:** only aggregated summary statistics are transmitted to the LLM for response generation; the following are never included in LLM payloads:
