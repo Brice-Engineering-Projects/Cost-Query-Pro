@@ -95,10 +95,11 @@ A work item is complete (`[x]`) only when:
 - [x] Row-level validation: numeric fields, non-negative values; per-row error isolation
 - [x] Column header normalization: case-insensitive match (strip + lowercase)
 - [x] Structured ingest report per run: inserted · skipped · failed + per-row issue list
-- [>] PDF table extraction via pdfplumber — deferred to Phase 2
+- [>] PDF table extraction via pdfplumber — deferred to Phase 2; must extract `project_number` from page-level footer/header metadata as well as table columns, since project numbers frequently appear only in the document footer on PDF bid tabulations
 - [x] Idempotency: composite key `(project_number, item_description, unit)` — duplicates skipped
 - [x] Ingestion lineage stored: `UploadHistory` linked to inserted records with actor and timestamp; `items.upload_id` FK
 - [x] Ingestion service implemented at `src/cost_query_pro/services/ingestion.py`
+- [!] **Known gap — footer-based project number:** `project_number` is currently expected as a named column header in CSV/Excel files. Source documents where `project_number` appears only in a footer row or footer cell (rather than as a data column) are not handled. Ingestion of those files will fail with `INGEST_MISSING_COLUMNS`. Resolution deferred to Phase 2.
 
 **Phase 1 exit criteria:**
 
@@ -237,8 +238,22 @@ Example interaction:
 - [ ] Ingestion job state machine: queued · running · succeeded · failed
 - [ ] Downloadable error report per ingestion run
 - [ ] Retry logic for transient parser/database failures
-- [ ] Import template with field mapping documentation
+- [ ] Import template with field mapping documentation (must document both column-header and footer placement conventions for `project_number`)
 - [ ] Re-uploading the same file does not create uncontrolled duplicates
+
+#### Footer-Based Project Number Extraction (resolves Phase 1 known gap)
+
+Source documents — particularly Excel bid tabulation exports — commonly place the project number in a footer row at the bottom of the sheet rather than as a dedicated data column. The ingestion service must handle both placements.
+
+- [ ] Define footer detection heuristics: inspect trailing rows below the last data row for cells that match the project-number pattern (alphanumeric code, typically `[A-Z0-9\-]+`); configurable scan depth (default: last 5 rows)
+- [ ] Ingestion service updated: if `project_number` column is absent from headers, attempt footer scan before raising `INGEST_MISSING_COLUMNS`; log which extraction path was used per upload
+- [ ] Footer-extracted `project_number` validated against the same rules as header-sourced values (non-empty, pattern match, length limits)
+- [ ] Ambiguity guard: if footer scan finds more than one candidate `project_number` value, reject the file with a clear error (`INGEST_AMBIGUOUS_PROJECT_NUMBER`) and list the candidates in the error detail
+- [ ] Tests: upload CSV with `project_number` in footer row — assert correct extraction and insertion
+- [ ] Tests: upload Excel with `project_number` in footer cell — assert correct extraction and insertion
+- [ ] Tests: upload file with `project_number` absent from both header and footer — assert `INGEST_MISSING_COLUMNS` error
+- [ ] Tests: upload file with multiple conflicting project numbers in footer — assert `INGEST_AMBIGUOUS_PROJECT_NUMBER` error
+- [ ] Import template and API documentation updated to describe supported placement conventions (column header vs. footer row) and expected format for each
 
 ### Search Performance
 
@@ -363,6 +378,7 @@ Example interaction:
 | Risk | Mitigation |
 |------|-----------|
 | Heterogeneous source formats break ingestion | Strict templates + per-row error isolation + parser fallbacks |
+| Project number in document footer not recognized | Footer-row scan with configurable depth; ambiguity guard rejects files with conflicting candidates; template docs clarify supported placement conventions |
 | AI agent returns uncited or hallucinated cost figures | Agent always queries live DB; every answer cites specific record IDs and source files |
 | Claude API unavailable or degraded | Automatic fallback to OpenAI; fallback events logged and alerted |
 | LLM API costs exceed budget at scale | Rate limiting on agent endpoint + query caching + token usage monitoring + monthly spend cap |
