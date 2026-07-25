@@ -1,6 +1,6 @@
 # Ingestion Guide
 
-Upload historical bid item data into Cost Query Pro via a CSV or Excel file. The endpoint validates, deduplicates, and stores rows, then returns a structured report showing what was inserted, skipped, or failed.
+Upload historical bid item data into Cost Query Pro via a CSV or Excel file. PDF ingestion is a Phase 2 requirement and will extend the same validation and reporting flow to PDF bid tabulations. The endpoint validates, deduplicates, and stores rows, then returns a structured report showing what was inserted, skipped, or failed.
 
 ---
 
@@ -23,7 +23,7 @@ POST /api/v1/ingest/upload
 | CSV | `.csv` | UTF-8 or UTF-8-BOM encoded |
 | Excel | `.xlsx` | Active sheet only; first row must be headers |
 
-PDF is not yet supported (deferred to Phase 2).
+PDF is deferred to Phase 2. When implemented, it must parse bid tabulation tables and extract `project_number` from page-level footer/header metadata when the value is not present in table columns.
 
 ---
 

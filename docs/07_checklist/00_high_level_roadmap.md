@@ -240,10 +240,11 @@ Example interaction:
 - [ ] Retry logic for transient parser/database failures
 - [ ] Import template with field mapping documentation (must document both column-header and footer placement conventions for `project_number`)
 - [ ] Re-uploading the same file does not create uncontrolled duplicates
+- [ ] PDF ingestion via pdfplumber: parse bid tabulation tables from PDF uploads and extract `project_number` from page-level footer/header metadata when it is not present in table columns
 
 #### Footer-Based Project Number Extraction (resolves Phase 1 known gap)
 
-Source documents — particularly Excel bid tabulation exports — commonly place the project number in a footer row at the bottom of the sheet rather than as a dedicated data column. The ingestion service must handle both placements.
+Source documents — particularly Excel and PDF bid tabulation exports — commonly place the project number in a footer row at the bottom of the sheet rather than as a dedicated data column. The ingestion service must handle both placements.
 
 - [ ] Define footer detection heuristics: inspect trailing rows below the last data row for cells that match the project-number pattern (alphanumeric code, typically `[A-Z0-9\-]+`); configurable scan depth (default: last 5 rows)
 - [ ] Ingestion service updated: if `project_number` column is absent from headers, attempt footer scan before raising `INGEST_MISSING_COLUMNS`; log which extraction path was used per upload
