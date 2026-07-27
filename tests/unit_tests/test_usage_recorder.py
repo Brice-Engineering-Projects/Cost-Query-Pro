@@ -277,7 +277,13 @@ class TestCreatedAtConstraint:
         has a server_default, SQLAlchemy omits a None-valued attribute from
         the INSERT so the default fires, which means the ORM cannot produce a
         NULL here at all. Only raw SQL exercises the database constraint.
+
+        The insert runs inside its own SAVEPOINT so the failure unwinds to
+        that savepoint instead of poisoning the fixture's outer transaction,
+        which would otherwise make teardown warn about a deassociated
+        transaction.
         """
+        savepoint = db_session.begin_nested()
         with pytest.raises(IntegrityError):
             db_session.execute(
                 text(
@@ -289,5 +295,4 @@ class TestCreatedAtConstraint:
                 ),
                 {"uid": usage_user.id},
             )
-
-        db_session.rollback()
+        savepoint.rollback()

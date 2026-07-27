@@ -19,6 +19,10 @@ Cost Query Pro centralizes historical bid tabulation data (CSV, Excel, PDF) from
 | `[!]` | **Blocked** — cannot proceed; dependency or decision required |
 | `[-]` | **Dropped** — removed from scope; not planned |
 
+**Finding IDs.** Bare `[C-n]` markers refer to findings in the Phase 1 audit
+(`docs/09_audit_reports/01_phase_1/`). Findings raised by Phase 2 audits use a `P2-`
+prefix (`[P2-C-1]`, `[P2-C-2]`, …) so the two numbering schemes cannot collide.
+
 ### Completion Criteria
 
 A work item is complete (`[x]`) only when:
@@ -207,6 +211,12 @@ Example interaction:
 
 ### Authentication Enhancements
 
+- [ ] **[P2-C-2] — CRITICAL, do first.** Remove the hardcoded JWT signing-key default and require a strong secret. `Settings.secret_key` currently defaults to the literal `"default_secret_key"` (18 bytes) and `Settings.environment` defaults to `"production"`, so a deployment that does not set `SECRET_KEY` signs tokens with a value published in this repository — anyone reading the repo can forge an `is_admin` token and reach the irreversible purge endpoint. There is no length validation either; the current key trips PyJWT's `InsecureKeyLengthWarning` (below the 32-byte RFC 7518 minimum for HS256).
+  - Change to `secret_key: str = Field(..., min_length=32)` so a missing or short secret aborts startup instead of falling back
+  - Default `environment` to `development` so an unconfigured deployment fails safe
+  - Add a test asserting startup fails with no `SECRET_KEY` set
+  - See `docs/09_audit_reports/02_phase_2/20260727_mypy_remediation_audit_report.md`
+- [ ] Replace the tautological `test_revoked_user_rejected` in `tests/unit_tests/test_auth_jwt.py` with an endpoint-level assertion. It sets `user.is_admin = False`, then hardcodes `if not user.is_admin: access_granted = False`, then asserts `not access_granted` — always true regardless of application behaviour. Carried from the 2026-06-24 test-file audit (CRITICAL) and re-verified 2026-07-27; pairs with the token-revocation work below
 - [ ] `roles` and `permissions` tables migrated; `role_permissions` bridge table added (carried from Phase 1)
 - [ ] Seed baseline roles (`admin`, `user`) and permission matrix defined and applied
 - [ ] All `is_admin` boolean checks replaced with role-based permission lookup
@@ -215,7 +225,7 @@ Example interaction:
 ### Admin Operations and Data Governance
 
 - [x] Data purge by year cutoff with cascade (admin authorized)
-- [!] **[C-3]** Purged data archived to `archived_projects` and `archived_items` — **not implemented; was previously marked done in error.** `api/purge.py` deletes items and projects outright and never writes an archive row. The `ArchivedProject` / `ArchivedItem` models are not imported in `models/__init__.py`, are absent from `Base.metadata`, and have no migration, so the destination tables do not exist. **Admin purge is therefore irreversible today**, contrary to what this line claimed. Blocked on **[C-2]** below (the models must be fixed and migrated before purge can write to them). Once unblocked:
+- [!] **[P2-C-1]** Purged data archived to `archived_projects` and `archived_items` — **not implemented; was previously marked done in error.** `api/purge.py` deletes items and projects outright and never writes an archive row. The `ArchivedProject` / `ArchivedItem` models are not imported in `models/__init__.py`, are absent from `Base.metadata`, and have no migration, so the destination tables do not exist. **Admin purge is therefore irreversible today**, contrary to what this line claimed. Blocked on **[C-2]** below (the models must be fixed and migrated before purge can write to them). Once unblocked:
   - Write archive rows inside the same transaction as the delete, so a failed archive aborts the purge
   - Record `purged_by_user_id` and the archive timestamp
   - Cover with a test asserting that purged rows are recoverable from the archive tables
@@ -243,7 +253,7 @@ Example interaction:
   - Correct `ArchivedItem.project_id` FK reference from `projects.id` → `archived_projects.id`
   - Register both models in `models/__init__.py` so they reach `Base.metadata` (they are currently invisible to Alembic autogenerate, which is why migration `c7a4e2b91d38` had to be hand-written)
   - Write and test migration; verify both `upgrade` and `downgrade` paths
-  - **Blocks [C-3]** (purge-to-archive) under *Admin Operations and Data Governance* — until this lands, admin purge is irreversible
+  - **Blocks [P2-C-1]** (purge-to-archive) under *Admin Operations and Data Governance* — until this lands, admin purge is irreversible
   - Note: until the tablename collisions are fixed, importing `ArchivedProject` alongside `Project` raises `InvalidRequestError`; both currently declare `__tablename__ = "projects"` / `"items"`
 - [ ] Updated ERD published after all Phase 2 schema changes land
 
@@ -299,6 +309,8 @@ Source documents — particularly Excel and PDF bid tabulation exports — commo
 - [x] CI type gate: `mypy --strict src/cost_query_pro` in the Quality job of both workflows; strictness configured in `[tool.mypy]` so local runs match CI
 - [ ] Raise `tests/` to strict typing and drop the `[[tool.mypy.overrides]]` relaxation in `pyproject.toml` — roughly 230 findings, almost all missing annotations on test functions; the application-code gate is already enforced and does not depend on this
 - [ ] Add `alembic check` to the CI test gate so model/migration drift fails the build rather than surfacing in someone's next autogenerate (drift found and fixed once already in `a3f5c81e7b24`)
+- [ ] **[P2-M-2]** Make coverage measurable. `pytest-cov` is declared only in `[project.optional-dependencies].dev`, which `uv sync --dev` does not install (uv reads `[dependency-groups].dev`), so `--cov` errors out and the `[coverage:run]` / `[coverage:report]` config in `setup.cfg` is unreachable. Move the dependency, then decide whether coverage reports or gates
+- [ ] **[P2-M-3]** Migrate the test client to `httpx2`. Starlette 1.x warns that using `httpx` with `starlette.testclient` is deprecated; the whole suite runs through `fastapi.testclient.TestClient`, so this becomes a break in a future release. The previous Starlette major upgrade silently broke an uncovered route (see `20260727_mypy_remediation_audit_report.md`, D-1) — schedule this rather than absorb it unplanned
 - [x] CI test gate: PostgreSQL service, Alembic migration, pytest
 - [ ] Dockerfile and docker-compose with production-safe defaults
 - [ ] Environment promotion model: dev → staging → prod
@@ -314,7 +326,7 @@ Source documents — particularly Excel and PDF bid tabulation exports — commo
 - [ ] Login throttling and lockout after repeated failures (carried from Phase 1)
 - [ ] API rate limiting on auth and agent endpoints
 - [ ] Input sanitization hardened at parser and API boundaries
-- [ ] Secrets moved to managed secret storage (not `.env` in production)
+- [ ] Secrets moved to managed secret storage (not `.env` in production) — note **[P2-C-2]** under *Authentication Enhancements* must land first; it is a live auth-bypass risk, not a Phase 3 hardening task
 - [ ] JWT refresh token flow and token revocation implemented (carried from Phase 1)
 - [ ] Least-privilege role/permission review completed and signed off
 - [ ] [>] Enterprise AI mode: template-based response path that eliminates the second LLM call — only the user's question leaves the environment; no database-derived data transmitted to external providers (carried from Phase 2) — unblocks streaming; see *Agent Endpoint Response Delivery*
