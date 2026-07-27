@@ -16,7 +16,6 @@ import pytest
 from cost_query_pro.core.security import get_current_user
 from cost_query_pro.main import app
 from cost_query_pro.models.user import User as DBUser
-from cost_query_pro.web.views import routes
 
 
 class _FakeAsyncClient:
@@ -38,7 +37,9 @@ class _FakeAsyncClient:
 @pytest.fixture
 def dashboard_user(client, db_session, monkeypatch):
     """Authenticate the dashboard route and stub out its upstream API call."""
-    monkeypatch.setattr(routes.httpx, "AsyncClient", _FakeAsyncClient)
+    # routes.py does `import httpx`, so it holds the same module object the
+    # test imported; patching the attribute here is what the view sees.
+    monkeypatch.setattr(httpx, "AsyncClient", _FakeAsyncClient)
 
     user = DBUser(username="dash-user", password_hash="not-a-real-hash", is_admin=False)
     db_session.add(user)

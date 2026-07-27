@@ -7,6 +7,8 @@ are made. Dependencies (get_db, get_current_user, get_llm_provider) are
 overridden via app.dependency_overrides.
 """
 
+from collections.abc import Callable
+from typing import Any
 from unittest.mock import MagicMock, patch
 
 import pytest
@@ -96,7 +98,7 @@ def mock_provider():
 @pytest.fixture
 def agent_client(mock_user, mock_provider):
     """TestClient with all three agent endpoint dependencies overridden."""
-    overrides = {
+    overrides: dict[Callable[..., Any], Callable[..., Any]] = {
         get_db: lambda: MagicMock(),
         get_current_user: lambda: mock_user,
         get_llm_provider: lambda: mock_provider,
@@ -247,7 +249,7 @@ class TestProviderAttribution:
         )
         provider = MeteredProvider(inner=inner)
 
-        overrides = {
+        overrides: dict[Callable[..., Any], Callable[..., Any]] = {
             get_db: lambda: MagicMock(),
             get_current_user: lambda: mock_user,
             get_llm_provider: lambda: provider,

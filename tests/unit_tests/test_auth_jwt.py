@@ -7,8 +7,8 @@ import jwt
 import pytest
 from jwt import ExpiredSignatureError, InvalidTokenError
 
-from src.cost_query_pro.config.settings import settings
-from src.cost_query_pro.models import User
+from cost_query_pro.config.settings import settings
+from cost_query_pro.models import User
 
 
 def _hash_pw(password: str) -> str:

@@ -13,10 +13,27 @@ import pytest
 from cost_query_pro.core.errors import AppError
 from cost_query_pro.services.llm_provider import (
     ClaudeProvider,
+    CompletionResult,
     FallbackLLMProvider,
     OpenAIProvider,
     build_provider,
 )
+
+
+def _sentinel(text: str) -> CompletionResult:
+    """A stand-in completion for provider-routing tests.
+
+    A real CompletionResult rather than a bare string, so the assertion
+    exercises the declared return contract of complete().
+    """
+    return CompletionResult(
+        text=text,
+        provider="stub",
+        model="stub-model",
+        input_tokens=0,
+        output_tokens=0,
+    )
+
 
 # ---------------------------------------------------------------------------
 # Helpers
@@ -200,14 +217,14 @@ class TestFallbackLLMProvider:
     def test_primary_success_returns_primary_result(self):
         primary = MagicMock(name="claude")
         primary.name = "claude"
-        primary.complete.return_value = "from primary"
+        primary.complete.return_value = _sentinel("from primary")
         fallback = MagicMock(name="openai")
         fallback.name = "openai"
 
         provider = FallbackLLMProvider(primary=primary, fallback=fallback)
         result = provider.complete([{"role": "user", "content": "hi"}])
 
-        assert result == "from primary"
+        assert result == _sentinel("from primary")
         fallback.complete.assert_not_called()
 
     def test_fallback_on_auth_error(self):
@@ -216,7 +233,7 @@ class TestFallbackLLMProvider:
         primary.complete.side_effect = _make_auth_error()
         fallback = MagicMock(name="openai")
         fallback.name = "openai"
-        fallback.complete.return_value = "from fallback"
+        fallback.complete.return_value = _sentinel("from fallback")
 
         provider = FallbackLLMProvider(primary=primary, fallback=fallback)
         with patch("cost_query_pro.services.llm_provider.logger") as mock_log:
@@ -224,7 +241,7 @@ class TestFallbackLLMProvider:
                 [{"role": "user", "content": "hi"}], request_id="req-123"
             )
 
-        assert result == "from fallback"
+        assert result == _sentinel("from fallback")
         fallback.complete.assert_called_once()
         mock_log.warning.assert_called_once()
         warning_args = str(mock_log.warning.call_args)
@@ -237,7 +254,7 @@ class TestFallbackLLMProvider:
         primary.complete.side_effect = _make_api_connection_error()
         fallback = MagicMock(name="openai")
         fallback.name = "openai"
-        fallback.complete.return_value = "from fallback"
+        fallback.complete.return_value = _sentinel("from fallback")
 
         provider = FallbackLLMProvider(primary=primary, fallback=fallback)
         with patch("cost_query_pro.services.llm_provider.logger") as mock_log:
@@ -245,7 +262,7 @@ class TestFallbackLLMProvider:
                 [{"role": "user", "content": "hi"}], request_id="req-456"
             )
 
-        assert result == "from fallback"
+        assert result == _sentinel("from fallback")
         mock_log.warning.assert_called_once()
         assert "APIConnectionError" in str(mock_log.warning.call_args)
 
