@@ -10,7 +10,6 @@ Built with **FastAPI**, **SQLAlchemy**, and **PostgreSQL**, Cost Query Pro is de
 | Branch   | Build Status                                                                                                                                                                                                              | Python                                                                                    | Framework                                                                                   | License                                                            | Project Status                                                         |
 | -------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------- | ------------------------------------------------------------------ | ---------------------------------------------------------------------- |
 | **main** | [![Main Build](https://github.com/Brice-Engineering-Projects/Cost-Query-Pro/actions/workflows/ci-cd.yml/badge.svg?branch=main)](https://github.com/Brice-Engineering-Projects/Cost-Query-Pro/actions/workflows/ci-cd.yml) | ![Python 3.12](https://img.shields.io/badge/Python-3.12-blue?logo=python&logoColor=white) | ![FastAPI](https://img.shields.io/badge/FastAPI-Backend-green?logo=fastapi&logoColor=white) | ![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg) | ![Status](https://img.shields.io/badge/Status-In%20Development-orange) |
-| **dev**  | [![Dev Build](https://github.com/Brice-Engineering-Projects/Cost-Query-Pro/actions/workflows/ci-cd.yml/badge.svg?branch=dev)](https://github.com/Brice-Engineering-Projects/Cost-Query-Pro/actions/workflows/ci-cd.yml)   | ![Python 3.12](https://img.shields.io/badge/Python-3.12-blue?logo=python&logoColor=white) | ![FastAPI](https://img.shields.io/badge/FastAPI-Backend-green?logo=fastapi&logoColor=white) | ![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg) | ![Status](https://img.shields.io/badge/Status-In%20Development-orange) |
 
 **Version:** v0.1.0
 **Status:** Early Release (MVP)
@@ -85,53 +84,8 @@ Visit `http://localhost:8000/docs`
 
 ### 📂 Project Structure
 
-```graphql
-cost_query_pro/
-│
-├── app/                      # Main application code
-│   ├── __init__.py
-│   ├── main.py               # FastAPI app entry point
-│   ├── models/               # SQLAlchemy models
-│   │    └── __init__.py
-│   ├── db/                   # Database config and session utilities
-│   │    └── __init__.py
-│   ├── api/                  # API route definitions
-│   │    ├── __init__.py
-│   │    ├── auth.py
-│   │    ├── projects.py
-│   │    ├── items.py
-│   │    └── purge.py
-│   ├── config/                 # Configuration files
-│   │    ├── __init__.py        # initialization file
-│   │    └── settings.py        # settings file
-│   ├── core/                 # Core logic/utilities (e.g. purge scripts)
-│   │    ├── __init__.py
-│   │    ├── security.py
-│   │    └── data_upload.py
-│   ├── schemas/              # Pydantic schemas for API validation
-│   │    └── __init__.py
-│   ├── templates/            # HTML templates (if using Jinja2)
-│   │    └── ...
-│   ├── static/               # CSS, JS, images (if applicable)
-│   │    └── ...
-│   └── services/             # Business logic services
-│        └── __init__.py
-│
-├── migrations/               # DB migrations (e.g. Alembic)
-│
-├── tests/                    # Unit and integration tests
-│   ├── __init__.py
-│   ├── test_projects.py
-│   ├── test_items.py
-│   └── test_auth.py
-│
-├── .env                      # Environment variables (never commit secrets!)
-├── .gitignore
-├── uv.lock                   # Locked dependencies managed by uv
-├── README.md
-├── LICENSE
-└── pyproject.toml            # Project metadata and dependency declarations
-```
+The full annotated directory tree lives in
+[`docs/01_architecture/00_structure.md`](docs/01_architecture/00_structure.md).
 
 ---
 
