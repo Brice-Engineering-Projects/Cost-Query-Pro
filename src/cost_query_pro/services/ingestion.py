@@ -179,8 +179,8 @@ def run_ingestion(
             project_number = str(row["project_number"]).strip()
             item_description = str(row["item_description"]).strip()
             unit = str(row["unit"]).strip()
-            unit_price = float(row["unit_price"])  # type: ignore[arg-type]
-            quantity = int(row["quantity"])  # type: ignore[arg-type]
+            unit_price = float(row["unit_price"])
+            quantity = int(row["quantity"])
 
             if not project_number or not item_description or not unit:
                 raise ValueError("Empty required string field")

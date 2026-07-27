@@ -7,8 +7,8 @@ from fastapi import APIRouter, Depends, Query, Response, status
 from pydantic import BaseModel
 from sqlalchemy.orm import Session, joinedload
 
-from cost_query_pro.api.auth import get_current_user
 from cost_query_pro.core.errors import AppError
+from cost_query_pro.core.security import get_current_user
 from cost_query_pro.db.session import get_db
 from cost_query_pro.models import Item, Project
 from cost_query_pro.models.user import User as DBUser
