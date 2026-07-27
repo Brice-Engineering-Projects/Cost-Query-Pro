@@ -1,7 +1,7 @@
 """src/cost_query_pro/core/security.py"""
 
 from datetime import UTC, datetime, timedelta
-from typing import Optional
+from typing import Any, Optional
 
 import bcrypt as _bcrypt
 import jwt
@@ -44,8 +44,15 @@ def get_password_hash(password: str) -> str:
 # ------------------------------------------------------------
 
 
-def create_access_token(data: dict, expires_delta: Optional[timedelta] = None) -> str:
-    """Generate a signed JWT access token."""
+def create_access_token(
+    data: dict[str, Any], expires_delta: Optional[timedelta] = None
+) -> str:
+    """Generate a signed JWT access token.
+
+    ``data`` is the JWT claim set. Claim values are heterogeneous by
+    specification (str, bool, int, and the datetime "exp" added below), so it
+    stays an open mapping rather than a fixed model.
+    """
     to_encode = data.copy()
     expire = datetime.now(UTC) + (
         expires_delta or timedelta(minutes=settings.access_token_expire_minutes)

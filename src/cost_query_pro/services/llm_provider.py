@@ -9,7 +9,7 @@ referenced outside this module.
 
 import logging
 from dataclasses import dataclass, field
-from typing import TYPE_CHECKING, Protocol, runtime_checkable
+from typing import TYPE_CHECKING, Any, Protocol, runtime_checkable
 
 import anthropic
 import openai
@@ -86,7 +86,9 @@ class ClaudeProvider:
         max_tokens: int = 4096,
         request_id: str | None = None,
     ) -> CompletionResult:
-        kwargs: dict = dict(
+        # Heterogeneous by nature: the SDK takes str, int, and message list
+        # values, plus an optional "system" key added below.
+        kwargs: dict[str, Any] = dict(
             model=self._model,
             max_tokens=max_tokens,
             messages=messages,

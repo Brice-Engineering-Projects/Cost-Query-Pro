@@ -12,7 +12,8 @@ safe to serialize to the LLM.
 """
 
 import logging
-from typing import Optional
+from collections.abc import Callable
+from typing import Any, Optional, TypedDict
 
 from sqlalchemy.orm import Session
 
@@ -32,7 +33,20 @@ logger = logging.getLogger(__name__)
 # Tool Schema Definitions (Anthropic function-calling format)
 # ---------------------------------------------------------------------------
 
-KEYWORD_SEARCH_TOOL = {
+
+class ToolDefinition(TypedDict):
+    """One tool as the Anthropic function-calling API expects it.
+
+    ``input_schema`` is a JSON Schema document, so its interior is genuinely
+    open-ended and stays ``dict[str, Any]``.
+    """
+
+    name: str
+    description: str
+    input_schema: dict[str, Any]
+
+
+KEYWORD_SEARCH_TOOL: ToolDefinition = {
     "name": "keyword_search",
     "description": (
         "Search construction cost records by item description keyword. "
@@ -57,7 +71,7 @@ KEYWORD_SEARCH_TOOL = {
     },
 }
 
-FILTER_SEARCH_TOOL = {
+FILTER_SEARCH_TOOL: ToolDefinition = {
     "name": "filter_search",
     "description": (
         "Search with explicit state and year range filters. "
@@ -88,7 +102,7 @@ FILTER_SEARCH_TOOL = {
     },
 }
 
-PRICE_STATS_TOOL = {
+PRICE_STATS_TOOL: ToolDefinition = {
     "name": "price_stats",
     "description": (
         "Retrieve pricing statistics for a specific item description. "
@@ -113,7 +127,7 @@ PRICE_STATS_TOOL = {
     },
 }
 
-PROJECT_LOOKUP_TOOL = {
+PROJECT_LOOKUP_TOOL: ToolDefinition = {
     "name": "project_lookup",
     "description": (
         "Look up how many projects have used a given item, covering which years "
@@ -129,7 +143,7 @@ PROJECT_LOOKUP_TOOL = {
     },
 }
 
-ALL_TOOLS = [
+ALL_TOOLS: list[ToolDefinition] = [
     KEYWORD_SEARCH_TOOL,
     FILTER_SEARCH_TOOL,
     PRICE_STATS_TOOL,
@@ -262,14 +276,24 @@ def handle_project_lookup(db: Session, keyword: str) -> ProjectSummary:
 # Tool Dispatcher
 # ---------------------------------------------------------------------------
 
+# The handlers do not share a signature — each takes the keyword arguments its
+# own tool schema declares — so the callable type stays open in its parameters
+# and precise in its return. Without this annotation mypy joins the four
+# functions to the uncallable `function` type and cannot check the dispatch.
+ToolResult = CostSummary | ProjectSummary
+_ToolHandler = Callable[..., ToolResult]
 
-def execute_tool(tool_name: str, tool_input: dict, db: Session) -> dict:
+
+def execute_tool(
+    tool_name: str, tool_input: dict[str, Any], db: Session
+) -> dict[str, Any]:
     """Route a tool call by name to its backend handler.
 
     Args:
         tool_name: One of 'keyword_search', 'filter_search', 'price_stats',
                    'project_lookup'.
-        tool_input: Dict of keyword arguments for the named handler.
+        tool_input: Keyword arguments for the named handler, as supplied by
+                    the model's tool call — an arbitrary JSON object.
         db: SQLAlchemy session.
 
     Returns:
@@ -287,7 +311,7 @@ def execute_tool(tool_name: str, tool_input: dict, db: Session) -> dict:
 
 
 # Map after functions are defined
-_HANDLERS = {
+_HANDLERS: dict[str, _ToolHandler] = {
     "keyword_search": handle_keyword_search,
     "filter_search": handle_filter_search,
     "price_stats": handle_price_stats,
