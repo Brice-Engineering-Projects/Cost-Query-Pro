@@ -215,7 +215,10 @@ Example interaction:
 ### Admin Operations and Data Governance
 
 - [x] Data purge by year cutoff with cascade (admin authorized)
-- [x] Purged data archived to `archived_projects` and `archived_items`
+- [!] **[C-3]** Purged data archived to `archived_projects` and `archived_items` — **not implemented; was previously marked done in error.** `api/purge.py` deletes items and projects outright and never writes an archive row. The `ArchivedProject` / `ArchivedItem` models are not imported in `models/__init__.py`, are absent from `Base.metadata`, and have no migration, so the destination tables do not exist. **Admin purge is therefore irreversible today**, contrary to what this line claimed. Blocked on **[C-2]** below (the models must be fixed and migrated before purge can write to them). Once unblocked:
+  - Write archive rows inside the same transaction as the delete, so a failed archive aborts the purge
+  - Record `purged_by_user_id` and the archive timestamp
+  - Cover with a test asserting that purged rows are recoverable from the archive tables
 - [x] User management: list · delete · promote to admin
 - [ ] Audit log retrieval endpoint for admin review
 - [ ] Duplicate detection rules and conflict handling on ingest
@@ -238,7 +241,10 @@ Example interaction:
   - Fix `ArchivedProject.archived_at` column type: `Boolean` → `DateTime` (with `nullable=False`)
   - Add missing `upload_id` FK column to `ArchivedItem` (mirrors `Item.upload_id`)
   - Correct `ArchivedItem.project_id` FK reference from `projects.id` → `archived_projects.id`
+  - Register both models in `models/__init__.py` so they reach `Base.metadata` (they are currently invisible to Alembic autogenerate, which is why migration `c7a4e2b91d38` had to be hand-written)
   - Write and test migration; verify both `upgrade` and `downgrade` paths
+  - **Blocks [C-3]** (purge-to-archive) under *Admin Operations and Data Governance* — until this lands, admin purge is irreversible
+  - Note: until the tablename collisions are fixed, importing `ArchivedProject` alongside `Project` raises `InvalidRequestError`; both currently declare `__tablename__ = "projects"` / `"items"`
 - [ ] Updated ERD published after all Phase 2 schema changes land
 
 ### Ingestion Reliability
@@ -290,6 +296,9 @@ Source documents — particularly Excel and PDF bid tabulation exports — commo
 ### Deployment and CI/CD
 
 - [x] CI quality gate: pre-commit (lint/format), bandit (SAST), pip-audit (dependencies)
+- [x] CI type gate: `mypy --strict src/cost_query_pro` in the Quality job of both workflows; strictness configured in `[tool.mypy]` so local runs match CI
+- [ ] Raise `tests/` to strict typing and drop the `[[tool.mypy.overrides]]` relaxation in `pyproject.toml` — roughly 230 findings, almost all missing annotations on test functions; the application-code gate is already enforced and does not depend on this
+- [ ] Add `alembic check` to the CI test gate so model/migration drift fails the build rather than surfacing in someone's next autogenerate (drift found and fixed once already in `a3f5c81e7b24`)
 - [x] CI test gate: PostgreSQL service, Alembic migration, pytest
 - [ ] Dockerfile and docker-compose with production-safe defaults
 - [ ] Environment promotion model: dev → staging → prod
