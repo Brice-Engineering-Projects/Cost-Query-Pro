@@ -72,25 +72,31 @@ class ItemWithProject(ItemOut):
 
     project: ProjectOut
 
-    @computed_field
+    # mypy cannot represent a decorator stacked on @property (mypy #1362, open
+    # upstream), so every @computed_field below needs the narrow
+    # prop-decorator suppression. This is the fix Pydantic itself prescribes;
+    # dropping @property would silence mypy but Pydantic advises against it,
+    # since it loses IDE completion and confuses static type checkers.
+
+    @computed_field  # type: ignore[prop-decorator]
     @property
     def project_name(self) -> str:
         """Project name from the associated project."""
         return self.project.project_name
 
-    @computed_field
+    @computed_field  # type: ignore[prop-decorator]
     @property
     def project_number(self) -> str:
         """Project number from the associated project."""
         return self.project.project_number
 
-    @computed_field
+    @computed_field  # type: ignore[prop-decorator]
     @property
     def state(self) -> str:
         """State code from the associated project."""
         return self.project.state
 
-    @computed_field
+    @computed_field  # type: ignore[prop-decorator]
     @property
     def year(self) -> int:
         """Project year from the associated project."""
