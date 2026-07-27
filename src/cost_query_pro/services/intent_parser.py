@@ -79,7 +79,7 @@ def parse_intent(
 
     raw = provider.complete(
         messages, system=system, max_tokens=512, request_id=request_id
-    )
+    ).text
     logger.debug("Intent parser raw LLM response (request_id=%s): %s", request_id, raw)
 
     cleaned = _strip_code_fences(raw)

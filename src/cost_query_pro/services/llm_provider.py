@@ -8,6 +8,7 @@ referenced outside this module.
 """
 
 import logging
+from dataclasses import dataclass, field
 from typing import TYPE_CHECKING, Protocol, runtime_checkable
 
 import anthropic
@@ -19,6 +20,27 @@ if TYPE_CHECKING:
     from cost_query_pro.config.settings import Settings
 
 logger = logging.getLogger(__name__)
+
+
+# ---------------------------------------------------------------------------
+# Completion result
+# ---------------------------------------------------------------------------
+
+
+@dataclass(frozen=True)
+class CompletionResult:
+    """One completion, with the metadata needed to bill it.
+
+    ``provider`` and ``model`` describe the provider that actually served the
+    call, not the one that was configured — they differ whenever
+    :class:`FallbackLLMProvider` fails over.
+    """
+
+    text: str
+    provider: str
+    model: str
+    input_tokens: int
+    output_tokens: int
 
 
 # ---------------------------------------------------------------------------
@@ -39,8 +61,8 @@ class LLMProvider(Protocol):
         system: str | None = None,
         max_tokens: int = 4096,
         request_id: str | None = None,
-    ) -> str:
-        """Send messages and return the assistant text reply."""
+    ) -> CompletionResult:
+        """Send messages and return the assistant reply with usage metadata."""
         ...
 
 
@@ -63,7 +85,7 @@ class ClaudeProvider:
         system: str | None = None,
         max_tokens: int = 4096,
         request_id: str | None = None,
-    ) -> str:
+    ) -> CompletionResult:
         kwargs: dict = dict(
             model=self._model,
             max_tokens=max_tokens,
@@ -73,7 +95,16 @@ class ClaudeProvider:
             kwargs["system"] = system
 
         response = self._client.messages.create(**kwargs)
-        return next(b.text for b in response.content if b.type == "text")
+        text = next(b.text for b in response.content if b.type == "text")
+        return CompletionResult(
+            text=text,
+            provider=self.name,
+            # response.model is what actually served the request, which can
+            # differ from self._model if an alias was configured.
+            model=getattr(response, "model", None) or self._model,
+            input_tokens=response.usage.input_tokens,
+            output_tokens=response.usage.output_tokens,
+        )
 
 
 # ---------------------------------------------------------------------------
@@ -95,7 +126,7 @@ class OpenAIProvider:
         system: str | None = None,
         max_tokens: int = 4096,
         request_id: str | None = None,
-    ) -> str:
+    ) -> CompletionResult:
         full_messages: list[dict[str, str]] = []
         if system:
             full_messages.append({"role": "system", "content": system})
@@ -106,7 +137,14 @@ class OpenAIProvider:
             max_tokens=max_tokens,
             messages=full_messages,  # type: ignore[arg-type]
         )
-        return response.choices[0].message.content or ""
+        usage = response.usage
+        return CompletionResult(
+            text=response.choices[0].message.content or "",
+            provider=self.name,
+            model=getattr(response, "model", None) or self._model,
+            input_tokens=usage.prompt_tokens if usage else 0,
+            output_tokens=usage.completion_tokens if usage else 0,
+        )
 
 
 # ---------------------------------------------------------------------------
@@ -130,7 +168,7 @@ class FallbackLLMProvider:
         system: str | None = None,
         max_tokens: int = 4096,
         request_id: str | None = None,
-    ) -> str:
+    ) -> CompletionResult:
         try:
             return self._primary.complete(
                 messages,
@@ -153,6 +191,52 @@ class FallbackLLMProvider:
                 max_tokens=max_tokens,
                 request_id=request_id,
             )
+
+
+# ---------------------------------------------------------------------------
+# Metering decorator
+# ---------------------------------------------------------------------------
+
+
+@dataclass
+class MeteredProvider:
+    """Wraps a provider and records every completion it serves.
+
+    Accumulating on the instance is safe because ``get_llm_provider`` builds a
+    fresh provider for each request, so one instance never spans two requests.
+    The endpoint reads :attr:`calls` after the pipeline finishes and persists a
+    usage row per entry.
+
+    ``calls`` records what actually happened: on a fallback failover the entry
+    names the provider and model that served the call, so a request answered by
+    OpenAI is never billed at Anthropic rates.
+    """
+
+    inner: LLMProvider
+    calls: list[CompletionResult] = field(default_factory=list)
+    # A plain attribute rather than a property: LLMProvider declares `name` as a
+    # settable variable, and a read-only property fails the Protocol check.
+    name: str = field(init=False)
+
+    def __post_init__(self) -> None:
+        self.name = self.inner.name
+
+    def complete(
+        self,
+        messages: list[dict[str, str]],
+        *,
+        system: str | None = None,
+        max_tokens: int = 4096,
+        request_id: str | None = None,
+    ) -> CompletionResult:
+        result = self.inner.complete(
+            messages,
+            system=system,
+            max_tokens=max_tokens,
+            request_id=request_id,
+        )
+        self.calls.append(result)
+        return result
 
 
 # ---------------------------------------------------------------------------
@@ -214,8 +298,12 @@ def build_provider(settings: "Settings") -> LLMProvider:
     )
 
 
-def get_llm_provider() -> LLMProvider:
-    """FastAPI Depends-compatible factory. Raises AppError if the configured key is absent."""
+def get_llm_provider() -> MeteredProvider:
+    """FastAPI Depends-compatible factory. Raises AppError if the configured key is absent.
+
+    Returns a :class:`MeteredProvider` so the caller can read per-call token
+    usage off ``provider.calls`` once the request pipeline has finished.
+    """
     from cost_query_pro.config.settings import settings
 
-    return build_provider(settings)
+    return MeteredProvider(inner=build_provider(settings))

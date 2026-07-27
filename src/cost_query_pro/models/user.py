@@ -16,6 +16,7 @@ from sqlalchemy.orm import Mapped, mapped_column, relationship
 from cost_query_pro.db import Base
 
 if TYPE_CHECKING:
+    from cost_query_pro.models.llm_usage import LlmUsage
     from cost_query_pro.models.upload_history import UploadHistory
 
 
@@ -35,6 +36,9 @@ class User(Base):
     )
     uploads: Mapped[list[UploadHistory]] = relationship(
         "UploadHistory", back_populates="user"
+    )
+    llm_usage: Mapped[list[LlmUsage]] = relationship(
+        "LlmUsage", back_populates="user", cascade="all, delete-orphan"
     )
 
     def __repr__(self):

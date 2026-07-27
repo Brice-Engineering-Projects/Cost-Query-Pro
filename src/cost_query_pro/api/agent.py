@@ -26,8 +26,9 @@ from cost_query_pro.schemas.agent import (
 from cost_query_pro.services.analytics import compute_summary
 from cost_query_pro.services.intent_parser import parse_intent
 from cost_query_pro.services.item_search import run_search
-from cost_query_pro.services.llm_provider import LLMProvider, get_llm_provider
+from cost_query_pro.services.llm_provider import MeteredProvider, get_llm_provider
 from cost_query_pro.services.response_generator import generate_response
+from cost_query_pro.services.usage_recorder import record_usage
 
 router = APIRouter()
 logger = logging.getLogger(__name__)
@@ -39,11 +40,35 @@ _CLARIFYING_ANSWER = (
 )
 
 
-def _resolve_model(provider_name: str) -> str:
-    """Map provider name to the configured model identifier."""
+def _configured_model(provider_name: str) -> str:
+    """Map provider name to the configured model identifier.
+
+    Only a fallback for when no call has been made yet — a configured name says
+    nothing about which provider actually served a request. Prefer
+    :func:`_observed_model`.
+    """
     if provider_name == "openai":
         return settings.openai_model
-    return settings.claude_model  # "claude" and "fallback" both use Claude as primary
+    return settings.claude_model  # "claude" and "fallback" both start on Claude
+
+
+def _observed_model(provider: MeteredProvider) -> str:
+    """The model that actually served this request.
+
+    Reads the last recorded completion rather than the configured provider
+    name, so a request that failed over from Claude to OpenAI reports the model
+    that really answered it instead of always reporting Claude.
+    """
+    if provider.calls:
+        return provider.calls[-1].model
+    return _configured_model(provider.name)
+
+
+def _observed_provider(provider: MeteredProvider) -> str:
+    """The provider that actually served this request (see :func:`_observed_model`)."""
+    if provider.calls:
+        return provider.calls[-1].provider
+    return provider.name
 
 
 def _empty_scope() -> SearchScopeOut:
@@ -55,7 +80,7 @@ def agent_query(
     body: AgentQueryRequest,
     db: Session = Depends(get_db),
     current_user: DBUser = Depends(get_current_user),
-    provider: LLMProvider = Depends(get_llm_provider),
+    provider: MeteredProvider = Depends(get_llm_provider),
 ) -> AgentQueryResponse:
     """Natural language cost query endpoint.
 
@@ -71,13 +96,26 @@ def agent_query(
       - No matching records → 200 with a friendly explanation (no error).
     """
     request_id = body.request_id or str(uuid4())
-    model = _resolve_model(provider.name)
 
     logger.info(
         "agent_query started (request_id=%s, user=%s)",
         request_id,
         current_user.username,
     )
+
+    def _record() -> None:
+        """Persist token usage for whatever calls this request made so far.
+
+        Called on every exit path, including the two graceful-degradation
+        returns — an ambiguous question or an empty result set still spends
+        tokens, and unrecorded spend would undercount the monthly total.
+        """
+        record_usage(
+            db,
+            user_id=current_user.id,
+            request_id=request_id,
+            calls=provider.calls,
+        )
 
     # ── Step 1: Parse intent ──────────────────────────────────────────────────
     try:
@@ -88,14 +126,16 @@ def agent_query(
                 "Intent parse failed — returning clarifying question (request_id=%s)",
                 request_id,
             )
+            _record()
             return AgentQueryResponse(
                 answer=_CLARIFYING_ANSWER,
                 record_count=0,
                 search_scope=_empty_scope(),
-                provider=provider.name,
-                model=model,
+                provider=_observed_provider(provider),
+                model=_observed_model(provider),
                 request_id=request_id,
             )
+        _record()
         raise
 
     scope = SearchScopeOut(
@@ -116,6 +156,7 @@ def agent_query(
         if exc.code == "NO_RESULTS":
             state_label = "any state" if params.state == "US" else params.state
             logger.info("No results found (request_id=%s)", request_id)
+            _record()
             return AgentQueryResponse(
                 answer=(
                     f"No records were found for '{params.item}' in {state_label} "
@@ -125,10 +166,11 @@ def agent_query(
                 ),
                 record_count=0,
                 search_scope=scope,
-                provider=provider.name,
-                model=model,
+                provider=_observed_provider(provider),
+                model=_observed_model(provider),
                 request_id=request_id,
             )
+        _record()
         raise
 
     # ── Steps 4–5: Sanitize + generate response ───────────────────────────────
@@ -142,11 +184,12 @@ def agent_query(
         summary.record_count,
     )
 
+    _record()
     return AgentQueryResponse(
         answer=answer,
         record_count=summary.record_count,
         search_scope=scope,
-        provider=provider.name,
-        model=model,
+        provider=_observed_provider(provider),
+        model=_observed_model(provider),
         request_id=request_id,
     )

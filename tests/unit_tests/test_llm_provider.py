@@ -23,22 +23,40 @@ from cost_query_pro.services.llm_provider import (
 # ---------------------------------------------------------------------------
 
 
-def _make_anthropic_response(text: str) -> MagicMock:
+def _make_anthropic_response(
+    text: str,
+    *,
+    model: str = "claude-sonnet-4-6",
+    input_tokens: int = 100,
+    output_tokens: int = 25,
+) -> MagicMock:
     """Build a mock anthropic Messages response."""
     block = MagicMock()
     block.type = "text"
     block.text = text
     msg = MagicMock()
     msg.content = [block]
+    msg.model = model
+    msg.usage.input_tokens = input_tokens
+    msg.usage.output_tokens = output_tokens
     return msg
 
 
-def _make_openai_response(text: str) -> MagicMock:
+def _make_openai_response(
+    text: str,
+    *,
+    model: str = "gpt-4o",
+    prompt_tokens: int = 100,
+    completion_tokens: int = 25,
+) -> MagicMock:
     """Build a mock OpenAI ChatCompletion response."""
     choice = MagicMock()
     choice.message.content = text
     resp = MagicMock()
     resp.choices = [choice]
+    resp.model = model
+    resp.usage.prompt_tokens = prompt_tokens
+    resp.usage.completion_tokens = completion_tokens
     return resp
 
 
@@ -88,7 +106,11 @@ class TestClaudeProvider:
         with patch.object(provider._client.messages, "create", return_value=mock_resp):
             result = provider.complete([{"role": "user", "content": "Hi"}])
 
-        assert result == "Hello from Claude"
+        assert result.text == "Hello from Claude"
+        assert result.provider == "claude"
+        assert result.model == "claude-sonnet-4-6"
+        assert result.input_tokens == 100
+        assert result.output_tokens == 25
 
     def test_complete_passes_system_prompt(self):
         provider = ClaudeProvider(api_key="sk-ant-test")
@@ -133,7 +155,11 @@ class TestOpenAIProvider:
         ):
             result = provider.complete([{"role": "user", "content": "Hi"}])
 
-        assert result == "Hello from OpenAI"
+        assert result.text == "Hello from OpenAI"
+        assert result.provider == "openai"
+        assert result.model == "gpt-4o"
+        assert result.input_tokens == 100
+        assert result.output_tokens == 25
 
     def test_complete_prepends_system_message(self):
         provider = OpenAIProvider(api_key="sk-oai-test")

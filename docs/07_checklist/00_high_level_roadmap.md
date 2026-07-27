@@ -177,15 +177,24 @@ Example interaction:
 - [x] Citation format enforced: search scope (item, state, year range, record count) included in every response; individual project records are excluded per the security architecture
 - [x] Agent gracefully handles queries with no matching data (returns "no records found" message, not an error)
 - [x] Agent gracefully handles ambiguous queries by asking a clarifying question rather than guessing
-- [ ] Streaming response support for the agent endpoint (Server-Sent Events or chunked transfer)
+- [ ] [>] Streaming response support for the agent endpoint (Server-Sent Events or chunked transfer) — deferred to Phase 3; see *Agent Endpoint Response Delivery*
 - [x] Agent endpoint requires JWT authentication
 
 #### Cost Control and Rate Limiting
 
-- [ ] Rate limiting on agent endpoint to control LLM API costs (per-user and global limits)
-- [ ] Token usage logged per request: provider, model, input tokens, output tokens, cost estimate
-- [ ] Monthly LLM spend cap configurable via `settings.LLM_MONTHLY_BUDGET_USD`; requests rejected gracefully when cap is reached
-- [ ] Query result caching for identical or near-identical questions (configurable TTL)
+**Sequencing:** token usage logging is built first and the other items depend on it. State lives in Postgres, not Redis — the budget ledger must be durable, `redis` is declared in `pyproject.toml` but unused with no compose file, no Dockerfile, and no Redis service in CI (containerization is a Phase 3 item). One `llm_usage` table therefore serves three of the four items: the rows are the token log, the per-user/global rate limit is an indexed `COUNT` over a time window, and the spend cap is a `SUM(cost_usd)` for the calendar month.
+
+- [x] **Step 1 — Token usage logged per request: provider, model, input tokens, output tokens, cost estimate.** Foundation for steps 2 and 3, and the only item that produces data — the budget figure in step 3 cannot be chosen sensibly until real usage has been recorded. Delivered:
+  - `LLMProvider.complete()` now returns a `CompletionResult` (text, provider, model, input/output tokens) instead of a bare `str`, so `response.usage` is no longer discarded. `MeteredProvider` wraps the configured provider and accumulates one entry per completion; `get_llm_provider` returns it, which is safe because a fresh provider is built per request.
+  - `llm_usage` table (migration `c7a4e2b91d38`): one row per completion, not per request — a query makes two calls, and a failover can split them across providers. Composite `(user_id, created_at)` and `(created_at)` indexes are in place to serve the step 2/3 COUNT and SUM queries.
+  - `config/pricing.py` holds operator-maintained USD-per-MTok rates. An unpriced model records its token counts with a **NULL** `cost_usd` and logs once, so "unknown price" stays distinguishable from "free" when spend is summed.
+  - Usage is recorded on every exit path including both graceful-degradation returns — an ambiguous question or an empty result set still spends tokens. `record_usage` never raises: accounting must not turn a successful answer into a failed request.
+  - Fixed a pre-existing defect: `_resolve_model()` reported `claude_model` whenever `provider.name != "openai"`, so a fallback request served by OpenAI was attributed to Anthropic. Replaced with `_observed_provider`/`_observed_model`, which read what actually served the call.
+  - 165 tests pass; migration verified in both directions.
+- [ ] **Step 2 — Rate limiting on agent endpoint to control LLM API costs (per-user and global limits).** Additive once step 1 lands: a `COUNT` over `llm_usage` in a FastAPI dependency.
+- [ ] **Step 3 — Monthly LLM spend cap configurable via `settings.LLM_MONTHLY_BUDGET_USD`; requests rejected gracefully when cap is reached.** Additive: a `SUM(cost_usd)` in the same dependency.
+  - Steps 2 and 3 must be enforced in a route dependency, **not** inside `complete()`: `services/intent_parser.py:89` catches bare `Exception` and relabels it `INTENT_PARSE_ERROR`, which `api/agent.py:86` converts to a `200` clarifying question — a cap error raised inside the pipeline would be silently swallowed.
+- [ ] [>] **Step 4 — Query result caching for identical or near-identical questions (configurable TTL)** — deferred. Cached cost answers go stale the moment new bid data lands, and the invalidation trigger is the ingestion pipeline, which is not yet implemented (see *Ingestion Reliability*). Revisit once ingestion can emit an invalidation signal.
 
 #### Testing and Documentation
 
@@ -299,7 +308,7 @@ Source documents — particularly Excel and PDF bid tabulation exports — commo
 - [ ] Secrets moved to managed secret storage (not `.env` in production)
 - [ ] JWT refresh token flow and token revocation implemented (carried from Phase 1)
 - [ ] Least-privilege role/permission review completed and signed off
-- [ ] [>] Enterprise AI mode: template-based response path that eliminates the second LLM call — only the user's question leaves the environment; no database-derived data transmitted to external providers (carried from Phase 2)
+- [ ] [>] Enterprise AI mode: template-based response path that eliminates the second LLM call — only the user's question leaves the environment; no database-derived data transmitted to external providers (carried from Phase 2) — unblocks streaming; see *Agent Endpoint Response Delivery*
 
 ### Observability and Reliability
 
@@ -316,6 +325,27 @@ Source documents — particularly Excel and PDF bid tabulation exports — commo
 - [ ] Load and soak tests run in staging
 - [ ] DB connection pooling and app workers tuned
 - [ ] Scaling triggers and actions documented
+
+### Agent Endpoint Response Delivery (deferred from Phase 2)
+
+`POST /api/v1/agent/query` is blocking: the caller waits through two LLM round trips and a database query before receiving a single JSON payload. Streaming was deferred out of Phase 2 rather than dropped — the preconditions below must hold first, because today there is no client that can consume a stream and the response path itself is not settled.
+
+**Preconditions (all must be true before starting):**
+
+- [ ] An interactive client exists that can render incremental output (the current `web/views/routes.py` dashboard is server-rendered Jinja and does not call the agent endpoint)
+- [ ] Enterprise AI mode is resolved (see *Security Hardening*) — that item eliminates the second LLM call, which is the only streamable portion of the pipeline
+- [ ] Cost control is implemented on the blocking endpoint first (rate limiting, per-request token logging, spend cap) so streaming inherits the instrumentation rather than duplicating it
+
+**Implementation scope, in order:**
+
+- [ ] **Stage 1 — status events only.** SSE endpoint emitting pipeline progress (`parsing` → `searching` → `found N records`) with the final answer delivered as one event. Captures most of the perceived-latency win; all metadata is emitted before any LLM text, so the provider-fallback and token-accounting problems below do not arise.
+- [ ] **Stage 2 — token streaming.** Add `stream()` to the `LLMProvider` protocol and implement on `ClaudeProvider`, `OpenAIProvider`, and `FallbackLLMProvider`
+- [ ] Fallback semantics defined for mid-stream provider failure (partial output has already reached the client and cannot be retracted)
+- [ ] Token usage recorded correctly when a client disconnects mid-stream (tokens are billed regardless; usage totals arrive at end-of-stream)
+- [ ] Mid-stream errors surfaced as a typed `error` event — status and headers are committed with the first chunk, so `AppError` can no longer become an HTTP status code
+- [ ] Response contract documented by hand: `StreamingResponse` bypasses `response_model` validation and OpenAPI schema generation
+- [ ] Reverse-proxy buffering disabled for this route (`proxy_buffering off` / `X-Accel-Buffering: no`), otherwise the response is re-buffered and streaming has no effect
+- [ ] Blocking `POST /api/v1/agent/query` retained alongside the streaming route so scripted and API consumers keep the stable JSON contract
 
 **Phase 3 exit criteria:**
 

@@ -11,6 +11,7 @@ import pytest
 from cost_query_pro.core.errors import AppError
 from cost_query_pro.schemas.agent import SearchParameters
 from cost_query_pro.services.intent_parser import parse_intent
+from cost_query_pro.services.llm_provider import CompletionResult
 
 # ---------------------------------------------------------------------------
 # Helpers
@@ -30,7 +31,13 @@ VALID_JSON_WITH_OPTIONALS = (
 
 def _make_provider(return_value: str) -> MagicMock:
     provider = MagicMock()
-    provider.complete.return_value = return_value
+    provider.complete.return_value = CompletionResult(
+        text=return_value,
+        provider="claude",
+        model="claude-sonnet-4-6",
+        input_tokens=120,
+        output_tokens=40,
+    )
     return provider
 
 

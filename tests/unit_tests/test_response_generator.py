@@ -10,6 +10,7 @@ from typing import Literal, Optional
 from unittest.mock import MagicMock
 
 from cost_query_pro.schemas.agent import CostSummary, SearchParameters
+from cost_query_pro.services.llm_provider import CompletionResult
 from cost_query_pro.services.response_generator import (
     _build_user_message,
     generate_response,
@@ -24,7 +25,13 @@ QUESTION = "What have Florida utilities been paying for 24-inch ductile iron pip
 
 def _make_provider(return_value: str = "Based on 147 records...") -> MagicMock:
     p = MagicMock()
-    p.complete.return_value = return_value
+    p.complete.return_value = CompletionResult(
+        text=return_value,
+        provider="claude",
+        model="claude-sonnet-4-6",
+        input_tokens=350,
+        output_tokens=90,
+    )
     return p
 
 

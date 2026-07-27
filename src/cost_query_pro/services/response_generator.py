@@ -99,4 +99,4 @@ def generate_response(
         request_id,
         summary.record_count,
     )
-    return response
+    return response.text
