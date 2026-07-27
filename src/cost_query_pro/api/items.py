@@ -3,11 +3,12 @@
 from decimal import Decimal
 from typing import List, Optional
 
-from fastapi import APIRouter, Depends, HTTPException, Query, Response, status
+from fastapi import APIRouter, Depends, Query, Response, status
 from pydantic import BaseModel
 from sqlalchemy.orm import Session, joinedload
 
-from cost_query_pro.api.auth import get_current_user
+from cost_query_pro.core.errors import AppError
+from cost_query_pro.core.security import get_current_user
 from cost_query_pro.db.session import get_db
 from cost_query_pro.models import Item, Project
 from cost_query_pro.models.user import User as DBUser
@@ -33,8 +34,8 @@ def search_items(
     skip: int = 0,
     limit: int = 100,
     db: Session = Depends(get_db),
-    current_user=Depends(get_current_user),
-):
+    current_user: DBUser = Depends(get_current_user),
+) -> List[Item]:
     """
     Search for items with various filters:
     - Item description keyword
@@ -60,15 +61,15 @@ def search_items(
     if max_price is not None:
         query = query.filter(Item.unit_price <= max_price)
 
-    return query.offset(skip).limit(limit).all()
+    return query.order_by(Item.id).offset(skip).limit(limit).all()
 
 
 @router.get("/{item_id}", response_model=ItemWithProject)
 def get_item(
     item_id: int,
     db: Session = Depends(get_db),
-    current_user=Depends(get_current_user),
-):
+    current_user: DBUser = Depends(get_current_user),
+) -> Item:
     """
     Retrieve a specific item by ID with its project details.
     """
@@ -79,10 +80,7 @@ def get_item(
         .first()
     )
     if not item:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail=f"Item with ID {item_id} not found.",
-        )
+        raise AppError("ITEM_NOT_FOUND", f"Item with ID {item_id} not found.", 404)
     return item
 
 
@@ -90,16 +88,15 @@ def get_item(
 def create_item(
     item: ItemCreate,
     db: Session = Depends(get_db),
-    current_user=Depends(get_current_user),
-):
+    current_user: DBUser = Depends(get_current_user),
+) -> Item:
     """
     Create a new item.
     """
     project = db.query(Project).filter(Project.id == item.project_id).first()
     if not project:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail=f"Project with ID {item.project_id} not found.",
+        raise AppError(
+            "PROJECT_NOT_FOUND", f"Project with ID {item.project_id} not found.", 404
         )
 
     db_item = Item(
@@ -107,6 +104,7 @@ def create_item(
         item_description=item.item_description,
         unit=item.unit,
         unit_price=item.unit_price,
+        quantity=item.quantity,
     )
     db.add(db_item)
     db.commit()
@@ -119,24 +117,22 @@ def update_item(
     item_id: int,
     item: ItemUpdate,
     db: Session = Depends(get_db),
-    current_user=Depends(get_current_user),
-):
+    current_user: DBUser = Depends(get_current_user),
+) -> Item:
     """
     Update an existing item.
     """
     db_item = db.query(Item).filter(Item.id == item_id).first()
     if not db_item:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail=f"Item with ID {item_id} not found.",
-        )
+        raise AppError("ITEM_NOT_FOUND", f"Item with ID {item_id} not found.", 404)
 
     if item.project_id is not None and item.project_id != db_item.project_id:
         project = db.query(Project).filter(Project.id == item.project_id).first()
         if not project:
-            raise HTTPException(
-                status_code=status.HTTP_404_NOT_FOUND,
-                detail=f"Project with ID {item.project_id} not found.",
+            raise AppError(
+                "PROJECT_NOT_FOUND",
+                f"Project with ID {item.project_id} not found.",
+                404,
             )
 
     for key, value in item.model_dump(exclude_unset=True).items():
@@ -151,17 +147,14 @@ def update_item(
 def delete_item(
     item_id: int,
     db: Session = Depends(get_db),
-    current_user=Depends(get_current_user),
-):
+    current_user: DBUser = Depends(get_current_user),
+) -> Response:
     """
     Delete an item.
     """
     db_item = db.query(Item).filter(Item.id == item_id).first()
     if not db_item:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail=f"Item with ID {item_id} not found.",
-        )
+        raise AppError("ITEM_NOT_FOUND", f"Item with ID {item_id} not found.", 404)
 
     db.delete(db_item)
     db.commit()
@@ -171,12 +164,12 @@ def delete_item(
 @router.get("/units/distinct", response_model=List[str])
 def get_distinct_units(
     db: Session = Depends(get_db),
-    current_user=Depends(get_current_user),
-):
+    current_user: DBUser = Depends(get_current_user),
+) -> List[str]:
     """
     Get all distinct unit types in the DB.
     """
-    result = db.query(Item.unit).distinct().all()
+    result = db.query(Item.unit).distinct().order_by(Item.unit).all()
     return [unit[0] for unit in result]
 
 
@@ -184,8 +177,8 @@ def get_distinct_units(
 def get_price_range(
     item_query: Optional[str] = None,
     db: Session = Depends(get_db),
-    current_user=Depends(get_current_user),
-):
+    current_user: DBUser = Depends(get_current_user),
+) -> PriceRangeOut:
     """
     Get min and max price for items matching the query.
     """
@@ -197,17 +190,6 @@ def get_price_range(
     max_price_item = query.order_by(Item.unit_price.desc()).first()
 
     return PriceRangeOut(
-        min_price=min_price_item.unit_price if min_price_item else None,
-        max_price=max_price_item.unit_price if max_price_item else None,
+        min_price=Decimal(str(min_price_item.unit_price)) if min_price_item else None,
+        max_price=Decimal(str(max_price_item.unit_price)) if max_price_item else None,
     )
-
-
-@router.get("/search")
-def search_items_placeholder(current_user: DBUser = Depends(get_current_user)):
-    """
-    Placeholder route to demonstrate authentication.
-
-        - Requires a valid JWT token.
-        - Returns a simple success message with current user info.
-    """
-    return {"message": f"Authenticated as {current_user.username}"}

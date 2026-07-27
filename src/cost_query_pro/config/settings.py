@@ -3,11 +3,8 @@
 import logging
 from typing import Optional
 
-from pydantic import ConfigDict, Field, PostgresDsn, RedisDsn
+from pydantic import Field, PostgresDsn, RedisDsn
 from pydantic_settings import BaseSettings, SettingsConfigDict
-
-model_config: SettingsConfigDict = {"env_file": ".env"}
-
 
 # ------------------------------------------------------------
 # Logging setup
@@ -27,88 +24,100 @@ logging.basicConfig(
 class GeneralSettings(BaseSettings):
     """General application settings"""
 
-    secret_key: str = Field("default_secret_key", env="SECRET_KEY")
-    environment: str = Field("production", env="ENVIRONMENT")
-    fastapi_debug: bool = Field(False, env="FASTAPI_DEBUG")
-    testing: bool = Field(False, env="TESTING")
+    secret_key: str = Field("default_secret_key")
+    environment: str = Field("production")
+    fastapi_debug: bool = Field(False)
+    testing: bool = Field(False)
 
 
 class DatabaseSettings(BaseSettings):
     """Database configuration settings"""
 
-    database_url: Optional[PostgresDsn] = Field(None, env="DATABASE_URL")
-    dev_database_url: Optional[PostgresDsn] = Field(None, env="DEV_DATABASE_URL")
-    test_database_url: Optional[PostgresDsn] = Field(None, env="TEST_DATABASE_URL")
+    database_url: Optional[PostgresDsn] = Field(None)
+    dev_database_url: Optional[PostgresDsn] = Field(None)
+    test_database_url: Optional[PostgresDsn] = Field(None)
 
     # SQLAlchemy Engine Options
-    db_pool_size: int = Field(20, env="DB_POOL_SIZE")
-    db_pool_timeout: int = Field(30, env="DB_POOL_TIMEOUT")
-    db_pool_recycle: int = Field(1800, env="DB_POOL_RECYCLE")
-    db_max_overflow: int = Field(10, env="DB_MAX_OVERFLOW")
+    db_pool_size: int = Field(20)
+    db_pool_timeout: int = Field(30)
+    db_pool_recycle: int = Field(1800)
+    db_max_overflow: int = Field(10)
 
 
 class SessionSettings(BaseSettings):
     """Session and Redis configuration"""
 
-    session_type: str = Field("filesystem", env="SESSION_TYPE")
-    session_permanent: bool = Field(False, env="SESSION_PERMANENT")
-    redis_url: Optional[RedisDsn] = Field("redis://localhost:6379/0", env="REDIS_URL")
+    session_type: str = Field("filesystem")
+    session_permanent: bool = Field(False)
+    redis_url: Optional[RedisDsn] = Field(None)
 
 
 class AuthSettings(BaseSettings):
     """Authentication configuration"""
 
+    model_config = SettingsConfigDict(populate_by_name=True)
+
     # Auth0 settings
-    auth0_client_id: Optional[str] = Field(None, env="AUTH0_CLIENT_ID")
-    auth0_client_secret: Optional[str] = Field(None, env="AUTH0_CLIENT_SECRET")
-    auth0_domain: Optional[str] = Field(None, env="AUTH0_DOMAIN")
-    auth0_callback_url: Optional[str] = Field(None, env="AUTH0_CALLBACK_URL")
-    auth0_audience: Optional[str] = Field(None, env="AUTH0_AUDIENCE")
+    auth0_client_id: Optional[str] = Field(None)
+    auth0_client_secret: Optional[str] = Field(None)
+    auth0_domain: Optional[str] = Field(None)
+    auth0_callback_url: Optional[str] = Field(None)
+    auth0_audience: Optional[str] = Field(None)
 
     # Auth config
-    access_token_expire_minutes: int = Field(60, env="ACCESS_TOKEN_EXPIRE_MINUTES")
-    algorithm: str = Field("HS256", env="ALGORITHM")
-    allow_admin_signup: bool = Field(default=False, alias="ALLOW_ADMIN_SIGNUP")
+    access_token_expire_minutes: int = Field(60)
+    algorithm: str = Field("HS256")
+    allow_admin_signup: bool = Field(False)
 
 
 class Settings(BaseSettings):
     """Main application settings with all configuration fields"""
 
     # General settings
-    secret_key: str = Field("default_secret_key", env="SECRET_KEY")
-    environment: str = Field("production", env="ENVIRONMENT")
-    fastapi_debug: bool = Field(False, env="FASTAPI_DEBUG")
-    testing: bool = Field(False, env="TESTING")
+    secret_key: str = Field("default_secret_key")
+    environment: str = Field("production")
+    fastapi_debug: bool = Field(False)
+    testing: bool = Field(False)
     api_base_url: str = "http://127.0.0.1:8000/api/v1"
 
     # Database settings
-    database_url: Optional[PostgresDsn] = Field(None, env="DATABASE_URL")
-    dev_database_url: Optional[PostgresDsn] = Field(None, env="DEV_DATABASE_URL")
-    test_database_url: Optional[PostgresDsn] = Field(None, env="TEST_DATABASE_URL")
-    db_pool_size: int = Field(20, env="DB_POOL_SIZE")
-    db_pool_timeout: int = Field(30, env="DB_POOL_TIMEOUT")
-    db_pool_recycle: int = Field(1800, env="DB_POOL_RECYCLE")
-    db_max_overflow: int = Field(10, env="DB_MAX_OVERFLOW")
+    database_url: Optional[PostgresDsn] = Field(None)
+    dev_database_url: Optional[PostgresDsn] = Field(None)
+    test_database_url: Optional[PostgresDsn] = Field(None)
+    db_pool_size: int = Field(20)
+    db_pool_timeout: int = Field(30)
+    db_pool_recycle: int = Field(1800)
+    db_max_overflow: int = Field(10)
 
     # Session settings
-    session_type: str = Field("filesystem", env="SESSION_TYPE")
-    session_permanent: bool = Field(False, env="SESSION_PERMANENT")
-    redis_url: Optional[RedisDsn] = Field("redis://localhost:6379/0", env="REDIS_URL")
+    session_type: str = Field("filesystem")
+    session_permanent: bool = Field(False)
+    redis_url: Optional[RedisDsn] = Field(None)
 
     # Auth settings
-    auth0_client_id: Optional[str] = Field(None, env="AUTH0_CLIENT_ID")
-    auth0_client_secret: Optional[str] = Field(None, env="AUTH0_CLIENT_SECRET")
-    auth0_domain: Optional[str] = Field(None, env="AUTH0_DOMAIN")
-    auth0_callback_url: Optional[str] = Field(None, env="AUTH0_CALLBACK_URL")
-    auth0_audience: Optional[str] = Field(None, env="AUTH0_AUDIENCE")
-    access_token_expire_minutes: int = Field(60, env="ACCESS_TOKEN_EXPIRE_MINUTES")
-    algorithm: str = Field("HS256", env="ALGORITHM")
-    allow_admin_signup: bool = Field(default=False, alias="ALLOW_ADMIN_SIGNUP")
+    auth0_client_id: Optional[str] = Field(None)
+    auth0_client_secret: Optional[str] = Field(None)
+    auth0_domain: Optional[str] = Field(None)
+    auth0_callback_url: Optional[str] = Field(None)
+    auth0_audience: Optional[str] = Field(None)
+    access_token_expire_minutes: int = Field(60)
+    algorithm: str = Field("HS256")
+    allow_admin_signup: bool = Field(False)
+    password_min_length: int = Field(8)
 
-    model_config = ConfigDict(
+    # LLM provider settings
+    anthropic_api_key: Optional[str] = Field(None)
+    openai_api_key: Optional[str] = Field(None)
+    llm_provider: str = Field("claude")  # "claude" | "openai"
+    claude_model: str = Field("claude-sonnet-4-6")
+    openai_model: str = Field("gpt-4o")
+    agent_prompt_version: str = Field("1.0.0")
+
+    model_config = SettingsConfigDict(
         env_file=".env",
         env_ignore_empty=True,
         env_prefix="",
+        populate_by_name=True,
     )
 
     # Convenience property accessors for organized access
@@ -159,4 +168,4 @@ class Settings(BaseSettings):
         )
 
 
-settings = Settings()
+settings = Settings()  # type: ignore[call-arg]

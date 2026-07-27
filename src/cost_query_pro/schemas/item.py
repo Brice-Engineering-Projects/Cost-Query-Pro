@@ -14,10 +14,11 @@ class ItemBase(BaseModel):
     """
 
     item_description: str = Field(
-        ..., min_length=1, max_length=255, example='8" PVC Gravity Sewer'
+        ..., min_length=1, max_length=255, examples=['8" PVC Gravity Sewer']
     )
-    unit: str = Field(..., min_length=1, max_length=50, example="LF")
-    unit_price: Decimal = Field(..., example=45.32)
+    unit: str = Field(..., min_length=1, max_length=50, examples=["LF"])
+    unit_price: Decimal = Field(..., examples=[45.32])
+    quantity: int = Field(..., ge=0, examples=[100])
 
     model_config = ConfigDict(from_attributes=True)
 
@@ -32,7 +33,7 @@ class ItemCreate(ItemBase):
     Schema for creating a new item.
     """
 
-    project_id: int = Field(..., example=1)
+    project_id: int = Field(..., examples=[1])
 
 
 class ItemUpdate(BaseModel):
@@ -42,11 +43,12 @@ class ItemUpdate(BaseModel):
     """
 
     item_description: Optional[str] = Field(
-        None, min_length=1, max_length=255, example='8" PVC Gravity Sewer'
+        None, min_length=1, max_length=255, examples=['8" PVC Gravity Sewer']
     )
-    unit: Optional[str] = Field(None, min_length=1, max_length=50, example="LF")
-    unit_price: float = Field(None, example=45.32)
-    project_id: Optional[int] = Field(None, example=1)
+    unit: Optional[str] = Field(None, min_length=1, max_length=50, examples=["LF"])
+    unit_price: Optional[float] = Field(None, examples=[45.32])
+    quantity: Optional[int] = Field(None, ge=0, examples=[100])
+    project_id: Optional[int] = Field(None, examples=[1])
 
     model_config = ConfigDict(from_attributes=True)
 
@@ -70,26 +72,32 @@ class ItemWithProject(ItemOut):
 
     project: ProjectOut
 
-    @computed_field
+    # mypy cannot represent a decorator stacked on @property (mypy #1362, open
+    # upstream), so every @computed_field below needs the narrow
+    # prop-decorator suppression. This is the fix Pydantic itself prescribes;
+    # dropping @property would silence mypy but Pydantic advises against it,
+    # since it loses IDE completion and confuses static type checkers.
+
+    @computed_field  # type: ignore[prop-decorator]
     @property
     def project_name(self) -> str:
         """Project name from the associated project."""
-        return self.project.project_name if self.project else None
+        return self.project.project_name
 
-    @computed_field
+    @computed_field  # type: ignore[prop-decorator]
     @property
     def project_number(self) -> str:
         """Project number from the associated project."""
-        return self.project.project_number if self.project else None
+        return self.project.project_number
 
-    @computed_field
+    @computed_field  # type: ignore[prop-decorator]
     @property
     def state(self) -> str:
         """State code from the associated project."""
-        return self.project.state if self.project else None
+        return self.project.state
 
-    @computed_field
+    @computed_field  # type: ignore[prop-decorator]
     @property
     def year(self) -> int:
         """Project year from the associated project."""
-        return self.project.year if self.project else None
+        return self.project.year

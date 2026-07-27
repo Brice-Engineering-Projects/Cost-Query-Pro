@@ -1,10 +1,11 @@
 """src/cost_query_pro/db/session.py"""
 
 import os
+from collections.abc import Iterator
 
 from sqlalchemy import create_engine
 from sqlalchemy.engine.url import make_url
-from sqlalchemy.orm import sessionmaker
+from sqlalchemy.orm import Session, sessionmaker
 
 from cost_query_pro.config.settings import settings
 
@@ -42,7 +43,7 @@ engine = create_engine(
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
 
-def get_db():
+def get_db() -> Iterator[Session]:
     db = SessionLocal()
     try:
         yield db

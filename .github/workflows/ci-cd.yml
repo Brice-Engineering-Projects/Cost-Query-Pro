@@ -39,6 +39,13 @@ jobs:
       - name: Run pre-commit checks
         run: uv run pre-commit run --all-files
 
+      # Strictness comes from [tool.mypy] in pyproject.toml (strict = true),
+      # so this matches what a local `uv run mypy` does. src/cost_query_pro
+      # is the gate that must not regress; tests/ is checked at a relaxed
+      # level via the [[tool.mypy.overrides]] entry.
+      - name: Run mypy (static type checking)
+        run: uv run mypy --strict src/cost_query_pro
+
       - name: Run Bandit (production code)
         run: uv run bandit -r src -c pyproject.toml
 

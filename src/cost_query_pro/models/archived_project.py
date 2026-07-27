@@ -28,7 +28,7 @@ class ArchivedProject(Base):
         "ArchivedItem", back_populates="archived_project", cascade="all, delete-orphan"
     )
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return (
             f"ArchivedProject(id={self.id}, project_name='{self.project_name}', project_number='\n"
             f"{self.project_number}', state='{self.state}', year={self.year}, archived_at={self.archived_at}, \n"

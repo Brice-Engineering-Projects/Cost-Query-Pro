@@ -56,12 +56,17 @@ repos:
         pass_filenames: false
 
   # 6️⃣ Type checking with Mypy
-#  - repo: https://github.com/pre-commit/mirrors-mypy
-#    rev: v1.18.2
-#    hooks:
-#      - id: mypy
-#        name: Static Type Checking
-#        args: ["--ignore-missing-imports", "--show-error-codes", "src"]
+  #
+  # Intentionally not a pre-commit hook. mirrors-mypy runs in its own isolated
+  # environment without this project's dependencies, so it cannot see the
+  # SQLAlchemy, Pydantic, or FastAPI plugins and stubs that the results depend
+  # on — and it passes only changed files, which gives different answers than
+  # a whole-package run.
+  #
+  # Type checking runs as a dedicated CI step instead:
+  #     uv run mypy --strict src/cost_query_pro
+  # in the Quality & Security job of ci.yml and ci-cd.yml, against the
+  # [tool.mypy] settings in pyproject.toml. Run that same command locally.
 
   # 7️⃣ Hygiene checks (YAML, whitespace, merge conflicts)
   - repo: https://github.com/pre-commit/pre-commit-hooks

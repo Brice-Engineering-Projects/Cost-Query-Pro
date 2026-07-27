@@ -29,7 +29,7 @@ class ArchivedItem(Base):
     # Relationship to Project
     archived_project = relationship("ArchivedProject", back_populates="archived_items")
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return (
             f"ArchivedItem(id={self.id}, project_id={self.project_id}, item_description='{self.item_description}', \n"
             f"unit='{self.unit}', unit_price={self.unit_price}, quantity={self.quantity})"
