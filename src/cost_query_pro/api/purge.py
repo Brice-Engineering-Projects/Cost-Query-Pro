@@ -1,6 +1,7 @@
 """src/cost_query_pro/api/purge.py"""
 
 import logging
+from typing import Any
 
 from fastapi import APIRouter, Depends, Query, status
 from sqlalchemy.orm import Session
@@ -22,7 +23,7 @@ def purge_data(
     year_cutoff: int = Query(..., description="Delete projects older than this year"),
     db: Session = Depends(get_db),
     current_admin: DBUser = Depends(get_current_admin),
-):
+) -> dict[str, Any]:
     """
     Delete all projects and related items older than the specified year_cutoff.
     Accessible by admin users only.

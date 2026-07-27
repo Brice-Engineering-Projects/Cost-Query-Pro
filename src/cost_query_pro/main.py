@@ -1,8 +1,10 @@
 """src/cost_query_pro/main.py"""
 
 import logging
+from collections.abc import AsyncIterator
 from contextlib import asynccontextmanager
 from decimal import Decimal
+from typing import Any
 
 from fastapi import Depends, FastAPI, HTTPException, Request
 from fastapi.encoders import jsonable_encoder
@@ -25,7 +27,7 @@ logger = logging.getLogger(__name__)
 
 
 @asynccontextmanager
-async def lifespan(app: FastAPI):
+async def lifespan(app: FastAPI) -> AsyncIterator[None]:
     """--- startup ---
     # Log the route map so prefix issues are visible at boot."""
     for r in app.routes:
@@ -50,8 +52,8 @@ async def lifespan(app: FastAPI):
 
 
 class CustomJSONResponse(JSONResponse):
-    def render(self, content):
-        def convert_decimal(obj):
+    def render(self, content: Any) -> bytes:
+        def convert_decimal(obj: Decimal) -> float | Decimal:
             if isinstance(obj, Decimal):
                 return float(obj)
             return obj
@@ -125,7 +127,7 @@ app.include_router(web_router)
 
 
 @app.get("/")
-def read_root(db: Session = Depends(get_db)):
+def read_root(db: Session = Depends(get_db)) -> dict[str, Any]:
     """
     Simple health check route to confirm:
     - FastAPI is running

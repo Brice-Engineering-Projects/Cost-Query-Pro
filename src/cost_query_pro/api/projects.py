@@ -9,6 +9,7 @@ from cost_query_pro.api.auth import get_current_user
 from cost_query_pro.core.errors import AppError
 from cost_query_pro.db.session import get_db
 from cost_query_pro.models import Item, Project
+from cost_query_pro.models.user import User as DBUser
 from cost_query_pro.schemas.item import ItemOut
 from cost_query_pro.schemas.project import ProjectCreate, ProjectOut, ProjectUpdate
 
@@ -22,8 +23,8 @@ router = APIRouter(
 def create_project(
     project: ProjectCreate,
     db: Session = Depends(get_db),
-    current_user=Depends(get_current_user),
-):
+    current_user: DBUser = Depends(get_current_user),
+) -> Project:
     """
     Create a new project.
     """
@@ -59,8 +60,8 @@ def get_projects(
     state: Optional[str] = Query(None, max_length=2),
     year: Optional[int] = Query(None, ge=1900),
     db: Session = Depends(get_db),
-    current_user=Depends(get_current_user),
-):
+    current_user: DBUser = Depends(get_current_user),
+) -> List[Project]:
     """
     Retrieve a list of projects, optionally filtered by state and/or year.
     """
@@ -78,8 +79,8 @@ def get_projects(
 def get_project(
     project_id: int,
     db: Session = Depends(get_db),
-    current_user=Depends(get_current_user),
-):
+    current_user: DBUser = Depends(get_current_user),
+) -> Project:
     """
     Retrieve a specific project by ID.
     """
@@ -96,8 +97,8 @@ def update_project(
     project_id: int,
     project: ProjectUpdate,
     db: Session = Depends(get_db),
-    current_user=Depends(get_current_user),
-):
+    current_user: DBUser = Depends(get_current_user),
+) -> Project:
     """
     Update an existing project.
     """
@@ -119,8 +120,8 @@ def update_project(
 def delete_project(
     project_id: int,
     db: Session = Depends(get_db),
-    current_user=Depends(get_current_user),
-):
+    current_user: DBUser = Depends(get_current_user),
+) -> Response:
     """
     Delete a project and all its associated items.
     """
@@ -139,8 +140,8 @@ def delete_project(
 def get_project_items(
     project_id: int,
     db: Session = Depends(get_db),
-    current_user=Depends(get_current_user),
-):
+    current_user: DBUser = Depends(get_current_user),
+) -> List[Item]:
     """
     Retrieve all items associated with a specific project.
     """

@@ -23,7 +23,7 @@ router = APIRouter(prefix="/api/v1/admin/users", tags=["admin"])
 def list_users(
     db: Session = Depends(get_db),
     current_admin: DBUser = Depends(get_current_admin),
-):
+) -> list[UserRead]:
     """Retrieve a list of all registered users. Admin-only route."""
     users = db.query(DBUser).all()
 
@@ -39,7 +39,7 @@ def delete_user(
     user_id: int = Path(..., description="ID of the user to delete"),
     db: Session = Depends(get_db),
     current_admin: DBUser = Depends(get_current_admin),
-):
+) -> dict[str, str]:
     """Delete a specific user by ID. Admin-only route."""
     user = db.query(DBUser).filter(DBUser.id == user_id).first()
 
@@ -69,7 +69,7 @@ def promote_user(
     user_id: int = Path(..., description="ID of the user to promote"),
     db: Session = Depends(get_db),
     current_admin: DBUser = Depends(get_current_admin),
-):
+) -> UserRead:
     """
     Promote a regular user to admin status.
     Only existing admins can perform this action.

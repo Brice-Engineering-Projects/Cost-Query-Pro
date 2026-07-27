@@ -26,13 +26,13 @@ class SystemSetting(Base):
         DateTime, default=func.now(), nullable=False
     )
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return (
             f"<SystemSetting(id={self.id}, key='{self.key}', value='{self.value}', \n"
             f"description='{self.description}', timestamp='{self.timestamp}')>"
         )
 
-    def __str__(self):
+    def __str__(self) -> str:
         return f"SystemSetting(key='{self.key}', value='{self.value}', description='{self.description}')"
 
     def __eq__(self, other: object) -> bool:

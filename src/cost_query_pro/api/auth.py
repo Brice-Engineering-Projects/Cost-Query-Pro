@@ -63,7 +63,7 @@ async def register(
     username: str = Form(None),
     password: str = Form(None),
     is_admin: bool = Form(False),
-):
+) -> UserRead:
     """
     Register a new user account.
 

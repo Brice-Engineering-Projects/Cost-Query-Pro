@@ -41,5 +41,5 @@ class User(Base):
         "LlmUsage", back_populates="user", cascade="all, delete-orphan"
     )
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return f"<User(username='{self.username}', is_admin={self.is_admin})>"

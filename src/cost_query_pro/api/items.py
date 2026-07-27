@@ -11,6 +11,7 @@ from cost_query_pro.api.auth import get_current_user
 from cost_query_pro.core.errors import AppError
 from cost_query_pro.db.session import get_db
 from cost_query_pro.models import Item, Project
+from cost_query_pro.models.user import User as DBUser
 from cost_query_pro.schemas.item import ItemCreate, ItemOut, ItemUpdate, ItemWithProject
 
 router = APIRouter(prefix="/items", tags=["items"])
@@ -33,8 +34,8 @@ def search_items(
     skip: int = 0,
     limit: int = 100,
     db: Session = Depends(get_db),
-    current_user=Depends(get_current_user),
-):
+    current_user: DBUser = Depends(get_current_user),
+) -> List[Item]:
     """
     Search for items with various filters:
     - Item description keyword
@@ -67,8 +68,8 @@ def search_items(
 def get_item(
     item_id: int,
     db: Session = Depends(get_db),
-    current_user=Depends(get_current_user),
-):
+    current_user: DBUser = Depends(get_current_user),
+) -> Item:
     """
     Retrieve a specific item by ID with its project details.
     """
@@ -87,8 +88,8 @@ def get_item(
 def create_item(
     item: ItemCreate,
     db: Session = Depends(get_db),
-    current_user=Depends(get_current_user),
-):
+    current_user: DBUser = Depends(get_current_user),
+) -> Item:
     """
     Create a new item.
     """
@@ -116,8 +117,8 @@ def update_item(
     item_id: int,
     item: ItemUpdate,
     db: Session = Depends(get_db),
-    current_user=Depends(get_current_user),
-):
+    current_user: DBUser = Depends(get_current_user),
+) -> Item:
     """
     Update an existing item.
     """
@@ -146,8 +147,8 @@ def update_item(
 def delete_item(
     item_id: int,
     db: Session = Depends(get_db),
-    current_user=Depends(get_current_user),
-):
+    current_user: DBUser = Depends(get_current_user),
+) -> Response:
     """
     Delete an item.
     """
@@ -163,8 +164,8 @@ def delete_item(
 @router.get("/units/distinct", response_model=List[str])
 def get_distinct_units(
     db: Session = Depends(get_db),
-    current_user=Depends(get_current_user),
-):
+    current_user: DBUser = Depends(get_current_user),
+) -> List[str]:
     """
     Get all distinct unit types in the DB.
     """
@@ -176,8 +177,8 @@ def get_distinct_units(
 def get_price_range(
     item_query: Optional[str] = None,
     db: Session = Depends(get_db),
-    current_user=Depends(get_current_user),
-):
+    current_user: DBUser = Depends(get_current_user),
+) -> PriceRangeOut:
     """
     Get min and max price for items matching the query.
     """
