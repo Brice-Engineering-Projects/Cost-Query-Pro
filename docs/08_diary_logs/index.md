@@ -1,14 +1,43 @@
 # Developer Diary Index
 
-| Date       | Focus Area            | File                                                                             | Summary                                                                 |
-| ---------- | --------------------- | -------------------------------------------------------------------------------- | ----------------------------------------------------------------------- |
-| 2025-07-09 | 00 Overview           | [dev_environment_setup.md](./00_overview/dev_environment_setup.md)               | Initial environment setup, test creation, and migrations restructuring. |
-| 2025-07-20 | 00 Overview           | [alembic_migration_recovery.md](./00_overview/alembic_migration_recovery.md)     | Repaired Alembic env.py and database rebuild.                           |
-| 2025-07-12 | 00 Overview           | [testing_notes.md](./00_overview/testing_notes.md)                               | Pytest issues and Alembic migration fixes.                              |
-| 2025-08-02 | 01 Auth               | [auth_refactor_and_fixes.md](./01_auth/auth_refactor_and_fixes.md)               | Auth refactor and SQLAlchemy serialization fix.                         |
-| 2025-08-24 | 01 Auth               | [auth_flow_stabilization.md](./01_auth/auth_flow_stabilization.md)               | Login, register, and /me route fixes; Pydantic v2 migration.            |
-| 2025-09-01 | 01 Auth               | [jwt_testing_plan.md](./01_auth/jwt_testing_plan.md)                             | Next steps for JWT testing and validation.                              |
-| 2025-09-08 | 03 Ci Cd              | [github_actions_pipeline.md](./03_ci_cd/github_actions_pipeline.md)              | CI/CD pipeline setup with PostgreSQL and schema refactoring.            |
-| 2025-09-08 | 04 Schema             | [pydantic_v2_migration.md](./04_schema_refactor/pydantic_v2_migration.md)        | Schema refactoring using @computed_field and ORM alignment.             |
-| 2025-07-12 | 05 Debugging Sessions | [db_connection_hangs.md](./05_debugging_sessions/db_connection_hangs.md)         | Diagnosing DB lockups and Alembic issues.                               |
-| 2025-07-11 | 05 Debugging Sessions | [pytest_attribute_errors.md](./05_debugging_sessions/pytest_attribute_errors.md) | Settings refactor and resolving missing environment variables.          |
+Entries are listed oldest first. Dates and titles are taken from each file's
+YAML frontmatter, so this table and the documents cannot drift apart silently.
+
+| Date       | Focus Area              | File                                                                                                                       | Status    | Summary                                                                                      |
+| ---------- | ----------------------- | -------------------------------------------------------------------------------------------------------------------------- | --------- | ---------------------------------------------------------------------------------------------- |
+| 2025-07-11 | 01 Phase 1 · Debugging  | [00_debugging_auth_routes_migrations.md](./01_phase_1/04_debugging_sessions/00_debugging_auth_routes_migrations.md)        | Completed | Debugging auth, routes, and migrations; pytest attribute errors and settings refactor.       |
+| 2025-07-20 | 01 Phase 1 · Schema     | [00_schema_and_migration.md](./01_phase_1/03_schema/00_schema_and_migration.md)                                            | Completed | Repaired Alembic `env.py`, rebuilt the database schema, confirmed environment switching.     |
+| 2025-08-02 | 01 Phase 1 · Auth       | [00_auth_refactor.md](./01_phase_1/01_auth/00_auth_refactor.md)                                                            | Completed | Auth refactor and SQLAlchemy serialization fix.                                              |
+| 2025-08-02 | 99 Future Tasks         | [00_tasks_checklist.md](./99_future_tasks/00_tasks_checklist.md)                                                           | On-going  | Consolidated backlog and to-do items.                                                        |
+| 2025-09-01 | 01 Phase 1 · Auth       | [01_auth_flow_stabilization.md](./01_phase_1/01_auth/01_auth_flow_stabilization.md)                                        | On-going  | Login, register, and `/me` route fixes; Pydantic v2 migration; JWT testing plan.             |
+| 2025-09-08 | 00 General · CI/CD      | [00_github_actions_pipeline.md](./00_general/02_ci_cd/00_github_actions_pipeline.md)                                       | Completed | CI/CD pipeline with PostgreSQL service, test isolation, and dependency locking.              |
+| 2026-06-20 | 01 Phase 1              | [20260620_project_diary.md](./01_phase_1/20260620_project_diary.md)                                                        | Completed | Core API cleanup, Pyright zero-error pass, and the CSV/Excel ingestion pipeline.             |
+| 2026-07-26 | 02 Phase 2 · AI Agent   | [00_llm_cost_accounting.md](./02_phase_2/05_ai_agent/00_llm_cost_accounting.md)                                            | Completed | Token usage foundation: provider metering, `llm_usage` table, fallback cost-attribution fix. |
+
+## Archive
+
+| File                             | Notes                                                                                                    |
+| -------------------------------- | -------------------------------------------------------------------------------------------------------- |
+| [diary_log.md](./diary_log.md)   | The original single combined log (956 lines) that the split entries above were extracted from. Superseded, retained for history. |
+
+## Index maintenance note
+
+This index was rebuilt on 2026-07-26. It had been written against an earlier
+flat layout (`./00_overview/`, `./01_auth/`, `./04_schema_refactor/`,
+`./05_debugging_sessions/`) that no longer exists — entries were since
+reorganized into phase folders, so every link in the old table was broken.
+
+Five rows referenced files that no longer exist in any form, their content
+having been consolidated into the entries above during that reorganization.
+They are recorded here rather than silently dropped:
+
+| Removed row                  | Where the content most likely went                                     |
+| ---------------------------- | ------------------------------------------------------------------------ |
+| `dev_environment_setup.md`   | Environment/test setup material — folded into the schema and debugging entries. |
+| `testing_notes.md`           | Pytest and Alembic fixes — overlaps the 2025-07-11 debugging entry.      |
+| `jwt_testing_plan.md`        | JWT testing next-steps — overlaps `01_auth_flow_stabilization.md`.       |
+| `pydantic_v2_migration.md`   | Pydantic v2 / `@computed_field` work — overlaps the auth flow entry.     |
+| `db_connection_hangs.md`     | DB lockup diagnosis — overlaps the 2025-07-11 debugging entry.           |
+
+The mappings above are inferred from dates and subject matter, not from a
+migration record. Treat them as leads, not provenance.

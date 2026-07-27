@@ -26,5 +26,5 @@ class AuditLog(Base):
 
     user = relationship("User", back_populates="audit_logs")
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return f"AuditLog(id={self.id}, user_id={self.user_id}, action='{self.action}', created_at='{self.created_at}')"

@@ -11,13 +11,13 @@ authors = [
 ]
 
 dependencies = [
-    "fastapi>=0.121.2",
+    "fastapi>=0.137.0",
     "uvicorn[standard]>=0.30.0,<0.35.0",
     "sqlalchemy>=2.0",
     "pydantic>=2.0",
     "pandas>=2.2",
     "python-dotenv>=1.0",
-    "python-multipart==0.0.22",
+    "python-multipart==0.0.32",
     "psycopg2-binary>=2.9",
     "jinja2>=3.1",
     "pdfplumber>=0.10",
@@ -29,13 +29,17 @@ dependencies = [
     "passlib[bcrypt]==1.7.4",
     "PyJWT[crypto]>=2.10.1",
     "certifi>=2025.7.9",
-    "starlette>=0.49.3,<0.50.0",
+    "starlette>=1.0.1",
     "bcrypt>=4.1.2",
     "pdfminer-six>=20251230",
     "cryptography>=46.0.5",
     "pillow>=12.1.1",
     "pypdfium2!=4.30.1",
-    "pyasn1>=0.6.2",
+    "pyasn1>=0.6.4",
+    "pyright>=1.1.410",
+    "openpyxl>=3.1.5",
+    "anthropic>=0.111.0",
+    "openai>=2.43.0",
 ]
 
 [project.optional-dependencies]
@@ -78,15 +82,39 @@ cost-query-pro = { path = "src" }
 python_version = "3.12"
 ignore_missing_imports = true
 exclude = "(^migrations_old/|^migrations/)"
-# --- temporary relaxations ---
+
+# src/ layout: `cost_query_pro` is the package and `src/` is only its root,
+# so imports resolve as `cost_query_pro.*`, never `src.cost_query_pro.*`.
+# This has to live here rather than in setup.cfg — mypy resolves
+# pyproject.toml first and ignores a [mypy] section in setup.cfg entirely.
+explicit_package_bases = true
+mypy_path = "src"
+
+# src/cost_query_pro is strict-clean and CI enforces it (see the Quality job
+# in .github/workflows). Declaring it here too means a local `uv run mypy
+# src/cost_query_pro` checks exactly what CI checks, instead of passing
+# locally under weaker settings and failing in CI.
+#
+# The previous "temporary relaxations" block (disallow_untyped_defs = false,
+# check_untyped_defs = false, warn_unused_ignores = false, warn_return_any =
+# false, allow_subclassing_any = true, ...) was removed once the 70 outstanding
+# errors were fixed. Re-adding any of them silently lets that debt back in.
+strict = true
+
+# tests/ is type-checked but not at strict level. Strict adds ~230 errors,
+# almost entirely missing annotations on test functions themselves, so
+# relaxing those specific flags lets the gate on application code be enforced
+# now instead of waiting on a bulk test-annotation pass. Everything else —
+# including whether the tests use the app's own types correctly — is still
+# checked. Tightening this is tracked in the roadmap.
+[[tool.mypy.overrides]]
+module = "tests.*"
 disallow_untyped_defs = false
-check_untyped_defs = false
-warn_unused_ignores = false
+disallow_untyped_calls = false
+disallow_incomplete_defs = false
+disallow_untyped_decorators = false
+disallow_any_generics = false
 warn_return_any = false
-follow_imports = "silent"
-allow_subclassing_any = true
-allow_untyped_globals = true
-allow_redefinition = true
 
 [tool.bandit]
 exclude_dirs = [".venv", "tests", "migrations_old", "migrations"]

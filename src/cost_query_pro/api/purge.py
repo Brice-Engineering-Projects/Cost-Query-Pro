@@ -1,10 +1,12 @@
 """src/cost_query_pro/api/purge.py"""
 
 import logging
+from typing import Any
 
-from fastapi import APIRouter, Depends, HTTPException, Query, status
+from fastapi import APIRouter, Depends, Query, status
 from sqlalchemy.orm import Session
 
+from cost_query_pro.core.errors import AppError
 from cost_query_pro.core.security import get_current_admin
 from cost_query_pro.db.session import get_db
 from cost_query_pro.models.item import Item
@@ -21,7 +23,7 @@ def purge_data(
     year_cutoff: int = Query(..., description="Delete projects older than this year"),
     db: Session = Depends(get_db),
     current_admin: DBUser = Depends(get_current_admin),
-):
+) -> dict[str, Any]:
     """
     Delete all projects and related items older than the specified year_cutoff.
     Accessible by admin users only.
@@ -29,9 +31,10 @@ def purge_data(
     old_projects = db.query(Project).filter(Project.year < year_cutoff).all()
 
     if not old_projects:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail=f"No projects older than {year_cutoff} found.",
+        raise AppError(
+            "NO_PROJECTS_FOUND",
+            f"No projects older than {year_cutoff} found.",
+            404,
         )
 
     deleted_projects_count = len(old_projects)

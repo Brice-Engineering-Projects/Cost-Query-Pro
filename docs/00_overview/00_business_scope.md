@@ -42,7 +42,14 @@ Provide a reliable, fast, and user-friendly system that empowers infrastructure 
 
 **Primary Goal:**
 
-Develop an application to **search unit costs by item, state, and year**, returning relevant pricing data and project details.
+Develop an application to **search unit costs with an ai agent**, returning relevant pricing data and project details.
+
+For example:
+
+>`What is the cost for a large diameter JnB?`
+
+>`Agent: Large diameter, defined as 24" or more has an average cost of XX/LF for for a Jack and Bore installation.   See the following projects for more details:`<br>
+> `<project name>, <project number>, <file location> <bid tab file name>, <year>, <unit item cost>, <overall project cost>`
 
 **Key Objectives:**
 
