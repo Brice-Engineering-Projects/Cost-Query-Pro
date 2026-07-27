@@ -7,6 +7,9 @@ wrapper, and persistence of usage rows.
 from unittest.mock import MagicMock
 
 import pytest
+from sqlalchemy import inspect as sa_inspect
+from sqlalchemy import text
+from sqlalchemy.exc import IntegrityError
 
 from cost_query_pro.config.pricing import USD_PER_MTOK, estimate_cost_usd
 from cost_query_pro.models.llm_usage import LlmUsage
@@ -231,3 +234,60 @@ class TestRecordUsage:
             == []
         )
         broken.rollback.assert_called_once()
+
+
+# ---------------------------------------------------------------------------
+# created_at constraint
+#
+# created_at is the window column for the Phase 2 cost controls: rate limits
+# COUNT over a time window and the spend cap SUMs over the calendar month. A
+# NULL never satisfies a range predicate, so an untimestamped row would drop
+# silently out of both. These tests pin the NOT NULL that makes those
+# aggregates trustworthy (migration a3f5c81e7b24).
+# ---------------------------------------------------------------------------
+
+
+class TestCreatedAtConstraint:
+    def test_column_is_not_nullable_in_migrated_schema(self, db_session):
+        """The migrated table, not just the model, rejects a null timestamp."""
+        columns = sa_inspect(db_session.get_bind()).get_columns("llm_usage")
+        created_at = next(c for c in columns if c["name"] == "created_at")
+        assert created_at["nullable"] is False
+
+    def test_server_default_populates_created_at(self, db_session, usage_user):
+        """Inserting without a timestamp still works — the default fills it."""
+        row = LlmUsage(
+            user_id=usage_user.id,
+            request_id="req-default",
+            stage="intent_parse",
+            provider="claude",
+            model="claude-sonnet-4-6",
+            input_tokens=10,
+            output_tokens=5,
+        )
+        db_session.add(row)
+        db_session.commit()
+
+        assert row.created_at is not None
+
+    def test_explicit_null_created_at_is_rejected(self, db_session, usage_user):
+        """An explicit NULL is refused rather than silently escaping the window.
+
+        This goes through Core rather than the ORM on purpose: when a column
+        has a server_default, SQLAlchemy omits a None-valued attribute from
+        the INSERT so the default fires, which means the ORM cannot produce a
+        NULL here at all. Only raw SQL exercises the database constraint.
+        """
+        with pytest.raises(IntegrityError):
+            db_session.execute(
+                text(
+                    "INSERT INTO llm_usage "
+                    "(user_id, request_id, stage, provider, model, "
+                    " input_tokens, output_tokens, created_at) "
+                    "VALUES (:uid, 'req-null', 'intent_parse', 'claude', "
+                    " 'claude-sonnet-4-6', 10, 5, NULL)"
+                ),
+                {"uid": usage_user.id},
+            )
+
+        db_session.rollback()
