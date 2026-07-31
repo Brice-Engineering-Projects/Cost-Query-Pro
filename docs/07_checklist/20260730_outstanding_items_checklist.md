@@ -24,9 +24,10 @@
   - **Evidence (2026-07-30):** Updated archived models and added migration `migrations/versions/d4e5f6a7b8c9_create_archived_tables.py`; also registered archived models in `src/cost_query_pro/models/__init__.py` so metadata includes archive tables.
   - **References:** phase 1 audit C-2, roadmap C-2
 
-- [ ] **JWT test integrity (CRITICAL)** Replace tautological revoked-user test
-  - [ ] Remove/replace `test_revoked_user_rejected` false-positive logic
-  - [ ] Add endpoint-level auth rejection test tied to real user-state control
+- [x] **JWT test integrity (CRITICAL)** Replace tautological revoked-user test
+  - [x] Remove/replace `test_revoked_user_rejected` false-positive logic
+  - [x] Add endpoint-level auth rejection test tied to real user-state control
+  - **Evidence (2026-07-30):** Replaced false-positive logic in `tests/unit_tests/test_auth_jwt.py` with protected-route behavior validation (`GET /api/v1/auth/me`) using a token for a deleted user; asserts `401` + `INVALID_CREDENTIALS`.
   - **References:** phase 2 test-file audit (2026-06-24), roadmap auth enhancements
 
 ---
@@ -40,9 +41,10 @@
   - **Blocked by:** C-2
   - **References:** roadmap P2-C-1, mypy remediation audit (2026-07-27)
 
-- [ ] Replace JWT missing-sub test with endpoint behavior assertion
-  - [ ] Submit token without sub claim to protected route
-  - [ ] Assert 401/403 response contract
+- [x] Replace JWT missing-sub test with endpoint behavior assertion
+  - [x] Submit token without sub claim to protected route
+  - [x] Assert 401/403 response contract
+  - **Evidence (2026-07-30):** Updated `test_missing_sub_claim` in `tests/unit_tests/test_auth_jwt.py` to call `GET /api/v1/auth/me` with a token missing `sub`; asserts `401` + `INVALID_CREDENTIALS`.
   - **References:** phase 2 test-file audit (2026-06-24)
 
 - [ ] Add ingestion upload-size guardrail
