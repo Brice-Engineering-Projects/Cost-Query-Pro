@@ -15,12 +15,13 @@
   - **Evidence (2026-07-30):** Updated `src/cost_query_pro/config/settings.py` to require `SECRET_KEY` with `min_length=32` and changed default `environment` to `development`; updated CI secrets in `.github/workflows/ci.yml` and `.github/workflows/ci-cd.yml` to satisfy the new minimum length.
   - **References:** roadmap P2-C-2, mypy remediation audit (2026-07-27)
 
-- [ ] **C-2** Fix archived model/table conflicts and schema defects
-  - [ ] Rename `ArchivedProject.__tablename__` to `archived_projects`
-  - [ ] Rename `ArchivedItem.__tablename__` to `archived_items`
-  - [ ] Change archived timestamp field to DateTime semantics
-  - [ ] Align archived item columns with live item shape (including upload lineage where required)
-  - [ ] Add migration(s) for archived tables and constraints
+- [x] **C-2** Fix archived model/table conflicts and schema defects
+  - [x] Rename `ArchivedProject.__tablename__` to `archived_projects`
+  - [x] Rename `ArchivedItem.__tablename__` to `archived_items`
+  - [x] Change archived timestamp field to DateTime semantics
+  - [x] Align archived item columns with live item shape (including upload lineage where required)
+  - [x] Add migration(s) for archived tables and constraints
+  - **Evidence (2026-07-30):** Updated archived models and added migration `migrations/versions/d4e5f6a7b8c9_create_archived_tables.py`; also registered archived models in `src/cost_query_pro/models/__init__.py` so metadata includes archive tables.
   - **References:** phase 1 audit C-2, roadmap C-2
 
 - [ ] **JWT test integrity (CRITICAL)** Replace tautological revoked-user test
