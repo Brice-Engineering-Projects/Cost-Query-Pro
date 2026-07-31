@@ -34,11 +34,11 @@
 
 ## P1 - High Priority
 
-- [ ] **P2-C-1** Make purge recoverable (transactional purge-to-archive)
-  - [ ] Write archive rows in same transaction as delete
-  - [ ] Abort purge if archival write fails
-  - [ ] Add integration test proving recoverability from archive tables
-  - **Blocked by:** C-2
+- [x] **P2-C-1** Make purge recoverable (transactional purge-to-archive)
+  - [x] Write archive rows in same transaction as delete
+  - [x] Abort purge if archival write fails
+  - [x] Add integration test proving recoverability from archive tables
+  - **Evidence (2026-07-30):** Updated `src/cost_query_pro/api/purge.py` to archive projects/items and delete live rows in one transaction with rollback + `PURGE_ARCHIVE_FAILED` on errors. Added `test_admin_purge_archives_and_deletes_records` in `tests/unit_tests/test_routes.py`.
   - **References:** roadmap P2-C-1, mypy remediation audit (2026-07-27)
 
 - [x] Replace JWT missing-sub test with endpoint behavior assertion
