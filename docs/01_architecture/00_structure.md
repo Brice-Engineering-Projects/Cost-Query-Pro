@@ -1,5 +1,6 @@
 # Project Structure (src layout)
 
+```text
 cost_query_pro/
 │
 ├── src/
@@ -147,3 +148,4 @@ cost_query_pro/
 ├── uv.lock                                    # Locked dependencies managed by uv
 ├── README.md
 └── LICENSE
+```
