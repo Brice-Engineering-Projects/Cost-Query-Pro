@@ -60,6 +60,7 @@ jobs:
 
     env:
       TEST_DATABASE_URL: postgresql+psycopg2://postgres:postgres@localhost:5432/test_db
+      SECRET_KEY: not-a-real-secret-in-ci-32-bytes-min
 
     services:
       postgres:

@@ -2,6 +2,8 @@
 
 # Import all models here to ensure they're registered only once
 from cost_query_pro.db import Base
+from cost_query_pro.models.archived_item import ArchivedItem
+from cost_query_pro.models.archived_project import ArchivedProject
 from cost_query_pro.models.audit_log import AuditLog
 from cost_query_pro.models.data_quality_issue import DataQualityIssue
 from cost_query_pro.models.item import Item
@@ -20,4 +22,6 @@ __all__ = [
     "UploadHistory",
     "DataQualityIssue",
     "LlmUsage",
+    "ArchivedProject",
+    "ArchivedItem",
 ]
