@@ -24,8 +24,8 @@ logging.basicConfig(
 class GeneralSettings(BaseSettings):
     """General application settings"""
 
-    secret_key: str = Field("default_secret_key")
-    environment: str = Field("production")
+    secret_key: str = Field(..., min_length=32)
+    environment: str = Field("development")
     fastapi_debug: bool = Field(False)
     testing: bool = Field(False)
 
@@ -74,8 +74,8 @@ class Settings(BaseSettings):
     """Main application settings with all configuration fields"""
 
     # General settings
-    secret_key: str = Field("default_secret_key")
-    environment: str = Field("production")
+    secret_key: str = Field(..., min_length=32)
+    environment: str = Field("development")
     fastapi_debug: bool = Field(False)
     testing: bool = Field(False)
     api_base_url: str = "http://127.0.0.1:8000/api/v1"

@@ -73,7 +73,7 @@ jobs:
       PYTEST_DISABLE_PLUGIN_AUTOLOAD: "1"
 
       # 🔐 auth/test defaults (adjust names to match your Pydantic settings)
-      SECRET_KEY: "not-a-real-secret-in-ci"
+      SECRET_KEY: "not-a-real-secret-in-ci-32-bytes-min"
       ACCESS_TOKEN_EXPIRE_MINUTES: "30"
       REFRESH_TOKEN_EXPIRE_MINUTES: "43200"
       ALGORITHM: "HS256"

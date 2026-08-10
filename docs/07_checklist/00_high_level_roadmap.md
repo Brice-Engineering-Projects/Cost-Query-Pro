@@ -28,12 +28,21 @@ prefix (`[P2-C-1]`, `[P2-C-2]`, …) so the two numbering schemes cannot collide
 A work item is complete (`[x]`) only when:
 
 - [ ] Code implemented and peer reviewed
+- [ ] **Reachable — the code executes on a real request path, not only from its own tests**
 - [ ] Unit and/or integration tests added or updated
 - [ ] Migrations applied with rollback path validated
 - [ ] API contract documented (OpenAPI or inline)
 - [ ] Logging and error handling in place
 - [ ] Security and authorization checks verified
 - [ ] `docs/` updated if behavior changed
+
+**On the reachability criterion.** Added 2026-08-10 after the architecture review found three
+items marked `[x]` whose code no request path reaches (**[P2-C-3]**, **[P2-M-4]**). Passing unit
+tests do not establish reachability: a module tested directly is exercised by CI while remaining
+unreferenced by any route. Before marking a code item `[x]`, trace it from an endpoint — or, for a
+table, from the writer that populates it. If a component is deliberately built ahead of its
+consumer, mark it `[~]` **In progress** or `[>]` **Deferred** with a note naming the missing
+caller; do not mark it `[x]`.
 
 **Release gate for each phase:** target user workflows pass end-to-end · no P1/P2 open defects · auth/authorization reviewed · ingestion validation thresholds met · logs and health checks documented
 
@@ -164,14 +173,28 @@ Example interaction:
 #### Agent Architecture and Tools
 
 - [x] Agent architecture defined: two-call pipeline (intent parsing → response generation) with backend-controlled search and analytics between calls
-- [x] Tool definitions implemented and versioned (tools return aggregated statistics, not raw project records):
-  - [x] `keyword_search` — search items by description keyword; returns aggregate price stats and record count
-  - [x] `filter_search` — filter by state, year range, unit type, and price range; returns aggregate stats
-  - [x] `price_stats` — retrieve `record_count`, min/median/mean/max price for a given item description
-  - [x] `project_lookup` — retrieve project-level summary metadata (count, year range, states covered); not individual project records
-- [x] Tool schemas validated against the `anthropic` and `openai` function-calling specifications
-- [x] Domain context system prompt covers: infrastructure vocabulary, pipe types, installation methods, size conventions (diameter ranges for "large", "small", etc.), unit abbreviations; AI role defined as translator and narrator — not a database operator
-- [x] Prompt version tracked and stored alongside model version in config or DB
+
+- [!] **[P2-C-3]** Agent tools and domain prompt are **built and tested but unreachable — previously marked done in error.** Both modules exist, both are covered by passing unit tests, and **no route or service imports either one.** The live request path (`api/agent.py`) runs the fixed two-call pipeline and calls `services/agent_tools.py` zero times; `intent_parser.py` and `response_generator.py` each define their own local `_SYSTEM_PROMPT` and never import `config/prompts.py`. The tests pass because they exercise the modules directly, so CI does not detect the gap.
+
+  **Why this was missed:** the completion criteria verify that code is implemented, tested, and documented — none of which requires the code to be *reachable from a request*. See the reachability criterion added to *Completion Criteria* above.
+
+  - [!] Tool definitions implemented (aggregates only, never raw project records) — **implemented in `services/agent_tools.py`; not wired into any request path:**
+    - [!] `keyword_search` — search items by description keyword; returns aggregate price stats and record count
+    - [!] `filter_search` — filter by state, year range, unit type, and price range; returns aggregate stats
+    - [!] `price_stats` — retrieve `record_count`, min/median/mean/max price for a given item description
+    - [!] `project_lookup` — retrieve project-level summary metadata (count, year range, states covered); not individual project records
+  - [x] Tool schemas conform to the `anthropic` and `openai` function-calling specifications — verified by unit test (`tests/unit_tests/test_agent_tools.py`). Schema conformance is genuinely done; **dispatch is not reachable**
+  - [!] Domain context system prompt (infrastructure vocabulary, pipe types, installation methods, size conventions, unit abbreviations; AI as translator and narrator) — **written in `config/prompts.py` and imported by nothing.** The vocabulary is therefore absent from both live prompts, so the intent parser resolves domain terms such as "large diameter" or "DIP" from general model knowledge rather than from the project's own definitions
+  - [!] Prompt version tracked alongside model version — **not implemented.** `config.prompts.PROMPT_VERSION` and `settings.agent_prompt_version` are both defined and **neither is ever read**; `llm_usage` records `provider` and `model` but has no `prompt_version` column, so a recorded answer cannot be attributed to the prompt that produced it
+
+  **Resolution — required before Phase 2 exit. Ordered by value:**
+
+  - [ ] **Wire the domain prompt first (highest value, smallest change).** Merge `DOMAIN_SYSTEM_PROMPT` vocabulary into `intent_parser._SYSTEM_PROMPT` so keyword extraction uses the project's own size conventions and abbreviations. This directly improves search-scope quality, which is the weakest link in the pipeline
+  - [ ] Move the small-sample rule (`record_count < 5` → caution the user) out of `config/prompts.py` and enforce it **deterministically** in `api/agent.py` rather than as a prompt instruction, so the caveat cannot be omitted by the model
+  - [ ] Add `prompt_version` to `llm_usage` (migration + model + `record_usage`) and populate from `config.prompts.PROMPT_VERSION`; make `settings.agent_prompt_version` the single source or delete it — two unread version constants is worse than one
+  - [ ] Decide the disposition of `services/agent_tools.py` explicitly and record it here: **either** wire tool-calling into the agent endpoint (requires widening the `LLMProvider` Protocol beyond `complete()`, which is currently the intersection of both SDKs), **or** mark it `[-]` Dropped and delete the module with its tests. Leaving 319 tested-but-unreachable lines in `src/` is the outcome to avoid
+  - [ ] If wired: add an endpoint-level test asserting the tool path is actually taken (assert on `MeteredProvider.calls`, not on handler invocation), so reachability is enforced by CI rather than by review
+  - [ ] Re-audit every remaining `[x]` in this section against the reachability criterion before marking any of the above done
 
 #### Endpoint and Response Contract
 
@@ -230,9 +253,34 @@ Example interaction:
   - Record `purged_by_user_id` and the archive timestamp
   - Cover with a test asserting that purged rows are recoverable from the archive tables
 - [x] User management: list · delete · promote to admin
-- [ ] Audit log retrieval endpoint for admin review
+- [!] **[P2-M-4]** **`audit_logs` is a table with no writer.** The `AuditLog` model
+  (`models/audit_log.py`) and its migration (`b201b4cac42c`) exist and the table is created, but
+  **no code anywhere in `src/` ever instantiates `AuditLog`** — there are zero writes. Privileged
+  actions emit `logger.info` lines only (`api/purge.py:86`, `api/admin_users.py:30,55,93`), which
+  are unstructured, unrotated, DEBUG-level file output — not an audit trail. Note that the
+  Phase 1 entry *"Core entities migrated: `users`, `projects`, `items`, `audit_logs`"* is accurate
+  as written (the table **was** migrated) and the `[C-1]` entry's reference to *"admin username
+  audit logging"* means application logging, not audit rows; neither line claimed a writer exists,
+  but together they read as though audit logging works. It does not.
+
+  Secondary defect: `AuditLog` declares both `created_at` and `timestamp` with identical
+  `server_default=func.now()` — duplicate columns in a schema nothing exercises. Resolve before
+  the first writer lands, not after.
+
+  - [ ] Add an audit service and emit rows for: login success · login failure · register · ingest ·
+        purge · user delete · user promote · agent query
+  - [ ] Drop the duplicate `timestamp` column (migration + model), retaining `created_at`
+  - [ ] Decide and document whether `AuditLog.user_id` stays nullable for pre-auth events
+        (failed login with an unknown username has no user row to reference)
+  - [ ] Tests asserting a row is written for each audited action, and that a failed audit write
+        does not roll back the action it records
+  - **Blocks** the retrieval endpoint and the immutable event schema below — both need rows to exist
+  - **Release gate:** this is a hard blocker for any multi-user or externally-reviewed deployment,
+    where "we log privileged actions" must mean queryable records rather than a text file
+
+- [ ] Audit log retrieval endpoint for admin review — **blocked on [P2-M-4]** (no rows to retrieve)
 - [ ] Duplicate detection rules and conflict handling on ingest
-- [ ] Immutable audit event schema for: auth · ingest · data-modify · purge · role-change
+- [ ] Immutable audit event schema for: auth · ingest · data-modify · purge · role-change — **blocked on [P2-M-4]**
 - [ ] Retention policy defined by data type and environment
 - [ ] Admin how-to guide for user and data lifecycle tasks
 - [ ] All destructive actions require explicit authorization and are fully auditable
@@ -296,6 +344,9 @@ Source documents — particularly Excel and PDF bid tabulation exports — commo
 - [ ] Admin workflows complete: user lifecycle · purge · audit log retrieval
 - [ ] Ingestion failures are diagnosable by operators without reading server internals
 - [ ] P95 search latency target met
+- [ ] **No item in this phase is marked `[x]` while unreachable from a request path** — **[P2-C-3]**
+      and **[P2-M-4]** resolved or explicitly re-marked (`[~]`, `[>]`, or `[-]`) per the
+      reachability criterion in *Completion Criteria*
 
 ---
 

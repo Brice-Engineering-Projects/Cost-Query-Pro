@@ -101,42 +101,42 @@ def test_invalid_signature_detection():
         jwt.decode(tampered_token, settings.secret_key, algorithms=[settings.algorithm])
 
 
-def test_missing_sub_claim():
-    """Token without a 'sub' claim should fail or be rejected downstream."""
+def test_missing_sub_claim(client):
+    """A token without sub claim should be rejected by protected endpoints."""
     expire = datetime.now(timezone.utc) + timedelta(minutes=30)
     payload = {"exp": expire}
     token = jwt.encode(payload, settings.secret_key, algorithm=settings.algorithm)
 
-    decoded = jwt.decode(token, settings.secret_key, algorithms=[settings.algorithm])
-    assert "sub" not in decoded, "Sub claim should not exist"
-    # In a real API, this would trigger a 401/403 on protected route
+    response = client.get(
+        "/api/v1/auth/me",
+        headers={"Authorization": f"Bearer {token}"},
+    )
+    assert response.status_code == 401
+    assert response.json().get("code") == "INVALID_CREDENTIALS"
 
 
-def test_revoked_user_rejected(db_session):
+def test_deleted_user_token_rejected(client, db_session):
     """
-    GIVEN a valid JWT for a user who has since been disabled
-    WHEN attempting to verify or use that token
-    THEN access should be denied (simulate by manual check)
+    GIVEN a valid JWT for a user that is later removed from the DB
+    WHEN the token is used against a protected endpoint
+    THEN access is rejected with INVALID_CREDENTIALS.
     """
-    user = db_session.query(User).filter(User.username == "test_user").first()
-    if not user:
-        user = User(username="test_user", password_hash=_hash_pw("x"), is_admin=False)
-        db_session.add(user)
-        db_session.commit()
-        db_session.refresh(user)
-
-    # simulate user being disabled
-    user.is_admin = False  # pretend this is "disabled" flag
+    user = User(
+        username="revoked_user",
+        password_hash=_hash_pw("secure_password"),
+        is_admin=False,
+    )
+    db_session.add(user)
     db_session.commit()
+    db_session.refresh(user)
 
     token = _make_token(sub=user.username)
-    _decoded = jwt.decode(token, settings.secret_key, algorithms=[settings.algorithm])
+    db_session.delete(user)
+    db_session.commit()
 
-    # simulate revocation logic — in real app you'd check user.active flag
-    if not user.is_admin:
-        # token still valid cryptographically, but revoked logically
-        access_granted = False
-    else:
-        access_granted = True
-
-    assert not access_granted, "Revoked/disabled user should not be allowed access"
+    response = client.get(
+        "/api/v1/auth/me",
+        headers={"Authorization": f"Bearer {token}"},
+    )
+    assert response.status_code == 401
+    assert response.json().get("code") == "INVALID_CREDENTIALS"
